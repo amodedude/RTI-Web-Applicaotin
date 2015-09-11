@@ -9,11 +9,11 @@
             success: function (jsonData) {
                 var Data = new Array();
                 for (var i = 0 ; i < jsonData.length ; i++) {
-                    var parsedDate1 = new Date(parseInt(jsonData[0].Key.substr(6)));
+                    var parsedDate1 = new Date(parseInt(jsonData[0].Key.substr(6, 13)));
                     var jsDate1 = new Date(parsedDate1);
                     var ConductivityData = new Object();
-                    ConductivityData = jsonData[i];
-                    Data.push(ConductivityData.Value);
+                    ConductivityData = [parseInt(jsonData[i].Key.substr(6, 13)), jsonData[i].Value];
+                    Data.push(ConductivityData);
                 }
                 $('#Conductivity_Source_1').empty();
                 $('#Conductivity_Source_1').highcharts(
@@ -32,7 +32,6 @@
                     },
                     xAxis: {
                         type: 'datetime',
-                        tickInterval: 24 * 3600 * 1000 * 90,
                         title: {
                             text: 'Date'
                         }
@@ -72,8 +71,6 @@
                     },
                     series: [{
                         name: 'Conductivity',
-                        pointInterval: 24 * 3600 * 1000,
-                        pointStart: Date.UTC(jsDate1.getUTCFullYear(), jsDate1.getUTCMonth(), jsDate1.getUTCDay(), 0, 0, 0, 0),
                         data: Data
                     }]
                 });
@@ -88,12 +85,14 @@
                 url: '/Conductivity/ConductivityPlot',
                 data: { USGSID: Source2Id },
                 success: function (jsonData) {
-                    var Data = new Array();
-                    for (var i = 0 ; i < jsonData.length ; i++) {
-                        var ConductivityData = new Object();
-                        ConductivityData = jsonData[i];
-                        Data.push(ConductivityData.Value);
-                    }
+                var Data = new Array();
+                for (var i = 0 ; i < jsonData.length ; i++) {
+                    var parsedDate1 = new Date(parseInt(jsonData[0].Key.substr(6, 13)));
+                    var jsDate1 = new Date(parsedDate1);
+                    var ConductivityData = new Object();
+                    ConductivityData = [parseInt(jsonData[i].Key.substr(6, 13)), jsonData[i].Value];
+                    Data.push(ConductivityData);
+                }
                     $('#Conductivity_Source_2').empty();
                     if (jsonData.length > 0) {
                         var parsedDate2 = new Date(parseInt(jsonData[0].Key.substr(6)));
@@ -151,8 +150,6 @@
                             },
                             series: [{
                                 name: 'Conductivity',
-                                pointInterval: 24 * 3600 * 1000,
-                                pointStart: Date.UTC(jsDate2.getUTCFullYear(), jsDate2.getUTCMonth(), jsDate2.getUTCDay(), 0, 0, 0, 0),
                                 data: Data
                             }]
                         });
@@ -165,9 +162,31 @@
         });
     }
     $(function () {
-        var now = new Date();
-        var utc_timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
         
+        var now = new Date();
+        now.setHours(0, 0, 0, 0);;
+        now.setMinutes(0);
+        
+        var plus1mo = new Date();
+        plus1mo.setMonth((now.getMonth() + 1));
+        plus1mo.setHours(0, 0, 0, 0);
+        plus1mo.setMinutes(0);
+
+        var plus3mo = new Date();
+        plus3mo.setMonth((now.getMonth() + 3));
+        plus3mo.setHours(0, 0, 0, 0);
+        plus3mo.setMinutes(0);
+
+        var plus6mo = new Date();
+        plus6mo.setMonth((now.getMonth() + 6));
+        plus6mo.setHours(0, 0, 0, 0);
+        plus6mo.setMinutes(0);
+
+        var utc_timestamp_today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        var utc_timestamp_1moFromNow = Date.UTC(plus1mo.getFullYear(), plus1mo.getMonth(), plus1mo.getDate(), 0, 0, 0, 0);
+        var utc_timestamp_3moFromNow = Date.UTC(plus3mo.getFullYear(), plus3mo.getMonth(), plus3mo.getDate(), 0, 0, 0, 0);
+        var utc_timestamp_6moFromNow = Date.UTC(plus6mo.getFullYear(), plus6mo.getMonth(), plus6mo.getDate(), 0, 0, 0, 0);
+
         $.ajax({
             type: 'GET',
             url: '/Conductivity/ForecastPlot',
@@ -187,7 +206,23 @@
                 $('#Forecast_Source_1').highcharts('StockChart', {
 
                     rangeSelector: {
-                        selected: 1,
+                        buttons: [{
+                            type: 'month',
+                            count: 1,
+                            text: '1m'
+                        }, {
+                            type: 'month',
+                            count: 3,
+                            text: '3m'
+                        }, {
+                            type: 'month',
+                            count: 6,
+                            text: '6m'
+                        }, {
+                            type: 'all',
+                            text: 'All'
+                        }],
+                        selected: 1
                     },
                     chart: {
                         type: 'spline',
@@ -198,8 +233,30 @@
                     xAxis: {
                         type: 'datetime',
                         tickInterval: 24 * 3600 * 1000 * 21,
+                        min: utc_timestamp_today,
+                        max: utc_timestamp_3moFromNow,
                         title: {
                             text: 'Date'
+                        },
+                        events: {
+                            afterSetExtremes: function (e)
+                            {
+                                if(e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "1m") {
+                                    setTimeout(function () {
+                                        Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_1moFromNow)
+                                    }, 1);
+                                }
+                                else if(e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "3m") {
+                                    setTimeout(function () {
+                                        Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_3moFromNow)
+                                    }, 1);
+                                }
+                                else if(e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "6m") {
+                                    setTimeout(function () {
+                                        Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_6moFromNow)
+                                    }, 1);
+                                }
+                            }
                         }
                     },
                     yAxis: {
@@ -238,13 +295,13 @@
                     series: [{
                         name: 'WorstCase',
                         pointInterval: 24 * 3600 * 1000,
-                        pointStart: utc_timestamp,
+                        pointStart: utc_timestamp_today,
                         data: WorstCase,
                         color: '#FF0000'
                     },{
                         name: 'Expected',
                         pointInterval: 24 * 3600 * 1000,
-                        pointStart: utc_timestamp,
+                        pointStart: utc_timestamp_today,
                         data: BestCase
                     }]
                 });

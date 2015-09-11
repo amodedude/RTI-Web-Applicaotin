@@ -43,9 +43,11 @@
 
                 },
                 yAxis: {
+                    type: 'logarithmic',                  
                     title: {
                         text: 'Cost of Operations'
                     }
+
                 },
                 credits: {
                     enabled: false

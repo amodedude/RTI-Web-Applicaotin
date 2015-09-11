@@ -262,8 +262,31 @@ function LoadConductivityCharts(HasTrainDetails) {
 
         if (Source1Id != "") {
             $(function () {
+
                 var now = new Date();
-                var utc_timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                now.setHours(0, 0, 0, 0);;
+                now.setMinutes(0);
+
+                var plus1mo = new Date();
+                plus1mo.setMonth((now.getMonth() + 1));
+                plus1mo.setHours(0, 0, 0, 0);
+                plus1mo.setMinutes(0);
+
+                var plus3mo = new Date();
+                plus3mo.setMonth((now.getMonth() + 3));
+                plus3mo.setHours(0, 0, 0, 0);
+                plus3mo.setMinutes(0);
+
+                var plus6mo = new Date();
+                plus6mo.setMonth((now.getMonth() + 6));
+                plus6mo.setHours(0, 0, 0, 0);
+                plus6mo.setMinutes(0);
+
+                var utc_timestamp_today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                var utc_timestamp_1moFromNow = Date.UTC(plus1mo.getFullYear(), plus1mo.getMonth(), plus1mo.getDate(), 0, 0, 0, 0);
+                var utc_timestamp_3moFromNow = Date.UTC(plus3mo.getFullYear(), plus3mo.getMonth(), plus3mo.getDate(), 0, 0, 0, 0);
+                var utc_timestamp_6moFromNow = Date.UTC(plus6mo.getFullYear(), plus6mo.getMonth(), plus6mo.getDate(), 0, 0, 0, 0);
+
                 $.ajax({
                     type: 'GET',
                     url: '/Conductivity/ForecastPlot',
@@ -284,6 +307,22 @@ function LoadConductivityCharts(HasTrainDetails) {
                             $('#Forecast_Source_1').highcharts('StockChart', {
 
                                 rangeSelector: {
+                                    buttons: [{
+                                        type: 'month',
+                                        count: 1,
+                                        text: '1m'
+                                    }, {
+                                        type: 'month',
+                                        count: 3,
+                                        text: '3m'
+                                    }, {
+                                        type: 'month',
+                                        count: 6,
+                                        text: '6m'
+                                    }, {
+                                        type: 'all',
+                                        text: 'All'
+                                    }],
                                     selected: 1
                                 },
                                 chart: {
@@ -298,8 +337,29 @@ function LoadConductivityCharts(HasTrainDetails) {
                                 xAxis: {
                                     type: 'datetime',
                                     tickInterval: 24 * 3600 * 1000 * 21,
+                                    min: utc_timestamp_today,
+                                    max: utc_timestamp_3moFromNow,
                                     title: {
                                         text: 'Date'
+                                    },
+                                    events: {
+                                        afterSetExtremes: function (e) {
+                                            if (e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "1m") {
+                                                setTimeout(function () {
+                                                    Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_1moFromNow)
+                                                }, 1);
+                                            }
+                                            else if (e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "3m") {
+                                                setTimeout(function () {
+                                                    Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_3moFromNow)
+                                                }, 1);
+                                            }
+                                            else if (e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "6m") {
+                                                setTimeout(function () {
+                                                    Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_6moFromNow)
+                                                }, 1);
+                                            }
+                                        }
                                     }
                                 },
                                 yAxis: {
@@ -338,13 +398,13 @@ function LoadConductivityCharts(HasTrainDetails) {
                                 series: [{
                                     name: 'WorstCase',
                                     pointInterval: 24 * 3600 * 1000,
-                                    pointStart: utc_timestamp,
+                                    pointStart: utc_timestamp_today,
                                     data: WorstCase,
                                     color: '#FF0000'
                                 }, {
                                     name: 'Expected',
                                     pointInterval: 24 * 3600 * 1000,
-                                    pointStart: utc_timestamp,
+                                    pointStart: utc_timestamp_today,
                                     data: BestCase
                                 }]
                             });

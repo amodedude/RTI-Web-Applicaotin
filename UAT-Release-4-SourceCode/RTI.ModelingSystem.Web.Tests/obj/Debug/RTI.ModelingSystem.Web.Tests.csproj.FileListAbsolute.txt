@@ -64,3 +64,6 @@ C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\bin\
 C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.csprojResolveAssemblyReference.cache
 C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.dll
 C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.pdb
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.csprojResolveAssemblyReference.cache
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.pdb

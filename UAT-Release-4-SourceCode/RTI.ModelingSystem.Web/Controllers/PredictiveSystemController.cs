@@ -293,13 +293,13 @@ namespace RTI.ModelingSystem.Web.Controllers
                     .SetTooltip(new Tooltip
                     {
                         HeaderFormat = "<b>{series.name}</b><br>",
-                        PointFormat = "<b>Week :{point.x:.0f}<br> <b>Salt Split: {point.y:.2f}</b>"
-                        ,
+                        PointFormat = "<b>Week :{point.x:.0f}<br> <b>Salt Split: {point.y:.2f}</b>",
                         Enabled = true
                     })
                     .SetLegend(new Legend
                     {
                         BorderWidth = 1,
+                        Width = 450
                     })
                     .SetXAxis(new XAxis
                     {
@@ -566,24 +566,48 @@ namespace RTI.ModelingSystem.Web.Controllers
                 }
                 noCleanAverage = chartdata2.Length > 0 ? chartdata2.Average() : 0;
                 xaxisMinValue = xseries.Count > 0 ? xseries[0] : 0;
+                
+                // Set up area color fill gradient parameters
+                Gradient gradLine = new Gradient();
+                int[] LinearGradient = new int[] { 0, 0, 0, 300 };
+                gradLine.LinearGradient = LinearGradient;
+                object[,] stops2 = new object[,] { { 0, "#F7EF9B" }, { 1, "#FFFFFF" } };
+                gradLine.Stops = stops2;
+               
                 Series withCleaning = new Series
                 {
-                    Name = "WithCleaning",
+                    Name = "With Cleaning",
                     Data = new Data(chartData_Point1),
+                    PlotOptionsArea = new PlotOptionsArea 
+                    {
+                        FillColor = new BackColorOrGradient(Color.FromArgb(30, 0, 128, 0)),
+                        Color = Color.FromArgb(80, 153, 80)
+                    }
                 };
+
                 Series withoutCleaning = new Series
                 {
-                    Name = "WithoutCleaning",
+                    Name = "Without Cleaning",
                     Data = new Data(chartData_Point2),
+                    PlotOptionsArea = new PlotOptionsArea 
+                    { 
+                        FillColor = new BackColorOrGradient(gradLine), 
+                        Color = System.Drawing.Color.Goldenrod 
+                    }                    
                 };
                 Highcharts chart1 = new Highcharts("chart")
+                    .SetOptions(new GlobalOptions
+                    {
+                        Lang = new DotNet.Highcharts.Helpers.Lang { ThousandsSep = ",", DecimalPoint = "."}
+                    })
                    .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.Xy, SpacingRight = 20 })
                    .SetTitle(new Title { Text = "Throughput Forecast" })
                    .SetTooltip(new Tooltip
                    {
-                       HeaderFormat = "<b>Week :{point.x:.0f}</b><br>",
-                       PointFormat = "<b>{series.name}: {point.y:.2f}</b>",
-                       Enabled = true
+                       HeaderFormat = "<b>Week: {point.x:.0f}</b><br>",
+                       PointFormat = "<b>{series.name}: {point.y:,.2f}</b><br>",
+                       Enabled = true, 
+                       Shared = true
                    })
                    .SetXAxis(new XAxis
                    {
@@ -620,7 +644,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                                }
                            },
                            PointInterval = 1,
-                           PointStart = new PointStart(xaxisMinValue)
+                           PointStart = new PointStart(xaxisMinValue),
                        }
                    })
                    .SetSeries(new[] {  withoutCleaning, withCleaning,
@@ -629,18 +653,18 @@ namespace RTI.ModelingSystem.Web.Controllers
 				       Name = "Replace",                   
 				       Type = ChartTypes.Scatter,
 				       Data = new Data(replacePts.ToArray()),
-				       Color = Color.Blue
+				       Color = Color.Blue,
 				   },
                    new Series
 				   {
 				       Name = "Clean",                   
 				       Type = ChartTypes.Scatter,
 				       Data = new Data(cleanedPts.ToArray()),
-				       Color = Color.Green
-				   },
+				       Color = Color.Red
+                   },
                    new Series
 				   {
-				       Name = "w/t RTI Cleaning Avg.",                   
+				       Name = "Without Cleaning Average",                   
 				       Type = ChartTypes.Spline,
 				       Data = new Data(new[] { new Point
                                                        {
@@ -653,12 +677,18 @@ namespace RTI.ModelingSystem.Web.Controllers
                                                            Y = noCleanAverage,
                                                        }
                                                    }),
-				       Color = Color.LightPink,
-                       PlotOptionsSpline=new PlotOptionsSpline{DashStyle=DashStyles.ShortDash,LineWidth=1}
+				       Color = Color.Goldenrod
+,
+                       PlotOptionsSpline=new PlotOptionsSpline
+                       {
+                           DashStyle=DashStyles.ShortDash,
+                           LineWidth=1,
+                           Marker = new PlotOptionsSplineMarker{Enabled = false},
+                       }
 				     },
                      new Series
 				   {
-				       Name = "w/t RTI Cleaning Avg.",                   
+				       Name = "With Cleaning Average",                   
 				       Type = ChartTypes.Spline,
 				       Data = new Data(new[] { new Point
                                                        {
@@ -671,8 +701,13 @@ namespace RTI.ModelingSystem.Web.Controllers
                                                            Y = cleanAverage,
                                                        }
                                                    }),
-				       Color = Color.LightGreen,
-                       PlotOptionsSpline=new PlotOptionsSpline{DashStyle=DashStyles.ShortDash,LineWidth=1}
+				       Color = Color.ForestGreen,
+                       PlotOptionsSpline=new PlotOptionsSpline
+                       {
+                           DashStyle=DashStyles.ShortDash,
+                           LineWidth=1,
+                           Marker = new PlotOptionsSplineMarker{Enabled = false}
+                       }
 				     }
                    }
                 );
