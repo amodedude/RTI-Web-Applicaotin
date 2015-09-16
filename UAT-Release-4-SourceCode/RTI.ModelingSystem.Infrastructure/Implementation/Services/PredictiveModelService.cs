@@ -264,7 +264,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 int waterDemand = this.predictiveRepository.GetWaterDemand(id);
                 List<train> trainData = new List<train>();
                 List<vessel> vesselData = new List<vessel>();
-                List<TimeSpan> intervalList = new List<TimeSpan>();
+                List<BedNum_Interval> intervalList = new List<BedNum_Interval>();
                 List<double> lbsChemicalList = new List<double>();
                 TimeSpan intervalSum = new TimeSpan();
                 List<double> replacementPlan = new List<double>();
@@ -321,7 +321,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         //numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
                         DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
                         TimeSpan interval = DateTime.Today - purchasedate;
-                        intervalList.Add(interval);
+                        BedNum_Interval bed_interval = new BedNum_Interval();
+                        bed_interval.bed_number = item.bed_number;
+                        bed_interval.span = interval;
+                        intervalList.Add(bed_interval);                        
                         replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                         double lbsChemical = Convert.ToDouble(item.lbs_chemical);
                         
@@ -339,7 +342,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             //numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
                             DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
                             TimeSpan interval = DateTime.Today - purchasedate;
-                            intervalList.Add(interval);
+                            BedNum_Interval bed_interval = new BedNum_Interval();
+                            bed_interval.bed_number = item.bed_number;
+                            bed_interval.span = interval;
+                            intervalList.Add(bed_interval); 
                             replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                             double lbsChemical = Convert.ToDouble(item.lbs_chemical);
                             
@@ -352,15 +358,22 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                     }
                     numberCubicFeet = numCuFt.Sum(); // Use only the number of CubicFt for the Anion Vessel
                 }
+
+                int num_anions = 0;
                 foreach (var span in intervalList)
                 {
-                    intervalSum += span;
+                    // Ensure we are summing only the ANION vesel purchase dates!
+                    if (span.bed_number == "2")
+                    {
+                        intervalSum += span.span;
+                        num_anions++;
+                    }
                 }
 
                 double average = 0;
                 if (intervalList.Count > 0)
                 {
-                    average = intervalSum.TotalMilliseconds / intervalList.Count;
+                    average = intervalSum.TotalMilliseconds / num_anions;
                 }
                 else
                 {
@@ -638,5 +651,11 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
             }
         }
         #endregion Methods
+    }
+
+    // Holds bed number and purchase date time span
+    public class BedNum_Interval{
+        public string bed_number { get; set; }
+        public TimeSpan span { get; set; }
     }
 }

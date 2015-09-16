@@ -365,7 +365,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				currentSaltSplitValue = currentSaltSplit;
 				List<vessel> lstCustomerVessels = new List<vessel>();
 				lstCustomerVessels = predictiveRepository.GetCustomerVessels(Convert.ToInt64(customerId));
-				List<TimeSpan> intervalList = new List<TimeSpan>();
+				List<BedNum_Interval> intervalList = new List<BedNum_Interval>();
 				List<double> vesselSizeList = new List<double>();
 				List<double> lbsChemicalList = new List<double>();
 				TimeSpan intervalSum = new TimeSpan();
@@ -389,7 +389,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						{
 							DateTime purchase_date = Convert.ToDateTime(vesselList.date_replaced, new CultureInfo("en-US", true));
 							TimeSpan interval = DateTime.Today - purchase_date;
-							intervalList.Add(interval);
+                            BedNum_Interval bednum_interval = new BedNum_Interval();
+                            bednum_interval.bed_number = vesselList.bed_number;
+                            bednum_interval.span = interval;
+							intervalList.Add(bednum_interval);
 							replacementPlan.Add(Convert.ToInt32(vesselList.replacement_plan));
 							double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							double vesselSize = Convert.ToDouble(vesselList.size);
@@ -400,7 +403,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						{
 							DateTime purchase_date = Convert.ToDateTime(vesselList.date_replaced, new CultureInfo("en-US", true));
 							TimeSpan interval = DateTime.Today - purchase_date;
-							intervalList.Add(interval);
+                            BedNum_Interval bednum_interval = new BedNum_Interval();
+                            bednum_interval.bed_number = vesselList.bed_number;
+                            bednum_interval.span = interval;
+                            intervalList.Add(bednum_interval);
 							replacementPlan.Add(Convert.ToInt32(vesselList.replacement_plan));
 							double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							double vesselSize = Convert.ToDouble(vesselList.size);
@@ -409,11 +415,20 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						}
 					}
 				}
-				foreach (var span in intervalList)
-				{
-					intervalSum += span;
-				}
-				double average = intervalSum.TotalMilliseconds / intervalList.Count;
+
+                    int anionCount = 0;
+                    foreach (var span in intervalList)
+                    {
+                        // Ensure we are only summing the ANION resin age only
+                        if (span.bed_number == "2")
+                        {
+                            intervalSum += span.span;
+                            anionCount++;
+                        }
+                    }
+
+
+                double average = intervalSum.TotalMilliseconds / anionCount;
 				TimeSpan averageResinAge = new TimeSpan();
 				if (!double.IsNaN(average))
 				{
