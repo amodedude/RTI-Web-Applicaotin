@@ -10,17 +10,6 @@ C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug
 C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.csprojResolveAssemblyReference.cache
 C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
 C:\Users\John\Desktop\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll.config
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.pdb
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.dll
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.dll
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.dll
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.Entity.EF6.dll
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.xml
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.xml
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
 C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll.config
 C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll
 C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.pdb
@@ -56,3 +45,15 @@ C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.M
 C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
 C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
 C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.csprojResolveAssemblyReference.cache
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll.config
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.Entity.EF6.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.xml
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.csprojResolveAssemblyReference.cache
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
