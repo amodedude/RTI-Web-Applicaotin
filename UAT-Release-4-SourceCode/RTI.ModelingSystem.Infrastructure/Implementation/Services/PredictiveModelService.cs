@@ -256,8 +256,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// </summary>
         /// <param name="id">Customer identifier</param>
         /// <param name="selectedTrainId">selected Train Id</param>
-        /// <returns>Retusn list</returns>
-        public List<double> CalculateMinSaltSplit(long id, string selectedTrainId = "0")
+        /// <returns>Returns list</returns>
+        public List<double> CalculateMinSaltSplit(long id, double degredation, string selectedTrainId = "0")
         {
             try
             {
@@ -289,7 +289,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 }
                 if (usingManifold == "NO")
                 {
-                    numberRegens = numberRegenPerTrain.Average();
+                    numberRegens = numberRegenPerTrain.Sum(); // Get the total number of regens for the system
                 }
                 else
                 {
@@ -308,35 +308,49 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         }
 
                     }
-                    numberRegens = numberRegenPerTrain.Average();
+                    numberRegens = numberRegenPerTrain.Sum(); // Get the total number of regens for the system
                 }
+                List<double> numCuFt = new List<double>();
+                int vesselNumber = 0;
                 foreach (var item in vesselData)
                 {
+                    vesselNumber++;
                     if (selectedTrainId == "0")
                     {
-                        numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
+                        
+                        //numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
                         DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
                         TimeSpan interval = DateTime.Today - purchasedate;
                         intervalList.Add(interval);
                         replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                         double lbsChemical = Convert.ToDouble(item.lbs_chemical);
-                        lbsChemicalList.Add(lbsChemical);
-
+                        
+                        if (vesselNumber % 2 != 0)
+                        {  // Only the anion vessels
+                            numCuFt.Add(Convert.ToDouble(item.size));
+                            lbsChemicalList.Add(lbsChemical);
+                        }
                     }
                     else
                     {
                         if (item.train_trainID == Convert.ToInt32(selectedTrainId))
                         {
-                            numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
+                            
+                            //numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
                             DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
                             TimeSpan interval = DateTime.Today - purchasedate;
                             intervalList.Add(interval);
                             replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                             double lbsChemical = Convert.ToDouble(item.lbs_chemical);
-                            lbsChemicalList.Add(lbsChemical);
+                            
+                            if (vesselNumber % 2 != 0)
+                            {  // Only the anion vessels
+                                numCuFt.Add(Convert.ToDouble(item.size));
+                                lbsChemicalList.Add(lbsChemical);
+                            }
                         }
                     }
-
+                    numberCubicFeet = numCuFt.Sum(); // Use only the number of CubicFt for the Anion Vessel
                 }
                 foreach (var span in intervalList)
                 {

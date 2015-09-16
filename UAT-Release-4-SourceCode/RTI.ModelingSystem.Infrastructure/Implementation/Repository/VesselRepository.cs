@@ -16,6 +16,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
     using System.Collections.Generic;
     using System.Linq;
 
+
     #endregion Usings
 
     /// <summary>
@@ -95,7 +96,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
                                       vessel_customerID = r.vessel_customerID,
                                       train_trainID = r.train_trainID,
                                       resin_data_product_id = r.resin_data_product_id,
-                                      price_per_cuft = rp.price_per_cuft,
+                                      price_per_cuft = r.price_cuft_resin,
                                       salt_split_CAP = rp.salt_split_CAP,
                                       Salt_Split = r.Salt_Split
                                   }).ToList();
@@ -121,7 +122,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
                         vessel_customerID = item.vessel_customerID,
                         train_trainID = item.train_trainID,
                         resin_data_product_id = item.resin_data_product_id,
-                        price_per_cuft = item.price_per_cuft,
+                        price_per_cuft = Convert.ToString(item.price_per_cuft),
                         salt_split_CAP = item.salt_split_CAP,
                         Salt_Split = item.Salt_Split
                     });
@@ -226,8 +227,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
         /// <param name="vesselObj">Vessel parameter</param>
         public void UpdateVessel(vessel vesselObj)
         {
-            try
-            {
+
                 var VesselDB = bContext.vessels != null ? (from V in bContext.vessels
                                                            where V.vesselID == vesselObj.vesselID && V.train_trainID == vesselObj.train_trainID
                                                            select V).FirstOrDefault()
@@ -246,11 +246,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
                     InsertVessel(vesselObj);
                     rtiContext.SaveChanges();
                 }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+
         }
 
         /// <summary>

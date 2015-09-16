@@ -41,16 +41,16 @@ namespace RTI.ModelingSystem.Core.DBModels
         [DisplayName("Vessel name")]
         [Required]
         public string name { get; set; }
-        /// <summary>
-        /// Gets or sets the size.
+        /// /// <summary>
+        /// Gets or sets the price_per_cuft.
         /// </summary>
         /// <value>
-        /// The size.
+        /// The price_per_cuft.
         /// </value>
+        [NotMapped]
         [DisplayName("Resin price (ft3)")]
-        [Required]
         [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "Resin price (ft3) must be decimal")]
-        public string size { get; set; }
+        public string price_per_cuft { get; set; }
         /// <summary>
         /// Gets or sets the bed_number.
         /// </summary>
@@ -105,10 +105,20 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// <value>
         /// The num_regens.
         /// </value>
+        [DisplayName("Regens/mo.")]
+        [Required]
+        [RegularExpression("([0-9][0-9]*)", ErrorMessage = "Regens/mo. must be an integer")]
+        public string num_regens { get; set; }
+        /// <summary>
+        /// Gets or sets the size.
+        /// </summary>
+        /// <value>
+        /// The size.
+        /// </value>
         [DisplayName("(ft3) of Resin")]
         [Required]
         [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "(ft3) of Resin must be decimal")]
-        public string num_regens { get; set; }
+        public string size { get; set; }
         /// <summary>
         /// Gets or sets the toc.
         /// </summary>
@@ -151,6 +161,16 @@ namespace RTI.ModelingSystem.Core.DBModels
         [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "Salt Split must be decimal")]
         public double Salt_Split { get; set; }
         /// <summary>
+        /// Gets or sets the salt_ split.
+        /// </summary>
+        /// <value>
+        /// The salt_ split.
+        /// </value>
+        [DisplayName("Resin Price")]
+        [Required]
+        [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "Resin price must be decimal")]
+        public double price_cuft_resin { get; set; }
+        /// <summary>
         /// Gets or sets the train_train identifier.
         /// </summary>
         /// <value>
@@ -166,7 +186,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// The resin_data_product_id.
         /// </value>
         [Key]
-        [Column(Order = 2)]        
+        [Column(Order = 2)]
         public int resin_data_product_id { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="vessel"/> is degasifier.
@@ -184,14 +204,6 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// </value>
         [NotMapped]
         public bool Polisher { get; set; }
-        /// <summary>
-        /// Gets or sets the price_per_cuft.
-        /// </summary>
-        /// <value>
-        /// The price_per_cuft.
-        /// </value>
-        [NotMapped]
-        public string price_per_cuft { get; set; }
         /// <summary>
         /// Gets or sets the salt_split_ cap.
         /// </summary>
@@ -214,7 +226,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// <value>
         /// The resin model.
         /// </value>
-        [NotMapped]            
+        [NotMapped]
         public string ResinModel { get; set; }
         /// <summary>
         /// Gets or sets the resin data.
@@ -222,7 +234,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// <value>
         /// The resin data.
         /// </value>
-        [NotMapped]        
-        public string ResinData { get; set; } 
+        [NotMapped]
+        public string ResinData { get; set; }
     }
 }

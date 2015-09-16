@@ -21,3 +21,38 @@ C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingS
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.xml
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll.config
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.Entity.EF6.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll.config
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.pdb
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.Entity.EF6.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.xml
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.xml
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.csprojResolveAssemblyReference.cache
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll.config
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\MySql.Data.Entity.EF6.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.xml
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Core\obj\Debug\RTI.ModelingSystem.Core.csprojResolveAssemblyReference.cache

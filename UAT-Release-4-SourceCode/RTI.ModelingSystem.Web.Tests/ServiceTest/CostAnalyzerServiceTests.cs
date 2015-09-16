@@ -145,7 +145,7 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 		[TestMethod]
 		public void GetCostAnalyzerResultsData()
 		{
-			double week = 1;
+			//double week = 1;
 			ICostAnalyzerService service = new CostAnalyzerService(mockedCustRepository.Object, mockedTrainRepository.Object);
 			var returnObj = service.GetCostAnalyzerResultsData();
 			Assert.IsNotNull(returnObj);

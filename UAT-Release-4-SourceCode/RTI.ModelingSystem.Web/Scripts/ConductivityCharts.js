@@ -46,7 +46,8 @@
                     },
                     tooltip: {
                         shared: true,
-                        crosshairs: true
+                        crosshairs: true,
+                        pointFormat: '<b>{series.name}: {point.y:,.2f}</b><br>'
                     },
                     plotOptions: {
                         series: {
@@ -95,7 +96,7 @@
                 }
                     $('#Conductivity_Source_2').empty();
                     if (jsonData.length > 0) {
-                        var parsedDate2 = new Date(parseInt(jsonData[0].Key.substr(6)));
+                        var parsedDate2 = new Date(parseInt(jsonData[0].Key.substr(6, 13)));
                         var jsDate2 = new Date(parsedDate2);
                         $('#Conductivity_Source_2').highcharts('StockChart', {
 
@@ -110,7 +111,6 @@
                             },
                             xAxis: {
                                 type: 'datetime',
-                                tickInterval: 24 * 3600 * 1000 * 90,
                                 title: {
                                     text: 'Date'
                                 }
@@ -125,7 +125,8 @@
                             },
                             tooltip: {
                                 shared: true,
-                                crosshairs: true
+                                crosshairs: true,
+                                pointFormat: '<b>{series.name}: {point.y:,.2f}</b><br>'
                             },
                             plotOptions: {
                                 series: {
@@ -162,11 +163,11 @@
         });
     }
     $(function () {
-        
+
         var now = new Date();
         now.setHours(0, 0, 0, 0);;
         now.setMinutes(0);
-        
+
         var plus1mo = new Date();
         plus1mo.setMonth((now.getMonth() + 1));
         plus1mo.setHours(0, 0, 0, 0);
@@ -228,7 +229,7 @@
                         type: 'spline',
                         zoomType: 'x',
                         width: 630,
-                        height: 300
+                        height: 300,
                     },
                     xAxis: {
                         type: 'datetime',
@@ -239,21 +240,55 @@
                             text: 'Date'
                         },
                         events: {
-                            afterSetExtremes: function (e)
-                            {
-                                if(e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "1m") {
+                            afterSetExtremes: function (e) {
+                                if (e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "1m") {
                                     setTimeout(function () {
-                                        Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_1moFromNow)
+
+                                        // Find the index of the forecast chart (needed to find the correct index when there are TWO sources!)
+                                        var numOfCharts = Highcharts.charts.length;
+                                        var chartIndex; 
+                                        for (var i = 0; i < numOfCharts; i++) {
+                                            if (Highcharts.charts[i].series[0].name == "WorstCase") {
+                                                chartIndex = i;
+                                                break;
+                                            }
+                                        }
+                                        // Set the proper timespan                                         
+                                        Highcharts.charts[chartIndex].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_1moFromNow);
+                                        
                                     }, 1);
                                 }
-                                else if(e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "3m") {
+                                else if (e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "3m") {
                                     setTimeout(function () {
-                                        Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_3moFromNow)
-                                    }, 1);
+                                        // Find the index of the forecast chart (needed to find the correct index when there are TWO sources!)
+                                        var numOfCharts = Highcharts.charts.length;
+                                        var chartIndex;
+                                        for (var i = 0; i < numOfCharts; i++) {
+                                            if (Highcharts.charts[i].series[0].name == "WorstCase") {
+                                                chartIndex = i;
+                                                break;
+                                            }
+                                        }
+                                        // Set the proper timespan  
+                                        Highcharts.charts[chartIndex].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_3moFromNow);
+                                        
+                                    }, 1)
                                 }
-                                else if(e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "6m") {
+                                else if (e.trigger == "rangeSelectorButton" && e.rangeSelectorButton.text == "6m") {
                                     setTimeout(function () {
-                                        Highcharts.charts[1].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_6moFromNow)
+                                        
+                                        // Find the index of the forecast chart (needed to find the correct index when there are TWO sources!)
+                                        var numOfCharts = Highcharts.charts.length;
+                                        var chartIndex;
+                                        for (var i = 0; i < numOfCharts; i++) {
+                                            if (Highcharts.charts[i].series[0].name == "WorstCase") {
+                                                chartIndex = i;
+                                                break;
+                                            }
+                                        }
+                                        // Set the proper timespan  
+                                        Highcharts.charts[chartIndex].xAxis[0].setExtremes(utc_timestamp_today, utc_timestamp_6moFromNow)
+                                        
                                     }, 1);
                                 }
                             }
@@ -277,12 +312,12 @@
                             point: {
                                 events: {
                                     click: function (e) {
-                                        
+
                                     }
                                 }
                             },
                             marker: {
-                                enabled:false,
+                                enabled: false,
                                 lineWidth: 1
                             }
                         }
@@ -298,7 +333,7 @@
                         pointStart: utc_timestamp_today,
                         data: WorstCase,
                         color: '#FF0000'
-                    },{
+                    }, {
                         name: 'Expected',
                         pointInterval: 24 * 3600 * 1000,
                         pointStart: utc_timestamp_today,

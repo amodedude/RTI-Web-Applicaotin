@@ -21,3 +21,24 @@ D:\RTISolution\RTI.ModelingSystem\TestUI\bin\System.Web.Mvc.xml
 D:\RTISolution\RTI.ModelingSystem\TestUI\obj\Debug\TestUI.csprojResolveAssemblyReference.cache
 D:\RTISolution\RTI.ModelingSystem\TestUI\obj\Debug\TestUI.dll
 D:\RTISolution\RTI.ModelingSystem\TestUI\obj\Debug\TestUI.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\TestUI.dll.config
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\TestUI.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\TestUI.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Helpers.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Mvc.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Razor.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Webpages.Deployment.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Webpages.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Webpages.Razor.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\StructureMap.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\StructureMap.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\StructureMap.Net4.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Razor.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Webpages.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Webpages.Deployment.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Webpages.Razor.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Helpers.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\bin\System.Web.Mvc.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\obj\Debug\TestUI.csprojResolveAssemblyReference.cache
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\obj\Debug\TestUI.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\TestUI\obj\Debug\TestUI.pdb

@@ -26,3 +26,45 @@ C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingS
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.csprojResolveAssemblyReference.cache
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.dll
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.dll.config
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Interfaces.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Interfaces.pdb
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.csprojResolveAssemblyReference.cache
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.dll
+C:\Users\amode_000\Desktop\RTI APPLICATION\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.pdb
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.dll.config
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.pdb
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.SqlServer.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Core.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Interfaces.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Core.pdb
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Interfaces.pdb
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.xml
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.SqlServer.xml
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.csprojResolveAssemblyReference.cache
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.dll
+\\192.168.1.3\Users Shared Folders\agsuser\UAT-Issues-Tracker\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.dll.config
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Infrastructure.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Core.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Interfaces.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Core.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\RTI.ModelingSystem.Interfaces.pdb
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.xml
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.csprojResolveAssemblyReference.cache
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.dll
+C:\Users\John\Desktop\9-14-15\RTI-Web-Applicaotin\UAT-Release-4-SourceCode\RTI.ModelingSystem.Infrastructure\obj\Debug\RTI.ModelingSystem.Infrastructure.pdb

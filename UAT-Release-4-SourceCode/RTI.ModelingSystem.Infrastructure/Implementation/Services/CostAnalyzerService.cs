@@ -169,8 +169,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                     calculationParameters.CausticPriceConversion = 1;
                     calculationParameters.CationCleaningPrice = 32;
                     calculationParameters.AnionCleaningPrice = 52;
-                    calculationParameters.ReplacementPriceAnion = 90;
-                    calculationParameters.ReplacemtntPriceCation = 70;
+                    calculationParameters.ReplacementPriceAnion = 70;
+                    calculationParameters.ReplacemtntPriceCation = 170;
                     calculationParameters.AnionAmount = amountAnion;
                     calculationParameters.CationAmount = amountCation;
                     calculationParameters.AmountOfAcid = lbsAcid;
@@ -187,8 +187,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                     calculationParameters.CausticPriceConversion = 1;
                     calculationParameters.CationCleaningPrice = 32;
                     calculationParameters.AnionCleaningPrice = 52;
-                    calculationParameters.ReplacementPriceAnion = 90;
-                    calculationParameters.ReplacemtntPriceCation = 70;
+                    calculationParameters.ReplacementPriceAnion = 70;
+                    calculationParameters.ReplacemtntPriceCation = 170;
                     calculationParameters.AnionAmount = amountAnion;
                     calculationParameters.CationAmount = amountCation;
                     calculationParameters.AmountOfAcid = lbsAcid;

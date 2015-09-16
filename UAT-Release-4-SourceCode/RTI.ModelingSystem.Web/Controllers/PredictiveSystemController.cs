@@ -235,7 +235,7 @@ namespace RTI.ModelingSystem.Web.Controllers
             try
             {
                 Dictionary<double, double> currentSS = new Dictionary<double, double>();
-                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), selectedTrain);
+                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), maxDegSS, selectedTrain);
                 double minimumSaltSplit = minimumSS[0];
                 double dblResinAge;
                 if (avgResinage == 0)
@@ -448,7 +448,7 @@ namespace RTI.ModelingSystem.Web.Controllers
             {
                 var customerId = this.Session["CustomerId"].ToString();
                 string calculationMethod = SetSimMethod(simMethod);
-                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), SelectedTrain);
+                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), MaxDegradation, SelectedTrain);
                 double minimumSaltSplit = minimumSS[0];
                 double dblResinAge = 0;
                 if (resinAge == 0)
@@ -600,12 +600,15 @@ namespace RTI.ModelingSystem.Web.Controllers
                     {
                         Lang = new DotNet.Highcharts.Helpers.Lang { ThousandsSep = ",", DecimalPoint = "."}
                     })
-                   .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.Xy, SpacingRight = 20 })
+                   .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.X, SpacingRight = 20})
                    .SetTitle(new Title { Text = "Throughput Forecast" })
                    .SetTooltip(new Tooltip
                    {
                        HeaderFormat = "<b>Week: {point.x:.0f}</b><br>",
-                       PointFormat = "<b>{series.name}: {point.y:,.2f}</b><br>",
+                       //PointFormat = "<b><span style=\"color:this.data.marker.fillcolor\">{series.name}: {point.y:,.2f}</b></span><br>",
+
+                       // Use javascript function to control the tool tip coloring, to add a week number display, and to add thousands place seperartors 
+                       Formatter = @"function() {var s = [];var X = '';$.each(this.points, function(index,point){if((index%2)==0){s.push('<span style=""color:#E6B800;font-weight:bold;"">'+ point.series.name + ' : <span>' + '<b style=""font-weight:bold;"">' + point.y.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "","") + '</b>');}else{s.push('<span style=""color:#509950;font-weight:bold;"">'+ point.series.name + ' : <span>' + '<b style=""font-weight:bold;"">' + point.y.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "","") + '</b>');}X = point.x;});var header = '<span style=""font-weight:bold;"">Week: ' + X.toString() + '<span>';  s.splice(0, 0, header); var temp1 = s[1];var temp2 = s[2];s[1] = temp2;s[2] = temp1;if(s.length >= 5){temp1 = s[4];temp2 = s[3];s[4] = temp2;s[3] = temp1;}return s.join('<br>');}",
                        Enabled = true, 
                        Shared = true
                    })
@@ -613,7 +616,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                    {
                        Title = new XAxisTitle { Text = "Number of Weeks" },
                        Type = AxisTypes.Linear,
-                       MinRange = xaxisMinValue,
+                       MinRange = 0,
                        Min = xaxisMinValue,
                        Max = xaxisMaxValue,
                        TickInterval = 20,

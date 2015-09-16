@@ -438,6 +438,7 @@
     <Content Include="Views\CostAnalyzer\_CostAnalyzerResultsTable.cshtml" />
     <Content Include="Views\Shared\_TrainChangeConfirm.cshtml" />
     <Content Include="Views\Shared\TrainChangesPopUP.cshtml" />
+    <Content Include="Views\ClientDatabase\TrainSettings.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
