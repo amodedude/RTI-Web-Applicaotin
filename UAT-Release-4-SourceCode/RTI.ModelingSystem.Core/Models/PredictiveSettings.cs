@@ -7,7 +7,7 @@
 
 namespace RTI.ModelingSystem.Core.Models
 {
-    public class PredictiveSettings
+    public static class PredictiveSettings
     {
         /// <summary>
         /// Gets or sets the resin life expectancy.
@@ -15,7 +15,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The resin life expectancy.
         /// </value>
-        public int ResinLifeExpectancy { get; set; }
+        public static int ResinLifeExpectancy { get; set; }
 
         /// <summary>
         /// Gets or sets the average resin age.
@@ -23,7 +23,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The average resin age.
         /// </value>
-        public int AvgResinAge { get; set; }
+        public static int AvgResinAge { get; set; }
 
         /// <summary>
         /// Gets or sets the new resin salt split.
@@ -31,7 +31,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The new resin salt split.
         /// </value>
-        public int NewResinSaltSplit { get; set; }
+        public static int NewResinSaltSplit { get; set; }
 
         /// <summary>
         /// Gets or sets the regen effectiveness.
@@ -39,7 +39,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The regen effectiveness.
         /// </value>
-        public decimal RegenEffectiveness { get; set; }
+        public static decimal RegenEffectiveness { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum degradation.
@@ -47,7 +47,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The maximum degradation.
         /// </value>
-        public decimal MaxDegradation { get; set; }
+        public static decimal MaxDegradation { get; set; }
 
         /// <summary>
         /// Gets or sets the rticleaning threshold.
@@ -55,7 +55,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The rticleaning threshold.
         /// </value>
-        public decimal RticleaningThreshold { get; set; }
+        public static decimal RticleaningThreshold { get; set; }
 
         /// <summary>
         /// Gets or sets the resin replacement level.
@@ -63,7 +63,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The resin replacement level.
         /// </value>
-        public decimal ResinReplacementLevel { get; set; }
+        public static decimal ResinReplacementLevel { get; set; }
 
         /// <summary>
         /// Gets or sets the source predictibilty.
@@ -71,7 +71,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The source predictibilty.
         /// </value>
-        public decimal SourcePredictibilty { get; set; }
+        public static decimal SourcePredictibilty { get; set; }
 
         /// <summary>
         /// Gets or sets the no of iterations.
@@ -79,7 +79,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The no of iterations.
         /// </value>
-        public int NoOfIterations { get; set; }
+        public static int NoOfIterations { get; set; }
 
         /// <summary>
         /// Gets or sets the standard deviation interval.
@@ -87,7 +87,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The standard deviation interval.
         /// </value>
-        public int StandardDeviationInterval { get; set; }
+        public static int StandardDeviationInterval { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [replace resin].
@@ -95,7 +95,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         ///   <c>true</c> if [replace resin]; otherwise, <c>false</c>.
         /// </value>
-        public bool ReplaceResin { get; set; }
+        public static bool ReplaceResin { get; set; }
 
         /// <summary>
         /// Gets or sets the calculation method.
@@ -103,7 +103,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The calculation method.
         /// </value>
-        public string CalculationMethod { get; set; }
+        public static string CalculationMethod { get; set; }
 
         /// <summary>
         /// Gets or sets the train identifier.
@@ -111,6 +111,14 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The train identifier.
         /// </value>
-        public int TrainId { get; set; }
+        public static int TrainId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cleaning effectiveness.
+        /// </summary>
+        /// <value>
+        /// The cleaning effectiveness.
+        /// </value>
+        public static int CleaningEffectiveness { get; set; }
     }
 }

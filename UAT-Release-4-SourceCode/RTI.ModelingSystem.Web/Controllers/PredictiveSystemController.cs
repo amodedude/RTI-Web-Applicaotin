@@ -27,6 +27,8 @@ namespace RTI.ModelingSystem.Web.Controllers
 
     #endregion Usings
 
+   
+     
     /// <summary>
     /// PredictiveSystemController class
     /// </summary>
@@ -231,9 +233,34 @@ namespace RTI.ModelingSystem.Web.Controllers
                 var customerID = Convert.ToInt64(this.Session["CustomerId"]);
                 PredictiveModlePerformanceSettings paramaters = new PredictiveModlePerformanceSettings();
 
+                //// Set all of the default values for the performance settings table 
+                //paramaters.resin_life_expectancy = PredictiveSettings.ResinLifeExpectancy;
+                //paramaters.resin_age = PredictiveSettings.AvgResinAge;
+                //paramaters.new_resin_SS = PredictiveSettings.NewResinSaltSplit;
+                //paramaters.dont_replace_resin = PredictiveSettings.ReplaceResin;
+                //paramaters.max_degredation = PredictiveSettings.MaxDegradation;
+                //paramaters.cleaning_efffectiveness = PredictiveSettings.CleaningEffectiveness;
+                //paramaters.threshold_cleaning = PredictiveSettings.RticleaningThreshold;
+                //paramaters.threshold_replacement = PredictiveSettings.ResinReplacementLevel;
+                //paramaters.source_predictability = PredictiveSettings.SourcePredictibilty;
+                //paramaters.number_of_iterations = PredictiveSettings.NoOfIterations;
+                //paramaters.std_deviation_interval = PredictiveSettings.StandardDeviationInterval;
+
+
                 // Set all of the default values for the performance settings table 
-                paramaters.max_degredation = 13;
-               // paramaters
+                paramaters.resin_life_expectancy = 312;
+                paramaters.resin_age = 156;
+                paramaters.new_resin_SS = 25;
+                paramaters.dont_replace_resin = false;
+                paramaters.max_degredation = 62;
+                paramaters.regen_effectiveness = 99.75;
+                paramaters.cleaning_efffectiveness = 28;
+                paramaters.threshold_cleaning = 17;
+                paramaters.threshold_replacement = 10;
+                paramaters.source_predictability = 95;
+                paramaters.number_of_iterations = 100;
+                paramaters.std_deviation_interval = 2;
+               
                 return Json(paramaters, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
