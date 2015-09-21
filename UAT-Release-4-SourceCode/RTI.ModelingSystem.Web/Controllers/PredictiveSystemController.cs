@@ -22,6 +22,7 @@ namespace RTI.ModelingSystem.Web.Controllers
     using RTI.ModelingSystem.Core.Interfaces.Repository;
     using RTI.ModelingSystem.Core.Interfaces.Services;
     using RTI.ModelingSystem.Core.Models;
+    using RTI.ModelingSystem.Web.Models;
     using Point = DotNet.Highcharts.Options.Point;
 
     #endregion Usings
@@ -218,6 +219,30 @@ namespace RTI.ModelingSystem.Web.Controllers
                 throw;
             }
         }
+
+        /// <summary>
+        /// Returns the appropriate slider values set in the slider class
+        /// </summary>
+        /// <returns>Returns slider settings class</returns>
+        public ActionResult GetSliderValues()
+        {
+            try
+            {
+                var customerID = Convert.ToInt64(this.Session["CustomerId"]);
+                PredictiveModlePerformanceSettings paramaters = new PredictiveModlePerformanceSettings();
+
+                // Set all of the default values for the performance settings table 
+                paramaters.max_degredation = 13;
+               // paramaters
+                return Json(paramaters, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
 
         /// <summary>
         /// Fetches the salt split chart data.

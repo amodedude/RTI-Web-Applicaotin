@@ -79,17 +79,27 @@ jQuery(document).ready(function () {
     });
     $("#regenEffectiveness").text($("#regenEffectivenessSlider").slider("value") + "%");
 
-    $("#maxDegradationSlider").slider({
-        range: "min",
-        value: 62,
-        min: 0,
-        max: 100,
-        step: .25,
-        slide: function (event, ui) {
-            $("#maxDegradation").text(ui.value + "%");
+
+    $.ajax({
+        url: '/PredictiveSystem/GetSliderValues',
+        type: "GET",
+        cache: false,
+        success: function (settings_class) {
+            $("#maxDegradationSlider").slider({
+                range: "min",
+                value: settings_class.max_degredation,
+                min: 0,
+                max: 100,
+                step: .25,
+                slide: function (event, ui) {
+                    $("#maxDegradation").text(ui.value + "%");
+                }
+            });
+            $("#maxDegradation").text($("#maxDegradationSlider").slider("value") + "%");
         }
     });
-    $("#maxDegradation").text($("#maxDegradationSlider").slider("value") + "%");
+
+
 
     $("#RTIcleaningThresholdSlider").slider({
         range: "min",
