@@ -161,10 +161,10 @@ namespace RTI.ModelingSystem.Core.DBModels
         [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "Salt Split must be decimal")]
         public double Salt_Split { get; set; }
         /// <summary>
-        /// Gets or sets the salt_ split.
+        /// Gets or sets the resin price.
         /// </summary>
         /// <value>
-        /// The salt_ split.
+        /// The Resin Price.
         /// </value>
         [DisplayName("Resin Price")]
         [Required]
