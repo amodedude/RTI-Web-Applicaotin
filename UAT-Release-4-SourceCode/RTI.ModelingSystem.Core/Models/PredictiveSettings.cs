@@ -15,6 +15,13 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The resin life expectancy.
         /// </value>
+        public static bool SessionPerformanceSettingsSet { get; set; }
+        /// <summary>
+        /// Gets or sets the resin life expectancy.
+        /// </summary>
+        /// <value>
+        /// The resin life expectancy.
+        /// </value>
         public static int ResinLifeExpectancy { get; set; }
 
         /// <summary>

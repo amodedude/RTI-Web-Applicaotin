@@ -27,8 +27,8 @@ namespace RTI.ModelingSystem.Web.Controllers
 
     #endregion Usings
 
-   
-     
+
+
     /// <summary>
     /// PredictiveSystemController class
     /// </summary>
@@ -40,7 +40,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <summary>
         /// New System Conditions
         /// </summary>
-        public static SystemConditions newSystemConditions  = new SystemConditions();
+        public static SystemConditions newSystemConditions = new SystemConditions();
 
         /// <summary>
         /// modified Predictive Repository
@@ -97,7 +97,7 @@ namespace RTI.ModelingSystem.Web.Controllers
             this.customerRepository = customerRepository;
             this.modifiedCustomerRepository = modifiedCustomerRepository;
             this.vesselRepository = vesselRepository;
-            this.trainRepository = trainRepository; 
+            this.trainRepository = trainRepository;
         }
 
         #endregion Constructor
@@ -120,6 +120,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <returns>Returns the Predictive System Performance view</returns>
         public ActionResult PredictiveSystemPerformance()
         {
+
             long customerId = 0;
             if (this.Session["CustomerId"] != null)
             {
@@ -188,6 +189,35 @@ namespace RTI.ModelingSystem.Web.Controllers
                 WaterStatisticsViewModel objWaterStatisticsViewModel = new WaterStatisticsViewModel();
                 objWaterStatisticsViewModel = this.modifiedPredictiveRepository.GetWaterStatistics(customerId);
                 ssvmDetails.waterStatisticsViewModeldetails = objWaterStatisticsViewModel;
+
+
+                string selectedTrain = this.Session["SelectedTrain"].ToString();
+                if (selectedTrain != "All Trains")
+                {
+                    List<double> anion_replacement_plans = new List<double>();
+                    List<double> resin_age = new List<double>();
+                    // Get the list of vessels
+                    List<vessel> vessels = this.vesselRepository.GetAll().Where(p => p.vessel_customerID == (customerId).ToString()).ToList();
+                    // Load in the initial system performace statistics
+                    if (PredictiveSettings.SessionPerformanceSettingsSet == false)
+                    {
+                        foreach (var vessel in vessels)
+                        {
+                            if(vessel.vessel_number%2 == 0){ // Get data only for the Anion vessels
+                                anion_replacement_plans.Add(Convert.ToInt32(vessel.replacement_plan));
+
+                                // Calculate the resin age in weeks
+                                DateTime dateReplaced = DateTime.Parse(vessel.date_replaced);
+                                DateTime now = DateTime.Now;
+                                TimeSpan resinAgeSpan = TimeSpan.FromMilliseconds((now - dateReplaced).TotalMilliseconds);
+                                double resinAgeInWeeks = (resinAgeSpan.TotalDays / 7); // resin age in weeks
+
+
+                        }
+                        }
+                    }
+                }
+
             }
             catch (Exception)
             {
@@ -208,11 +238,18 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="IsDashboard">IsDashboard flag</param>
         /// <returns>Returns the View</returns>
         [OutputCache(Duration = 0, VaryByParam = "none")]
-        public ActionResult PlotSaltSplitChart(double numWeeks = 364.0, double AvgResinage = 0, double startingSS = 25.0, double maxDegSS = 62.0, string SelectedTrain = "0", double CleaningEffectiveness = 28.0, bool IsDashboard = false)
+        public ActionResult PlotSaltSplitChart(double? numWeeks, double? AvgResinage, double? startingSS, double? maxDegSS, string SelectedTrain = "0", double? CleaningEffectiveness = null, bool IsDashboard = false)
         {
+            // If the sliders return null values, than use the default values from the Predictive settings class
+            double life_expectancy = numWeeks == null ? PredictiveSettings.ResinLifeExpectancy : (double)numWeeks;
+            double average_resin_age = AvgResinage == null ? PredictiveSettings.AvgResinAge : (double)AvgResinage;
+            double starting_SS = startingSS == null ? PredictiveSettings.NewResinSaltSplit : (double)startingSS;
+            double max_degredation = maxDegSS == null ? Convert.ToDouble(PredictiveSettings.MaxDegradation) : (double)maxDegSS;
+            double cleaningEffectiveness = CleaningEffectiveness == null ? Convert.ToDouble(PredictiveSettings.CleaningEffectiveness) : (double)CleaningEffectiveness;
+
             try
             {
-                Highcharts chart = this.FetchSaltSplitChartData(numWeeks, AvgResinage, startingSS, maxDegSS, SelectedTrain, CleaningEffectiveness, IsDashboard);
+                Highcharts chart = this.FetchSaltSplitChartData(life_expectancy, average_resin_age, starting_SS, cleaningEffectiveness, SelectedTrain, cleaningEffectiveness, IsDashboard);
                 this.Session["SelectedTrain"] = SelectedTrain;
                 return this.PartialView("_SaltSplitChart", chart);
             }
@@ -260,7 +297,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                 paramaters.source_predictability = 95;
                 paramaters.number_of_iterations = 100;
                 paramaters.std_deviation_interval = 2;
-               
+
                 return Json(paramaters, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -494,32 +531,30 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="IsDashboard">IsDashboard flag</param>
         /// <returns>Returns the view</returns>
         [OutputCache(Duration = 0, VaryByParam = "none")]
-        public ActionResult ThroughputChart(double startingSS = 25.0, double resinLifeExpectancy = 364, int simulationconfidence = 95, int num_simulation_iterations = 100, string simMethod = "Modal value", int stdDev_threshold = 2, double resinAge = 0, double MaxDegradation = 62.0, double Replacement_Level = 10, double RTIcleaning_Level = 17.0, double ReGen_effectivness = 99.75, string SelectedTrain = "0", bool DontReplaceResin = false, double CleaningEffectiveness = 28.0, bool IsDashboard = false)
+        public ActionResult ThroughputChart(double? startingSS, double? resinLifeExpectancy, int simulationconfidence = 95, int num_simulation_iterations = 100, string simMethod = "Modal value", int stdDev_threshold = 2, double resinAge = double.MinValue, double? MaxDegradation, double Replacement_Level = 10, double RTIcleaning_Level = 17.0, double ReGen_effectivness = 99.75, string SelectedTrain = "0", bool DontReplaceResin = false, double CleaningEffectiveness = 28.0, bool IsDashboard = false)
         {
+            // If the sliders return null values, than use the default values from the Predictive settings class
+            double life_expectancy = resinLifeExpectancy == null ? PredictiveSettings.ResinLifeExpectancy : (double)resinLifeExpectancy;
+            double average_resin_age = resinAge == double.MinValue ? PredictiveSettings.AvgResinAge : (double)resinAge;
+            double starting_SS = startingSS == null ? PredictiveSettings.NewResinSaltSplit : (double)startingSS;
+            double max_degredation = MaxDegradation == null ? Convert.ToDouble(PredictiveSettings.MaxDegradation) : (double)MaxDegradation;
+            double cleaningEffectiveness = CleaningEffectiveness == null ? Convert.ToDouble(PredictiveSettings.CleaningEffectiveness) : (double)CleaningEffectiveness;
+
             try
             {
                 var customerId = this.Session["CustomerId"].ToString();
                 string calculationMethod = SetSimMethod(simMethod);
-                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), MaxDegradation, SelectedTrain);
+                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), max_degredation, SelectedTrain);
                 double minimumSaltSplit = minimumSS[0];
-                double dblResinAge = 0;
-                if (resinAge == 0)
-                {
-                    dblResinAge = minimumSS[1];
-                }
-                else
-                {
-                    dblResinAge = resinAge;
-                }
 
-                this.predictiveModelService.ComputeDataPoints(resinLifeExpectancy, startingSS, MaxDegradation);
-                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS);
+                this.predictiveModelService.ComputeDataPoints(life_expectancy, starting_SS, max_degredation);
+                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(average_resin_age, CleaningEffectiveness, starting_SS);
                 if (currentSS != null && currentSS.Count > 1)
                 {
                     this.currentSaltSplit = currentSS.ElementAt(1).Value;
                 }
-                PriceData priceData = this.predictiveModelService.Thoughputchart(customerId, this.currentSaltSplit, startingSS, resinLifeExpectancy, simulationconfidence, num_simulation_iterations, calculationMethod
-                    , stdDev_threshold, dblResinAge, Replacement_Level, RTIcleaning_Level, SelectedTrain, DontReplaceResin);
+                PriceData priceData = this.predictiveModelService.Thoughputchart(customerId, this.currentSaltSplit, starting_SS, life_expectancy, simulationconfidence, num_simulation_iterations, calculationMethod
+                    , stdDev_threshold, average_resin_age, Replacement_Level, RTIcleaning_Level, SelectedTrain, DontReplaceResin);
                 Highcharts chart = new Highcharts("Charts");
                 if (priceData != null && priceData.CleanThroughput != null && priceData.NormalOpsThroughput != null)
                 {
@@ -618,19 +653,19 @@ namespace RTI.ModelingSystem.Web.Controllers
                 }
                 noCleanAverage = chartdata2.Length > 0 ? chartdata2.Average() : 0;
                 xaxisMinValue = xseries.Count > 0 ? xseries[0] : 0;
-                
+
                 // Set up area color fill gradient parameters
                 Gradient gradLine = new Gradient();
                 int[] LinearGradient = new int[] { 0, 0, 0, 300 };
                 gradLine.LinearGradient = LinearGradient;
                 object[,] stops2 = new object[,] { { 0, "#F7EF9B" }, { 1, "#FFFFFF" } };
                 gradLine.Stops = stops2;
-               
+
                 Series withCleaning = new Series
                 {
                     Name = "With Cleaning",
                     Data = new Data(chartData_Point1),
-                    PlotOptionsArea = new PlotOptionsArea 
+                    PlotOptionsArea = new PlotOptionsArea
                     {
                         FillColor = new BackColorOrGradient(Color.FromArgb(30, 0, 128, 0)),
                         Color = Color.FromArgb(80, 153, 80)
@@ -641,18 +676,18 @@ namespace RTI.ModelingSystem.Web.Controllers
                 {
                     Name = "Without Cleaning",
                     Data = new Data(chartData_Point2),
-                    PlotOptionsArea = new PlotOptionsArea 
-                    { 
-                        FillColor = new BackColorOrGradient(gradLine), 
-                        Color = System.Drawing.Color.Goldenrod 
-                    }                    
+                    PlotOptionsArea = new PlotOptionsArea
+                    {
+                        FillColor = new BackColorOrGradient(gradLine),
+                        Color = System.Drawing.Color.Goldenrod
+                    }
                 };
                 Highcharts chart1 = new Highcharts("chart")
                     .SetOptions(new GlobalOptions
                     {
-                        Lang = new DotNet.Highcharts.Helpers.Lang { ThousandsSep = ",", DecimalPoint = "."}
+                        Lang = new DotNet.Highcharts.Helpers.Lang { ThousandsSep = ",", DecimalPoint = "." }
                     })
-                   .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.X, SpacingRight = 20})
+                   .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.X, SpacingRight = 20 })
                    .SetTitle(new Title { Text = "Throughput Forecast" })
                    .SetTooltip(new Tooltip
                    {
@@ -661,7 +696,7 @@ namespace RTI.ModelingSystem.Web.Controllers
 
                        // Use javascript function to control the tool tip coloring, to add a week number display, and to add thousands place seperartors 
                        Formatter = @"function() {var s = [];var X = '';$.each(this.points, function(index,point){if((index%2)==0){s.push('<span style=""color:#E6B800;font-weight:bold;"">'+ point.series.name + ' : <span>' + '<b style=""font-weight:bold;"">' + point.y.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "","") + '</b>');}else{s.push('<span style=""color:#509950;font-weight:bold;"">'+ point.series.name + ' : <span>' + '<b style=""font-weight:bold;"">' + point.y.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "","") + '</b>');}X = point.x;});var header = '<span style=""font-weight:bold;"">Week: ' + X.toString() + '<span>';  s.splice(0, 0, header); var temp1 = s[1];var temp2 = s[2];s[1] = temp2;s[2] = temp1;if(s.length >= 5){temp1 = s[4];temp2 = s[3];s[4] = temp2;s[3] = temp1;}return s.join('<br>');}",
-                       Enabled = true, 
+                       Enabled = true,
                        Shared = true
                    })
                    .SetXAxis(new XAxis
