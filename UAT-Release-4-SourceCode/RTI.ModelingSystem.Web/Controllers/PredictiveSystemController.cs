@@ -191,32 +191,6 @@ namespace RTI.ModelingSystem.Web.Controllers
                 ssvmDetails.waterStatisticsViewModeldetails = objWaterStatisticsViewModel;
 
 
-                string selectedTrain = this.Session["SelectedTrain"].ToString();
-                if (selectedTrain != "All Trains")
-                {
-                    List<double> anion_replacement_plans = new List<double>();
-                    List<double> resin_age = new List<double>();
-                    // Get the list of vessels
-                    List<vessel> vessels = this.vesselRepository.GetAll().Where(p => p.vessel_customerID == (customerId).ToString()).ToList();
-                    // Load in the initial system performace statistics
-                    if (PredictiveSettings.SessionPerformanceSettingsSet == false)
-                    {
-                        foreach (var vessel in vessels)
-                        {
-                            if(vessel.vessel_number%2 == 0){ // Get data only for the Anion vessels
-                                anion_replacement_plans.Add(Convert.ToInt32(vessel.replacement_plan));
-
-                                // Calculate the resin age in weeks
-                                DateTime dateReplaced = DateTime.Parse(vessel.date_replaced);
-                                DateTime now = DateTime.Now;
-                                TimeSpan resinAgeSpan = TimeSpan.FromMilliseconds((now - dateReplaced).TotalMilliseconds);
-                                double resinAgeInWeeks = (resinAgeSpan.TotalDays / 7); // resin age in weeks
-
-
-                        }
-                        }
-                    }
-                }
 
             }
             catch (Exception)
@@ -249,7 +223,7 @@ namespace RTI.ModelingSystem.Web.Controllers
 
             try
             {
-                Highcharts chart = this.FetchSaltSplitChartData(life_expectancy, average_resin_age, starting_SS, cleaningEffectiveness, SelectedTrain, cleaningEffectiveness, IsDashboard);
+                Highcharts chart = this.FetchSaltSplitChartData(life_expectancy, average_resin_age, starting_SS, max_degredation, SelectedTrain, cleaningEffectiveness, IsDashboard);
                 this.Session["SelectedTrain"] = SelectedTrain;
                 return this.PartialView("_SaltSplitChart", chart);
             }
@@ -270,33 +244,34 @@ namespace RTI.ModelingSystem.Web.Controllers
                 var customerID = Convert.ToInt64(this.Session["CustomerId"]);
                 PredictiveModlePerformanceSettings paramaters = new PredictiveModlePerformanceSettings();
 
-                //// Set all of the default values for the performance settings table 
-                //paramaters.resin_life_expectancy = PredictiveSettings.ResinLifeExpectancy;
-                //paramaters.resin_age = PredictiveSettings.AvgResinAge;
-                //paramaters.new_resin_SS = PredictiveSettings.NewResinSaltSplit;
-                //paramaters.dont_replace_resin = PredictiveSettings.ReplaceResin;
-                //paramaters.max_degredation = PredictiveSettings.MaxDegradation;
-                //paramaters.cleaning_efffectiveness = PredictiveSettings.CleaningEffectiveness;
-                //paramaters.threshold_cleaning = PredictiveSettings.RticleaningThreshold;
-                //paramaters.threshold_replacement = PredictiveSettings.ResinReplacementLevel;
-                //paramaters.source_predictability = PredictiveSettings.SourcePredictibilty;
-                //paramaters.number_of_iterations = PredictiveSettings.NoOfIterations;
-                //paramaters.std_deviation_interval = PredictiveSettings.StandardDeviationInterval;
-
-
                 // Set all of the default values for the performance settings table 
-                paramaters.resin_life_expectancy = 312;
-                paramaters.resin_age = 156;
-                paramaters.new_resin_SS = 25;
-                paramaters.dont_replace_resin = false;
-                paramaters.max_degredation = 62;
-                paramaters.regen_effectiveness = 99.75;
-                paramaters.cleaning_efffectiveness = 28;
-                paramaters.threshold_cleaning = 17;
-                paramaters.threshold_replacement = 10;
-                paramaters.source_predictability = 95;
-                paramaters.number_of_iterations = 100;
-                paramaters.std_deviation_interval = 2;
+                paramaters.resin_life_expectancy = PredictiveSettings.ResinLifeExpectancy;
+                paramaters.resin_age = PredictiveSettings.AvgResinAge;
+                paramaters.new_resin_SS = PredictiveSettings.NewResinSaltSplit;
+                paramaters.dont_replace_resin = PredictiveSettings.ReplaceResin;
+                paramaters.max_degredation = PredictiveSettings.MaxDegradation;
+                paramaters.cleaning_efffectiveness = PredictiveSettings.CleaningEffectiveness;
+                paramaters.threshold_cleaning = PredictiveSettings.RticleaningThreshold;
+                paramaters.threshold_replacement = PredictiveSettings.ResinReplacementLevel;
+                paramaters.source_predictability = PredictiveSettings.SourcePredictibilty;
+                paramaters.number_of_iterations = PredictiveSettings.NoOfIterations;
+                paramaters.std_deviation_interval = PredictiveSettings.StandardDeviationInterval;
+                paramaters.regen_effectiveness = PredictiveSettings.RegenEffectiveness;
+
+
+                //// Set all of the default values for the performance settings table 
+                //paramaters.resin_life_expectancy = 312;
+                //paramaters.resin_age = 156;
+                //paramaters.new_resin_SS = 25;
+                //paramaters.dont_replace_resin = false;
+                //paramaters.max_degredation = 62;
+                //paramaters.regen_effectiveness = 99.75;
+                //paramaters.cleaning_efffectiveness = 28;
+                //paramaters.threshold_cleaning = 17;
+                //paramaters.threshold_replacement = 10;
+                //paramaters.source_predictability = 95;
+                //paramaters.number_of_iterations = 100;
+                //paramaters.std_deviation_interval = 2;
 
                 return Json(paramaters, JsonRequestBehavior.AllowGet);
             }
@@ -531,15 +506,39 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="IsDashboard">IsDashboard flag</param>
         /// <returns>Returns the view</returns>
         [OutputCache(Duration = 0, VaryByParam = "none")]
-        public ActionResult ThroughputChart(double? startingSS, double? resinLifeExpectancy, int simulationconfidence = 95, int num_simulation_iterations = 100, string simMethod = "Modal value", int stdDev_threshold = 2, double resinAge = double.MinValue, double? MaxDegradation, double Replacement_Level = 10, double RTIcleaning_Level = 17.0, double ReGen_effectivness = 99.75, string SelectedTrain = "0", bool DontReplaceResin = false, double CleaningEffectiveness = 28.0, bool IsDashboard = false)
+        public ActionResult ThroughputChart(double? startingSS, double? resinLifeExpectancy, int? simulationconfidence, int? num_simulation_iterations, string simMethod = "Modal value", int stdDev_threshold = int.MinValue, double resinAge = double.MinValue, double MaxDegradation = double.MinValue, double Replacement_Level = double.MinValue, double RTIcleaning_Level = double.MinValue, double ReGen_effectivness = 99.75, string SelectedTrain = "0", bool DontReplaceResin = false, double CleaningEffectiveness = double.MinValue, bool IsDashboard = false)
         {
             // If the sliders return null values, than use the default values from the Predictive settings class
             double life_expectancy = resinLifeExpectancy == null ? PredictiveSettings.ResinLifeExpectancy : (double)resinLifeExpectancy;
-            double average_resin_age = resinAge == double.MinValue ? PredictiveSettings.AvgResinAge : (double)resinAge;
-            double starting_SS = startingSS == null ? PredictiveSettings.NewResinSaltSplit : (double)startingSS;
-            double max_degredation = MaxDegradation == null ? Convert.ToDouble(PredictiveSettings.MaxDegradation) : (double)MaxDegradation;
-            double cleaningEffectiveness = CleaningEffectiveness == null ? Convert.ToDouble(PredictiveSettings.CleaningEffectiveness) : (double)CleaningEffectiveness;
+            PredictiveSettings.ResinLifeExpectancy = resinLifeExpectancy == null ? PredictiveSettings.ResinLifeExpectancy  : (double)resinLifeExpectancy;
 
+            double average_resin_age = resinAge == double.MinValue ? PredictiveSettings.AvgResinAge : (double)resinAge;
+            PredictiveSettings.AvgResinAge = resinAge == double.MinValue ? PredictiveSettings.AvgResinAge : (double)resinAge;
+
+            double starting_SS = startingSS == null ? PredictiveSettings.NewResinSaltSplit : (double)startingSS;
+            PredictiveSettings.NewResinSaltSplit = startingSS == null ? PredictiveSettings.NewResinSaltSplit : Convert.ToInt32(Math.Round((double)startingSS));
+
+            double max_degredation = MaxDegradation == double.MinValue ? Convert.ToDouble(PredictiveSettings.MaxDegradation) : (double)MaxDegradation;
+            PredictiveSettings.MaxDegradation = MaxDegradation == double.MinValue ? PredictiveSettings.MaxDegradation : Convert.ToDecimal((double)MaxDegradation);
+
+            double cleaningEffectiveness = CleaningEffectiveness == double.MinValue ? Convert.ToDouble(PredictiveSettings.CleaningEffectiveness) : (double)CleaningEffectiveness;
+            PredictiveSettings.CleaningEffectiveness = CleaningEffectiveness == double.MinValue ? PredictiveSettings.CleaningEffectiveness : Convert.ToDecimal((double)CleaningEffectiveness);
+
+            double replaceLevel = Replacement_Level == double.MinValue ? (double)PredictiveSettings.ResinReplacementLevel : (double)Replacement_Level;
+            PredictiveSettings.ResinReplacementLevel = Replacement_Level == double.MinValue ? PredictiveSettings.ResinReplacementLevel : Convert.ToDecimal((double)Replacement_Level);
+
+            double thresholdCleaning = RTIcleaning_Level == double.MinValue ? (double)PredictiveSettings.RticleaningThreshold : RTIcleaning_Level;
+            PredictiveSettings.RticleaningThreshold = RTIcleaning_Level == double.MinValue ? PredictiveSettings.RticleaningThreshold : Convert.ToDecimal((double)RTIcleaning_Level);
+
+            int simulationConf = simulationconfidence == null ? Convert.ToInt32(Math.Round(PredictiveSettings.SourcePredictibilty)) : (int)simulationconfidence;
+            PredictiveSettings.SourcePredictibilty = simulationconfidence == null ? PredictiveSettings.SourcePredictibilty : Convert.ToDecimal((double)simulationconfidence);
+
+            int numItterations = num_simulation_iterations == null ? PredictiveSettings.NoOfIterations : (int)num_simulation_iterations;
+            PredictiveSettings.NoOfIterations = num_simulation_iterations == null ? PredictiveSettings.NoOfIterations : Convert.ToInt32((double)num_simulation_iterations);
+
+            int stdDev = stdDev_threshold == int.MinValue ? PredictiveSettings.StandardDeviationInterval : (int)stdDev_threshold;
+            PredictiveSettings.StandardDeviationInterval = stdDev_threshold == int.MinValue ? PredictiveSettings.StandardDeviationInterval : Convert.ToInt32((double)stdDev_threshold);
+            
             try
             {
                 var customerId = this.Session["CustomerId"].ToString();
@@ -553,8 +552,8 @@ namespace RTI.ModelingSystem.Web.Controllers
                 {
                     this.currentSaltSplit = currentSS.ElementAt(1).Value;
                 }
-                PriceData priceData = this.predictiveModelService.Thoughputchart(customerId, this.currentSaltSplit, starting_SS, life_expectancy, simulationconfidence, num_simulation_iterations, calculationMethod
-                    , stdDev_threshold, average_resin_age, Replacement_Level, RTIcleaning_Level, SelectedTrain, DontReplaceResin);
+                PriceData priceData = this.predictiveModelService.Thoughputchart(customerId, this.currentSaltSplit, starting_SS, life_expectancy, simulationConf, numItterations, calculationMethod
+                    , stdDev, average_resin_age, replaceLevel, thresholdCleaning, SelectedTrain, DontReplaceResin);
                 Highcharts chart = new Highcharts("Charts");
                 if (priceData != null && priceData.CleanThroughput != null && priceData.NormalOpsThroughput != null)
                 {

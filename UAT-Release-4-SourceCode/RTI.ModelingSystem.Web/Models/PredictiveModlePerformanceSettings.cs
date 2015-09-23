@@ -11,7 +11,7 @@ namespace RTI.ModelingSystem.Web.Models
         public double resin_age { get; set; }
         public bool dont_replace_resin { get; set; }
         public int new_resin_SS { get; set; }
-        public double regen_effectiveness { get; set; }
+        public decimal regen_effectiveness { get; set; }
         public decimal max_degredation { get; set; }
         public decimal cleaning_efffectiveness { get; set; }
         public decimal threshold_cleaning { get; set; }

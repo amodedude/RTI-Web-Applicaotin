@@ -120,6 +120,8 @@ namespace RTI.ModelingSystem.Web.Controllers
 
             try
             {
+                setDefaultSystemPerformanceSettings(customerId); // Set the default parameters for this customer
+
                 //If valid customer id does not exist in the session
                 if (customerId != 0)
                 {
@@ -284,6 +286,77 @@ namespace RTI.ModelingSystem.Web.Controllers
                 throw;
             }
             return this.PartialView("_SystemSettings", settings);
+        }
+
+
+        // Method to set the default performance settings
+        public bool setDefaultSystemPerformanceSettings(long customerId)
+        {
+
+            bool sucess = false;
+
+            if (customerId != 0)
+            {
+                // Prepare data to use for loading onto sliders
+               // string selectedTrain = this.Session["SelectedTrain"].ToString();
+
+                // Declare the default parameters to be used in case of an error 
+                //double resinAge = 156;
+                //double resinLifeExpectancy = 312;
+                int newResinSaltSplit = 25;
+                bool doNotReplace = false;
+                decimal maxDegradation = 62;
+                decimal regenEffectiveness = 99.75m;
+                decimal cleaningEffectiveness = 28;
+                decimal thresholdCleaning = 17;
+                decimal thresholdReplacement = 10;
+                decimal sourcePredictability = 95;
+                int numberOfIterations = 100;
+                int standardDeviationInterval = 2;
+
+                    List<double> anion_replacement_plans = new List<double>();
+                    List<double> resin_age = new List<double>();
+                    // Get the list of vessels
+                    List<vessel> vessels = this.vesselRepository.GetAll().Where(p => p.vessel_customerID == (customerId).ToString()).ToList();
+                    // Load in the initial system performace statistics
+                    foreach (var vessel in vessels)
+                    {
+                        if (vessel.vessel_number % 2 == 0)
+                        {
+                            // Get data only for the Anion vessels
+                            anion_replacement_plans.Add((Convert.ToInt32((vessel.replacement_plan)) * 365.242)/7);
+
+                            // Calculate the resin age in weeks
+                            DateTime dateReplaced = DateTime.Parse(vessel.date_replaced);
+                            DateTime now = DateTime.Now;
+                            TimeSpan resinAgeSpan = TimeSpan.FromMilliseconds((now - dateReplaced).TotalMilliseconds);
+                            double resinAgeInWeeks = (resinAgeSpan.TotalDays / 7); // resin age in weeks
+                            resin_age.Add(resinAgeInWeeks);
+                        }
+                    }
+
+                    // Set default parameters 
+                    PredictiveSettings.AvgResinAge = resin_age.Average(); // Takes the average of all the anions
+                    PredictiveSettings.CleaningEffectiveness = cleaningEffectiveness;
+                    PredictiveSettings.MaxDegradation = maxDegradation;
+                    PredictiveSettings.NewResinSaltSplit = newResinSaltSplit;
+                    PredictiveSettings.NoOfIterations = numberOfIterations;
+                    PredictiveSettings.RegenEffectiveness = regenEffectiveness;
+                    PredictiveSettings.ReplaceResin = doNotReplace;
+                    PredictiveSettings.ResinLifeExpectancy = anion_replacement_plans.Average(); // Takes the average of all the aions 
+                    PredictiveSettings.ResinReplacementLevel = thresholdReplacement;
+                    PredictiveSettings.RticleaningThreshold = thresholdCleaning;
+                    PredictiveSettings.SourcePredictibilty = sourcePredictability;
+                    PredictiveSettings.StandardDeviationInterval = standardDeviationInterval;
+                    PredictiveSettings.SessionPerformanceSettingsSet = true; // Flags that the default parameters have been reset to user defined values so do not change them!
+                    sucess = true;
+            }
+            else
+            {
+                sucess = false;
+            }
+
+            return sucess;
         }
 
         /// <summary>

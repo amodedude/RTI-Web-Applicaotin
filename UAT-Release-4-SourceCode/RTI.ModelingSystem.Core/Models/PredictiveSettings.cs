@@ -22,7 +22,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The resin life expectancy.
         /// </value>
-        public static int ResinLifeExpectancy { get; set; }
+        public static double ResinLifeExpectancy { get; set; }
 
         /// <summary>
         /// Gets or sets the average resin age.
@@ -30,7 +30,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The average resin age.
         /// </value>
-        public static int AvgResinAge { get; set; }
+        public static double AvgResinAge { get; set; }
 
         /// <summary>
         /// Gets or sets the new resin salt split.
@@ -126,6 +126,6 @@ namespace RTI.ModelingSystem.Core.Models
         /// <value>
         /// The cleaning effectiveness.
         /// </value>
-        public static int CleaningEffectiveness { get; set; }
+        public static decimal CleaningEffectiveness { get; set; }
     }
 }
