@@ -506,7 +506,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="IsDashboard">IsDashboard flag</param>
         /// <returns>Returns the view</returns>
         [OutputCache(Duration = 0, VaryByParam = "none")]
-        public ActionResult ThroughputChart(double? startingSS, double? resinLifeExpectancy, int? simulationconfidence, int? num_simulation_iterations, string simMethod = "Modal value", int stdDev_threshold = int.MinValue, double resinAge = double.MinValue, double MaxDegradation = double.MinValue, double Replacement_Level = double.MinValue, double RTIcleaning_Level = double.MinValue, double ReGen_effectivness = 99.75, string SelectedTrain = "0", bool DontReplaceResin = false, double CleaningEffectiveness = double.MinValue, bool IsDashboard = false)
+        public ActionResult ThroughputChart(double? startingSS, double? resinLifeExpectancy, int? simulationconfidence, int? num_simulation_iterations, string simMethod = "Modal value", int stdDev_threshold = int.MinValue, double resinAge = double.MinValue, double MaxDegradation = double.MinValue, double Replacement_Level = double.MinValue, double RTIcleaning_Level = double.MinValue, double ReGen_effectivness = double.MinValue, string SelectedTrain = "0", bool DontReplaceResin = false, double CleaningEffectiveness = double.MinValue, bool IsDashboard = false)
         {
             // If the sliders return null values, than use the default values from the Predictive settings class
             double life_expectancy = resinLifeExpectancy == null ? PredictiveSettings.ResinLifeExpectancy : (double)resinLifeExpectancy;
@@ -517,6 +517,9 @@ namespace RTI.ModelingSystem.Web.Controllers
 
             double starting_SS = startingSS == null ? PredictiveSettings.NewResinSaltSplit : (double)startingSS;
             PredictiveSettings.NewResinSaltSplit = startingSS == null ? PredictiveSettings.NewResinSaltSplit : Convert.ToInt32(Math.Round((double)startingSS));
+
+            double regenEffectiveness = ReGen_effectivness == double.MinValue ? (double)PredictiveSettings.RegenEffectiveness : ReGen_effectivness;
+            PredictiveSettings.RegenEffectiveness = ReGen_effectivness == double.MinValue ? PredictiveSettings.RegenEffectiveness : Convert.ToDecimal(ReGen_effectivness);
 
             double max_degredation = MaxDegradation == double.MinValue ? Convert.ToDouble(PredictiveSettings.MaxDegradation) : (double)MaxDegradation;
             PredictiveSettings.MaxDegradation = MaxDegradation == double.MinValue ? PredictiveSettings.MaxDegradation : Convert.ToDecimal((double)MaxDegradation);
@@ -538,7 +541,8 @@ namespace RTI.ModelingSystem.Web.Controllers
 
             int stdDev = stdDev_threshold == int.MinValue ? PredictiveSettings.StandardDeviationInterval : (int)stdDev_threshold;
             PredictiveSettings.StandardDeviationInterval = stdDev_threshold == int.MinValue ? PredictiveSettings.StandardDeviationInterval : Convert.ToInt32((double)stdDev_threshold);
-            
+
+           
             try
             {
                 var customerId = this.Session["CustomerId"].ToString();
@@ -547,7 +551,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                 double minimumSaltSplit = minimumSS[0];
 
                 this.predictiveModelService.ComputeDataPoints(life_expectancy, starting_SS, max_degredation);
-                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(average_resin_age, CleaningEffectiveness, starting_SS);
+                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(average_resin_age, cleaningEffectiveness, starting_SS);
                 if (currentSS != null && currentSS.Count > 1)
                 {
                     this.currentSaltSplit = currentSS.ElementAt(1).Value;

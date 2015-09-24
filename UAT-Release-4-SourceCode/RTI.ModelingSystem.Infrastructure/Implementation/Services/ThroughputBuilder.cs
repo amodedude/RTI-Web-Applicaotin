@@ -164,8 +164,30 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         {
             try
             {
+                // Determines the number of trains being analyzed
+                int numberOfTrains = 3;
+
+                // Get the most recent salt split level
                 lastWeeks.SaltSplit = startingSaltSplit;
-                double throughput = ((startingSaltSplit * amountOfResin) / ((grains.Value) * 1000)) * 1000000;
+
+                // Determines the curent system carrying capacity for grains based on the amount of Anion resin in the system
+                double grainsSystemCapacity = lastWeeks.SaltSplit * amountOfResin * 1000;  
+                
+                // Determines the weekly throughput 
+                double weeklyThroughput = (trainGPM*60*24*7*numberOfTrains);
+
+                // Determines the amount of grains observed through the system in one week
+                double grainsObservedPerWeek = weeklyThroughput * grains.Value;
+
+                // Determines the required number of regeneratoins per month
+                double regenerationsPerMonth = (grainsObservedPerWeek * 4) / grainsSystemCapacity;
+
+                // There is always one more run per month then there was regens
+                double runsPerMonth = regenerationsPerMonth + 1;
+
+                double throuhput = 
+
+                //double throughput = ;
                 double silicaFactor = RandomNumberGenerator.Between(97, 100);
                 Tuple<int, double, string> weekTpPair = new Tuple<int, double, string>(grains.Key, throughput, "Normal");
                 if (throughput == 0)

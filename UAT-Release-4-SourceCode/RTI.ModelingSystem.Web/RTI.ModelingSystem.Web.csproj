@@ -462,9 +462,9 @@
       <Project>{36106dba-7f67-4f9d-8edf-f19345a8699d}</Project>
       <Name>RTI.ModelingSystem.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RTI.ModelingSystem.Interfaces\RTI.ModelingSystem.Interfaces.csproj">
+    <ProjectReference Include="..\RTI.ModelingSystem.Interfaces\s.csproj">
       <Project>{c127089f-f2d8-439d-8d42-3bcc228cc3dc}</Project>
-      <Name>RTI.ModelingSystem.Interfaces</Name>
+      <Name>s</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

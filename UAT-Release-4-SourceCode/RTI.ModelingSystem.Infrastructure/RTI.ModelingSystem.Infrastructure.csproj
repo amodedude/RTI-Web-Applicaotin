@@ -78,9 +78,9 @@
       <Project>{4f2c0c60-eb2c-4c2d-a320-c0822afd5315}</Project>
       <Name>RTI.ModelingSystem.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RTI.ModelingSystem.Interfaces\RTI.ModelingSystem.Interfaces.csproj">
+    <ProjectReference Include="..\RTI.ModelingSystem.Interfaces\s.csproj">
       <Project>{c127089f-f2d8-439d-8d42-3bcc228cc3dc}</Project>
-      <Name>RTI.ModelingSystem.Interfaces</Name>
+      <Name>s</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

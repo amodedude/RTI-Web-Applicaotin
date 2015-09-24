@@ -40,6 +40,16 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		/// </summary>
 		private double trainResinAmount;
 
+        /// <summary>
+        /// train Anion Resin Amount
+        /// </summary>
+        private double trainAnionResinAmount;
+
+        /// <summary>
+        /// train pounds of Chemical (Caustic)
+        /// </summary>
+        private double lbsAnionChemical;
+
 		/// <summary>
 		/// selected Train GPM
 		/// </summary>
@@ -128,9 +138,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				dataToSend.GrainForcast = grainForeCast;
 				double rtiCleaningeffectivness = 28.0;
 				ThroughputBuilder tp = new ThroughputBuilder();
-				Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin);
+                Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin);
 				var afterConditions = tp.AfterSystemConditions;
-				Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin);
+                Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin);
 				var beforeConditions = tp.BeforeSystemConditions;
 				List<double> reginWeek = new List<double>();
 				List<double> hoursWeek = new List<double>();
@@ -394,9 +404,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             bednum_interval.span = interval;
 							intervalList.Add(bednum_interval);
 							replacementPlan.Add(Convert.ToInt32(vesselList.replacement_plan));
-							double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							double vesselSize = Convert.ToDouble(vesselList.size);
 							vesselSizeList.Add(vesselSize);
+                            double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							lbsChemicalList.Add(lbsChemical);
 						}
 						if (selectedTrainId == 0)
@@ -446,14 +456,17 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				{
 					if (cation)
 					{
-						dataToSend.AmountCation = vesselSize;
+						dataToSend.AmountCation += vesselSize;
 					}
 					else
 					{
-						dataToSend.AmountAnion = vesselSize;
+						dataToSend.AmountAnion += vesselSize;
 					}
 					cation = !cation;
 				}
+
+                trainAnionResinAmount = dataToSend.AmountAnion; // Set the amount of resin for just the ANION
+
 				cation = true;
 
 				foreach (var chemAmt in lbsChemicalList)
@@ -468,6 +481,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 					}
 					cation = !cation;
 				}
+
+                lbsAnionChemical = dataToSend.CausticUsage; // Set the amount of Caustic 
+
 				int customerCustomerId = Convert.ToInt16(customerId);
 				List<train> trains = trainRepository.GetAll().Where(p => p.customer_customerID == customerCustomerId).ToList();
 				trainGPMValues = new string[trains.Count];
