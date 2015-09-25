@@ -87,7 +87,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             else if ((lastWeeks.SaltSplit > replacementLevel) && (lastWeeks.SaltSplit < rticleaningLevel) && ((Convert.ToInt32(week.Key) - lastCleaningWeek > cleaningInterval) || lastCleaningWeek == 0))
                             {
                                 effectiveResinAge = (effectiveResinAge - ageOfResin) * (1 - (cleaningEffectivness * 0.01));
-                                Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks);
+                                Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks, trainGPM);
                                 rticleaningLevel = PostCleaningSaltSPlitReduction(rticleaningLevel, replacementLevel);
                                 tpPrediction.Add(date, weekTpPair);
                                 lastWeeks.Date = date;
@@ -171,13 +171,13 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 lastWeeks.SaltSplit = startingSaltSplit;
 
                 // Determines the curent system carrying capacity for grains based on the amount of Anion resin in the system
-                double grainsSystemCapacity = lastWeeks.SaltSplit * amountOfResin * 1000;  
+                double grainsSystemCapacity = lastWeeks.SaltSplit * (amountOfResin) * 1000;  
                 
-                // Determines the weekly throughput 
-                double weeklyThroughput = (trainGPM*60*24*7*numberOfTrains);
+                // Determines the maximum possible weekly throughput 
+                double maxWeeklyThroughput = (trainGPM*60*24*7);
 
                 // Determines the amount of grains observed through the system in one week
-                double grainsObservedPerWeek = weeklyThroughput * grains.Value;
+                double grainsObservedPerWeek = maxWeeklyThroughput * grains.Value;
 
                 // Determines the required number of regeneratoins per month
                 double regenerationsPerMonth = (grainsObservedPerWeek * 4) / grainsSystemCapacity;
@@ -185,9 +185,12 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 // There is always one more run per month then there was regens
                 double runsPerMonth = regenerationsPerMonth + 1;
 
-                double throuhput = 
+                // Calculate how many hours are in a single run for one train
+                double hoursPerRun = (maxWeeklyThroughput / (trainGPM * 60));
 
-                //double throughput = ;
+                // Calculate the throughput 
+                double throughput = regenerationsPerMonth * hoursPerRun * 60 * trainGPM;
+
                 double silicaFactor = RandomNumberGenerator.Between(97, 100);
                 Tuple<int, double, string> weekTpPair = new Tuple<int, double, string>(grains.Key, throughput, "Normal");
                 if (throughput == 0)
@@ -206,8 +209,12 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 }
                 else
                 {
-                    lastWeeks.RegPerWeek = (24 * 7) / totalTime;
+                    lastWeeks.RegPerWeek = regenerationsPerMonth / 4;
                 }
+
+                lastWeeks.RegPerWeek = (regenerationsPerMonth / 4);
+                lastWeeks.HoursPerRun = hoursPerRun;
+
                 Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenerationTime, throughput, lastWeeks.SaltSplit);
                 if (isCleaning)
                 {
@@ -254,8 +261,46 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double degradation = ((Math.Pow(weeKNumber, 4) * degPoly[0]) + (Math.Pow(weeKNumber, 3) * degPoly[1]) + (Math.Pow(weeKNumber, 2) * degPoly[2]) + (weeKNumber * degPoly[3]) + degPoly[4]);
                 double saltSplit = (newResinSS * (1 - degradation));
                 lastWeeks.SaltSplit = saltSplit;
+
+
+
+
                 double regenerationTime = toc.RegenTimeCurve(effectiveResinAge) / 60;
-                double throughput = ((saltSplit * amountOfResin) / (grains.Value * 1000)) * 1000000;
+
+
+
+                // Determines the number of trains being analyzed
+                int numberOfTrains = 3;
+
+                // Get the most recent salt split level
+                lastWeeks.SaltSplit = saltSplit;
+
+                // Determines the curent system carrying capacity for grains based on the amount of Anion resin in the system
+                double grainsSystemCapacity = lastWeeks.SaltSplit * (amountOfResin) * 1000;
+
+                // Determines the maximum possible weekly throughput 
+                double maxWeeklyThroughput = (trainGPM * 60 * 24 * 7);
+
+                // Determines the amount of grains observed through the system in one week
+                double grainsObservedPerWeek = maxWeeklyThroughput * grains.Value;
+
+                // Determines the required number of regeneratoins per month
+                double regenerationsPerMonth = (grainsObservedPerWeek * 4) / grainsSystemCapacity;
+
+                // There is always one more run per month then there was regens
+                double runsPerMonth = regenerationsPerMonth + 1;
+
+                // Calculate how many hours are in a single run for one train
+                double hoursPerRun = (maxWeeklyThroughput / (trainGPM * 60));
+
+                // Calculate the throughput 
+                double throughput = regenerationsPerMonth * hoursPerRun * 60 * trainGPM;
+
+
+
+
+
+
                 if (throughput <= 0 && lastWeeks != null && lastWeeks.TpData != null)
                 {
                     throughput = lastWeeks.TpData.Item2;
@@ -280,6 +325,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 {
                     lastWeeks.RegPerWeek = (24 * 7) / totalTime;
                 }
+
+                lastWeeks.RegPerWeek = (regenerationsPerMonth / 4);
+                lastWeeks.HoursPerRun = hoursPerRun;
+
                 Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenerationTime, throughput, lastWeeks.SaltSplit);
                 if (isCleaning)
                 {
@@ -308,7 +357,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="newResinSaltSplit">new Resin Salt Split</param>
         /// <param name="lastWeeks">last Weeks parameter</param>
         /// <returns>Returns the Clean ops week</returns>
-        private Tuple<int, double, string> CleanOpsWeek(TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, double cleaningEffectivness, double newResinSaltSplit, PreviousWeek lastWeeks)
+        private Tuple<int, double, string> CleanOpsWeek(TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, double cleaningEffectivness, double newResinSaltSplit, PreviousWeek lastWeeks, double trainGPM)
         {
             try
             {
@@ -321,7 +370,38 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 effectiveResinAge = effectiveResinAge - (effectiveResinAge * percentIncrease);
                 double regenerationTime = toc.RegenTimeCurve(effectiveResinAge) / 60;
                 lastWeeks.SaltSplit = saltSplit;
-                double throughput = ((saltSplit * amountOfResin) / (grains.Value * 1000)) * 1000000;
+
+                // Determines the number of trains being analyzed
+                int numberOfTrains = 3;
+
+                // Get the most recent salt split level
+                lastWeeks.SaltSplit = saltSplit;
+
+                // Determines the curent system carrying capacity for grains based on the amount of Anion resin in the system
+                double grainsSystemCapacity = lastWeeks.SaltSplit * (amountOfResin) * 1000;
+
+                // Determines the maximum possible weekly throughput 
+                double maxWeeklyThroughput = (trainGPM * 60 * 24 * 7);
+
+                // Determines the amount of grains observed through the system in one week
+                double grainsObservedPerWeek = maxWeeklyThroughput * grains.Value;
+
+                // Determines the required number of regeneratoins per month
+                double regenerationsPerMonth = (grainsObservedPerWeek * 4) / grainsSystemCapacity;
+
+                // There is always one more run per month then there was regens
+                double runsPerMonth = regenerationsPerMonth + 1;
+
+                // Calculate how many hours are in a single run for one train
+                double hoursPerRun = (maxWeeklyThroughput / (trainGPM * 60));
+
+                // Calculate the throughput 
+                double throughput = regenerationsPerMonth * hoursPerRun * 60 * trainGPM;
+
+                lastWeeks.RegPerWeek = (regenerationsPerMonth / 4);
+                lastWeeks.HoursPerRun = hoursPerRun;
+
+
                 Tuple<int, double, string> weekTpPair = new Tuple<int, double, string>(grains.Key, throughput, "Clean");
                 lastWeeks.TpData = weekTpPair;
                 Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenerationTime, throughput, lastWeeks.SaltSplit);
@@ -347,7 +427,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="grains">grains parameter</param>
         /// <param name="lastWeeks">last Weeks</param>
         /// <returns></returns>
-        private Tuple<int, double, string> ReplaceOpsWeek(bool isCleaning, double trainGpm, double lifeExpectancy, TOCBuilder toc, double effectiveResinAge, double newResinSaltSplit, double amountOfResin, KeyValuePair<int, double> grains, PreviousWeek lastWeeks)
+        private Tuple<int, double, string> ReplaceOpsWeek(bool isCleaning, double trainGPM, double lifeExpectancy, TOCBuilder toc, double effectiveResinAge, double newResinSaltSplit, double amountOfResin, KeyValuePair<int, double> grains, PreviousWeek lastWeeks)
         {
             try
             {
@@ -355,7 +435,38 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double regenerationTime = toc.RegenTimeCurve(lifeExpectancy) / 60;
                 double saltSplit = newResinSaltSplit;
                 lastWeeks.SaltSplit = saltSplit;
-                double throughput = ((saltSplit * amountOfResin) / (grains.Value * 1000)) * 1000000;
+
+                // Determines the number of trains being analyzed
+                int numberOfTrains = 3;
+
+                // Get the most recent salt split level
+                lastWeeks.SaltSplit = saltSplit;
+
+                // Determines the curent system carrying capacity for grains based on the amount of Anion resin in the system
+                double grainsSystemCapacity = lastWeeks.SaltSplit * (amountOfResin) * 1000;
+
+                // Determines the maximum possible weekly throughput 
+                double maxWeeklyThroughput = (trainGPM * 60 * 24 * 7);
+
+                // Determines the amount of grains observed through the system in one week
+                double grainsObservedPerWeek = maxWeeklyThroughput * grains.Value;
+
+                // Determines the required number of regeneratoins per month
+                double regenerationsPerMonth = (grainsObservedPerWeek * 4) / grainsSystemCapacity;
+
+                // There is always one more run per month then there was regens
+                double runsPerMonth = regenerationsPerMonth + 1;
+
+                // Calculate how many hours are in a single run for one train
+                double hoursPerRun = (maxWeeklyThroughput / (trainGPM * 60));
+
+                // Calculate the throughput 
+                double throughput = regenerationsPerMonth * hoursPerRun * 60 * trainGPM;
+
+                
+
+                
+                
                 Tuple<int, double, string> weekTpPair = new Tuple<int, double, string>(grains.Key, throughput, "Replace");
                 lastWeeks.TpData = weekTpPair;
                 double silicaFactor = RandomNumberGenerator.Between(97, 100);
@@ -365,7 +476,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 }
                 else
                 {
-                    lastWeeks.HoursPerRun = ((throughput / trainGpm) / 60) * (silicaFactor * 0.01);
+                    lastWeeks.HoursPerRun = ((throughput / trainGPM) / 60) * (silicaFactor * 0.01);
                 }
                 double totalTime = regenerationTime + lastWeeks.HoursPerRun;
 
@@ -378,6 +489,11 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 {
                     lastWeeks.RegPerWeek = (24 * 7) / totalTime;
                 }
+
+                lastWeeks.RegPerWeek = (regenerationsPerMonth / 4);
+                lastWeeks.HoursPerRun = hoursPerRun;
+
+
                 Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenerationTime, throughput, lastWeeks.SaltSplit);
                 if (isCleaning)
                 {
