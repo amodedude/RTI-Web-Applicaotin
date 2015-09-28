@@ -591,6 +591,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						sourceTwoIsBigger = true;
 					}
 					WeeklyWeightedAverageCondstdDev.Clear();
+                    int stopPoint = 0;
 					for (int i = 0; i <= maxWeeks - 1; i++)
 					{
 						DateTime date = new DateTime();
@@ -614,11 +615,28 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						{
 							averageCondS1 = this.weeklyAverageCondDataSource1.ElementAt(i).Value.Item3.Average();
 						}
+                        else if(i == this.weeklyAverageCondDataSource1.Count && i!=0)
+                        {
+                            stopPoint = i;
+                            averageCondS1 = this.weeklyAverageCondDataSource1.ElementAt(i-stopPoint).Value.Item3.Average();
+                        }
+                        else if(i!=0)
+                        {
+                            averageCondS1 = this.weeklyAverageCondDataSource1.ElementAt(i - stopPoint).Value.Item3.Average();
+                        }
+
 						if (i < this.weeklyAverageCondDataSource2.Count)
 						{
 							averageCondS2 = this.weeklyAverageCondDataSource2.ElementAt(i).Value.Item3.Average();
 						}
-						double avgConductivity = (averageCondS1 + averageCondS2) / 2;
+
+
+                        double avgConductivity;
+                        if (averageCondS2 > 0)
+                            avgConductivity = (averageCondS1 + averageCondS2) / 2;
+                        else
+                            avgConductivity = averageCondS1;
+
 						if (i < this.weeklyStandardDeviationConductivityDataSource1.Count)
 						{
 							stdDevVal1 = this.weeklyStandardDeviationConductivityDataSource1.ElementAt(i).Value.Item2;
@@ -633,6 +651,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						{
 							WeeklyWeightedAverageCondstdDev.Add(date, weekData);
 						}
+
 					}
 				}
 				else

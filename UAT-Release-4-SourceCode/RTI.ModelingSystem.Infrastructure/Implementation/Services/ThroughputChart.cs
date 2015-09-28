@@ -95,7 +95,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		/// <param name="rtiCleaningLevel">rti Cleaning Level</param>
 		/// <param name="donotReplaceResin">dont Replace Resin</param>
 		/// <returns>Returns the Price data</returns>
-		public PriceData RunModel(double startingSaltSplit, double currentSaltSplit, double resinLifeExpectancy, int simulationConfidence, int numberSimulationIterations, string simulationMethod, int standardDeviationThreshold, double resinAge, double replacementLevel, double rtiCleaningLevel, bool donotReplaceResin)
+		public PriceData RunModel(double startingSaltSplit, double currentSaltSplit, double resinLifeExpectancy, int simulationConfidence, int numberSimulationIterations, string simulationMethod, int standardDeviationThreshold, double resinAge, double replacementLevel, double rtiCleaningLevel, bool donotReplaceResin, List<double> regenTimes)
 		{
 			try
 			{
@@ -138,9 +138,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				dataToSend.GrainForcast = grainForeCast;
 				double rtiCleaningeffectivness = 28.0;
 				ThroughputBuilder tp = new ThroughputBuilder();
-                Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin);
+                Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin,regenTimes);
 				var afterConditions = tp.AfterSystemConditions;
-                Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin);
+                Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin,regenTimes);
 				var beforeConditions = tp.BeforeSystemConditions;
 				List<double> reginWeek = new List<double>();
 				List<double> hoursWeek = new List<double>();
@@ -504,7 +504,14 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				}
 
 				this.LoadTrainData(2, trainGPMValues);
-				PriceData priceData = this.RunModel(startingSaltSplit, currentSaltSplit, resinLifeExpectancy, simulationConfidence, numberSimulationIterations, simulationMethod, standardDevThreshold, resinAge, replacementLevel, rtiCleaningLevel, donotReplaceResin);
+                
+                List<double> regenTimes = new List<double>();
+                foreach (var train in trains)
+                {
+                    regenTimes.Add(Convert.ToInt32(train.regen_duration));
+                }
+
+				PriceData priceData = this.RunModel(startingSaltSplit, currentSaltSplit, resinLifeExpectancy, simulationConfidence, numberSimulationIterations, simulationMethod, standardDevThreshold, resinAge, replacementLevel, rtiCleaningLevel, donotReplaceResin, regenTimes);
 				return priceData;
 			}
 			catch
