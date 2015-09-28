@@ -87,7 +87,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             // CLEANING WEEK
                             else if ((lastWeeks.SaltSplit > replacementLevel) && (lastWeeks.SaltSplit < rticleaningLevel) || ((Convert.ToInt32(week.Key) - lastCleaningWeek > cleaningInterval) || lastCleaningWeek == 0))
                             {
-                                effectiveResinAge = (1-(cleaningEffectivness*.01)) * effectiveResinAge;
+                                effectiveResinAge = (1-(95*.01)) * effectiveResinAge;
                                 Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks, trainGPM, hoursPerRun);
                                 rticleaningLevel = PostCleaningSaltSPlitReduction(rticleaningLevel, replacementLevel, cleaningEffectivness);
                                 tpPrediction.Add(date, weekTpPair);
