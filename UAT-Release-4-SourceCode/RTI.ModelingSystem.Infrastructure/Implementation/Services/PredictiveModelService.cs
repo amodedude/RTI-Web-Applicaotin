@@ -400,7 +400,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="cleaningEffectiveness">Cleaning Effectiveness</param>
         /// <param name="startingSaltSplit">starting SS</param>
         /// <returns>Returns dictionary</returns>
-        public Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit)
+        public Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit, double resinLifeExpectancy)
         {
             try
             {
@@ -427,7 +427,25 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         weekNumber = Math.Round(convertedSaltSplitPoints.ElementAt(convertedSaltSplitPoints.Count - 1).Key);
                     }
                 }
-                double afterCleaningSaltSplit = ((cleaningEffectiveness * 0.01) * (startingSaltSplit - currentSaltSplit)) + currentSaltSplit;
+
+
+                //double effectiveAfterCleaningResinAge = Math.Floor(weekNumber - (weekNumber*cleaningEffectiveness*0.01));
+                //double weeKNumber = 312 * (Convert.ToDouble(effectiveAfterCleaningResinAge) / resinLifeExpectancy);
+                //double[] degPoly = new double[5];
+                //degPoly[0] = 1.93647597707001E-10;
+                //degPoly[1] = -1.71818433081473E-07;
+                //degPoly[2] = 0.0000450031960953974;
+                //degPoly[3] = -0.001102430677463;
+                //degPoly[4] = 0.009638951553683;
+                //double degradation = ((Math.Pow(weeKNumber, 4) * degPoly[0]) + (Math.Pow(weeKNumber, 3) * degPoly[1]) + (Math.Pow(weeKNumber, 2) * degPoly[2]) + (weeKNumber * degPoly[3]) + degPoly[4]);
+                //double saltSplit = (startingSaltSplit * (1 - degradation));
+
+                //double afterCleaningSaltSplit = saltSplit;
+                double afterCleaningSaltSplit = currentSaltSplit + (cleaningEffectiveness * 0.01 * currentSaltSplit);
+
+                // Limit the after cleaning saltsplit to the new resin saltsplit level
+                afterCleaningSaltSplit = afterCleaningSaltSplit >= startingSaltSplit ? startingSaltSplit : afterCleaningSaltSplit;
+
                 List<double> afterCleaningWeek = FindAfterCleaningWeak(afterCleaningSaltSplit);
 				if (!currentSaltSplitConditions.ContainsKey(weekNumber))
 				{

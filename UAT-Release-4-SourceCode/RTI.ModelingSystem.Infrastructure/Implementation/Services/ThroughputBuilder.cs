@@ -48,6 +48,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         {
             try
             {
+                replacementLevel = 10.00;
+                rticleaningLevel = 12.00;
                 Dictionary<DateTime, Tuple<int, double, string>> tpPrediction = new Dictionary<DateTime, Tuple<int, double, string>>();
                 TOCBuilder toc = new TOCBuilder();
                 PreviousWeek lastWeeks = new PreviousWeek();
@@ -85,11 +87,11 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             }
 
                             // CLEANING WEEK
-                            else if ((lastWeeks.SaltSplit > replacementLevel) && (lastWeeks.SaltSplit < rticleaningLevel) || ((Convert.ToInt32(week.Key) - lastCleaningWeek > cleaningInterval) || lastCleaningWeek == 0))
+                            else if ((lastWeeks.SaltSplit > replacementLevel) && (lastWeeks.SaltSplit < rticleaningLevel) || lastCleaningWeek == 0)
                             {
-                                effectiveResinAge = (1-(95*.01)) * effectiveResinAge;
-                                Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks, trainGPM, hoursPerRun);
-                                rticleaningLevel = PostCleaningSaltSPlitReduction(rticleaningLevel, replacementLevel, cleaningEffectivness);
+                                effectiveResinAge = effectiveResinAge - (effectiveResinAge * cleaningEffectivness * 0.01);
+                                Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks, trainGPM, hoursPerRun, lifeExpectancy);
+                                //rticleaningLevel = PostCleaningSaltSPlitReduction(rticleaningLevel, replacementLevel, cleaningEffectivness, lastWeeks);
                                 tpPrediction.Add(date, weekTpPair);
                                 lastWeeks.Date = date;
                                 if (lastCleaningWeek != 0)
@@ -97,10 +99,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                                 lastCleaningWeek = week.Key;
                             }
 
-                            if (week.Key > 169)
-                            {
-                                // break
-                            }
+                            //if (week.Key > 169)
+                            //{
+                            //    // break
+                            //}
 
                             //// REPLACEMENT WEEK
                             //else
@@ -241,15 +243,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         {
             try
             {
-                double weeKNumber = 312 * (Convert.ToDouble(effectiveResinAge) / lifeExpectancy);
-                double[] degPoly = new double[5];
-                degPoly[0] = 1.93647597707001E-10;
-                degPoly[1] = -1.71818433081473E-07;
-                degPoly[2] = 0.0000450031960953974;
-                degPoly[3] = -0.001102430677463;
-                degPoly[4] = 0.009638951553683;
-                double degradation = ((Math.Pow(weeKNumber, 4) * degPoly[0]) + (Math.Pow(weeKNumber, 3) * degPoly[1]) + (Math.Pow(weeKNumber, 2) * degPoly[2]) + (weeKNumber * degPoly[3]) + degPoly[4]);
-                double saltSplit = (newResinSS * (1 - degradation));
+                // Get the current weeks salt split level
+                double saltSplit = fetchSaltSplitLevel(effectiveResinAge,lifeExpectancy,newResinSS);
                 lastWeeks.SaltSplit = saltSplit;
 
                 // Determines the number of trains being analyzed
@@ -321,15 +316,19 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="newResinSaltSplit">new Resin Salt Split</param>
         /// <param name="lastWeeks">last Weeks parameter</param>
         /// <returns>Returns the Clean ops week</returns>
-        private Tuple<int, double, string> CleanOpsWeek(TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, double cleaningEffectivness, double newResinSaltSplit, PreviousWeek lastWeeks, double trainGPM, List<double> hoursPerRun)
+        private Tuple<int, double, string> CleanOpsWeek(TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, double cleaningEffectivness, double newResinSaltSplit, PreviousWeek lastWeeks, double trainGPM, List<double> hoursPerRun, double lifeExpectancy)
         {
             try
             {
-                double saltSplit = lastWeeks.SaltSplit + (lastWeeks.SaltSplit * cleaningEffectivness * 0.01);
-                if (saltSplit > newResinSaltSplit)
-                {
-                    saltSplit = newResinSaltSplit;
-                }
+                
+                double saltSplit = fetchSaltSplitLevel(effectiveResinAge, lifeExpectancy, newResinSaltSplit);
+
+                
+                //double saltSplit = lastWeeks.SaltSplit + (lastWeeks.SaltSplit * cleaningEffectivness * 0.01);
+                //if (saltSplit > newResinSaltSplit)
+                //{
+                //    saltSplit = newResinSaltSplit;
+                //}
                 //double percentIncrease = (saltSplit - lastWeeks.SaltSplit) / lastWeeks.SaltSplit;
                 //effectiveResinAge = effectiveResinAge - (effectiveResinAge * percentIncrease);
                 //double regenerationTime = toc.RegenTimeCurve(effectiveResinAge) / 60;
@@ -451,22 +450,44 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
             }
         }
 
+
+        /// <summary>
+        /// Fetch Salt Split Level
+        /// </summary>
+        /// <param name="effectiveResinAge">efective resin age in weeks</param>
+        /// <param name="lifeExpectancy">resin life expectancy in weeks</param>
+        /// /// <param name="newResinSS">new resin salt split level</param>
+        /// <returns>Returns the salt split level for any week</returns>
+        private double fetchSaltSplitLevel(double effectiveResinAge, double lifeExpectancy, double newResinSS)
+        {
+            double weeKNumber = 312 * (Convert.ToDouble(effectiveResinAge) / lifeExpectancy);
+            double[] degPoly = new double[5];
+            degPoly[0] = 1.93647597707001E-10;
+            degPoly[1] = -1.71818433081473E-07;
+            degPoly[2] = 0.0000450031960953974;
+            degPoly[3] = -0.001102430677463;
+            degPoly[4] = 0.009638951553683;
+            double degradation = ((Math.Pow(weeKNumber, 4) * degPoly[0]) + (Math.Pow(weeKNumber, 3) * degPoly[1]) + (Math.Pow(weeKNumber, 2) * degPoly[2]) + (weeKNumber * degPoly[3]) + degPoly[4]);
+            double saltSplit = (newResinSS * (1 - degradation));
+            return saltSplit;
+        }
+
         /// <summary>
         /// Post Cleaning SaltSPlit Reduction
         /// </summary>
         /// <param name="cleaningSaltSplit">cleaning SaltSplit</param>
         /// <param name="replaceSaltSplit">replace SaltSplit</param>
         /// <returns>Returns the salt split reduction</returns>
-        private double PostCleaningSaltSPlitReduction(double cleaningSaltSplit, double replaceSaltSplit, double cleaningEffectiveness)
+        private double PostCleaningSaltSPlitReduction(double cleaningSaltSplit, double replaceSaltSplit, double cleaningEffectiveness, PreviousWeek lastWeeks)
         {
             try
             {
-                double afterReductionSS = cleaningSaltSplit - (cleaningSaltSplit * (cleaningEffectiveness * 0.01));
-                if (afterReductionSS >= replaceSaltSplit)
-                {
-                    cleaningSaltSplit = afterReductionSS;
+                double afterReductionSS = cleaningSaltSplit;
+
+                if(lastWeeks.SaltSplit < afterReductionSS){
+                    afterReductionSS = lastWeeks.SaltSplit - (lastWeeks.SaltSplit * (cleaningEffectiveness * 0.01));
                 }
-                return cleaningSaltSplit;
+                return afterReductionSS;
             }
             catch
             {

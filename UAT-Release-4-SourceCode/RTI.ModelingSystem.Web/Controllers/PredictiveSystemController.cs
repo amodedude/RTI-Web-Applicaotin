@@ -223,7 +223,7 @@ namespace RTI.ModelingSystem.Web.Controllers
 
             try
             {
-                Highcharts chart = this.FetchSaltSplitChartData(life_expectancy, average_resin_age, starting_SS, max_degredation, SelectedTrain, cleaningEffectiveness, IsDashboard);
+                Highcharts chart = this.FetchSaltSplitChartData(life_expectancy, average_resin_age, starting_SS, max_degredation, SelectedTrain, cleaningEffectiveness, IsDashboard, life_expectancy);
                 this.Session["SelectedTrain"] = SelectedTrain;
                 return this.PartialView("_SaltSplitChart", chart);
             }
@@ -294,7 +294,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="CleaningEffectiveness">The cleaning effectiveness.</param>
         /// <param name="isDashboard">if set to <c>true</c> [is dashboard].</param>
         /// <returns></returns>
-        private Highcharts FetchSaltSplitChartData(double numWeeks, double avgResinage, double startingSS, double maxDegSS, string selectedTrain, double CleaningEffectiveness, bool isDashboard)
+        private Highcharts FetchSaltSplitChartData(double numWeeks, double avgResinage, double startingSS, double maxDegSS, string selectedTrain, double CleaningEffectiveness, bool isDashboard, double life_expectancy)
         {
             try
             {
@@ -338,7 +338,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                 }
                 Point point1 = new Point();
                 Point point2 = new Point();
-                currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS);
+                currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS, life_expectancy);
                 this.currentSaltSplit = (currentSS != null && currentSS.Count > 0) ? currentSS.ElementAt(0).Value : 0;
 
                 point1.X = (currentSS != null && currentSS.Count > 0) ? currentSS.ElementAt(0).Key : 0;
@@ -551,10 +551,10 @@ namespace RTI.ModelingSystem.Web.Controllers
                 double minimumSaltSplit = minimumSS[0];
 
                 this.predictiveModelService.ComputeDataPoints(life_expectancy, starting_SS, max_degredation);
-                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(average_resin_age, cleaningEffectiveness, starting_SS);
+                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(average_resin_age, cleaningEffectiveness, starting_SS, life_expectancy);
                 if (currentSS != null && currentSS.Count > 1)
                 {
-                    this.currentSaltSplit = currentSS.ElementAt(1).Value;
+                    this.currentSaltSplit = currentSS.ElementAt(0).Value;
                 }
                 PriceData priceData = this.predictiveModelService.Thoughputchart(customerId, this.currentSaltSplit, starting_SS, life_expectancy, simulationConf, numItterations, calculationMethod
                     , stdDev, average_resin_age, replaceLevel, thresholdCleaning, SelectedTrain, DontReplaceResin);

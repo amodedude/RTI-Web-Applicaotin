@@ -45,7 +45,7 @@ namespace RTI.ModelingSystem.Core.Interfaces.Services
 		/// <param name="cleaningEffectiveness">The cleaning effectiveness.</param>
 		/// <param name="startingSaltSplit">The starting salt split.</param>
 		/// <returns></returns>
-		Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit);
+		Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit, double resinLifeExpectancy);
 
 		/// <summary>
 		/// Thoughputcharts the specified customer identifier.
