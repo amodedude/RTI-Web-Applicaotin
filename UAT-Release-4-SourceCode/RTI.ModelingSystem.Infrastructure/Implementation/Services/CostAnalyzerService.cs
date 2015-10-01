@@ -360,8 +360,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				double absoluteTotalCostAfter = opsCostAfter.Sum();
 				double averageOpsBefore = opsCostBefore.Average();
 				double averageOpsAfter = opsCostAfter.Average();
-				double regenSavings = (averageOpsBefore - averageOpsAfter) * throughputClean.Count;
-				double cumSavings = (absoluteTotalCostBefore - absoluteTotalCostAfter) + regenSavings;
+				//double regenSavings = (averageOpsBefore - averageOpsAfter) * throughputClean.Count;
+				double cumSavings = (absoluteTotalCostBefore - absoluteTotalCostAfter);
 				costAnalyzerResultData.TotalOpsCostBefore = "$" + string.Format("{0:n0}", Math.Round(absoluteTotalCostBefore, 0));
 				costAnalyzerResultData.TotalOpsCostAfter = "$" + string.Format("{0:n0}", Math.Round(absoluteTotalCostAfter, 0));
 				costAnalyzerResultData.TotalWeeklyCostBefore = "$" + string.Format("{0:n}", Math.Round(averageOpsBefore, 2));
