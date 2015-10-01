@@ -215,11 +215,12 @@ namespace RTI.ModelingSystem.Web.Controllers
             }
         }
 
-        public ActionResult GetResultsTable(string weekNumber)
+        public ActionResult GetResultsTable(string weekNumber, bool isClick)
         {
             try
             {
                 CostAnalyzerResult CostAnalyzerResultData = new CostAnalyzerResult();
+                CostAnalyzerResultData.LoadWeeklyBreakDown = isClick;
                 if (weekNumber != null)
                 {
                     //modelIndex = Math.Round(e.HitTestResult.Index + 1, 0);
@@ -280,6 +281,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                             CostAnalyzerResultData.ThroughputAfter = "N/A";
                         }
                     }
+                }
                     CostAnalyzerResult CostAnalyzerResultDataNew = this.costAnalyzerService.GetCostAnalyzerResultsData();
                     if (CostAnalyzerResultDataNew != null)
                     {
@@ -301,7 +303,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                         CostAnalyzerResultData.AvgCostPerGalBefore = CostAnalyzerResultDataNew.AvgCostPerGalBefore;
                         CostAnalyzerResultData.AvgCostPerGalAfter = CostAnalyzerResultDataNew.AvgCostPerGalAfter;
                     }
-                }
+                
 
                 return this.PartialView("_CostAnalyzerResultsTable", CostAnalyzerResultData);
 
@@ -311,6 +313,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                 throw;
             }
         }
+
 
         /// <summary>
         /// GetCumulativeSavings

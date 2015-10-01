@@ -342,8 +342,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 
 				// Average the cost to regenerate and update the display
 				double regenCostAfter = regenerationCostAfter.Average();
-
+                double regenCostBefore = regenerationCostBefore.Average();
 				costAnalyzerResultData.RegenWeeklyCostAfter = "$" + string.Format("{0:n}", Math.Round(regenCostAfter, 2));
+                costAnalyzerResultData.RegenWeeklyCostBefore = "$" + string.Format("{0:n}", Math.Round(regenCostBefore, 2));
 
 				// Average the cost to clean or the cost to replace and update display
 				double cleanCostBefore = cleaningCostBefore.Sum();
@@ -378,7 +379,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				costAnalyzerResultData.AvgCostPerGalBefore = "$" + string.Format("{0:n}", Math.Round(costPerGAL_Before, 2));
 				costAnalyzerResultData.AvgCostPerGalAfter = "$" + string.Format("{0:n}", Math.Round(costPerGAL_After, 2));
 
-				double ROI = Math.Round((((cumSavings) - cleanCostAfter) / cleanCostAfter) * 100);
+                double ROI = Math.Round( (cumSavings/cleanCostAfter) * 100);
 				roiGlobal = string.Format("{0:n0}", ROI) + "%";
 				return price;
 			}

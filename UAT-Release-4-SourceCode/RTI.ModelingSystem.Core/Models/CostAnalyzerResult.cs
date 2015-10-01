@@ -160,5 +160,7 @@ namespace RTI.ModelingSystem.Core.Models
         /// The average cost per gal after.
         /// </value>
         public string AvgCostPerGalAfter { get; set; }
+
+        public bool LoadWeeklyBreakDown { get; set; }
     }
 }
