@@ -271,7 +271,12 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 List<double> output = new List<double>();
                 trainData = this.predictiveRepository.GetCustomerTrains(id);
                 vesselData = this.predictiveRepository.GetCustomerVessels(id);
-                double numberOfTrains = trainData.Count;
+                double numberOfTrains;
+                if (selectedTrainId == "0")
+                    numberOfTrains = trainData.Count;
+                else
+                    numberOfTrains = 1;
+
                 double numberCubicFeet = 0, numberRegens = 0;
                 List<double> numberRegenPerTrain = new List<double>();
                 string usingManifold = string.Empty;
@@ -382,7 +387,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 TimeSpan averageResinAge = TimeSpan.FromMilliseconds(average);
                 double age = averageResinAge.TotalDays / 7;
                 double grainAverage = this.predictiveRepository.GetGrainsWeightTotal(id.ToString());
-                double minimumSaltSplit = (waterDemand / (numberOfTrains > 0 ? numberOfTrains : 1)) * (1 / (numberCubicFeet != 0 ? numberCubicFeet : 1)) * (grainAverage / 1000) * (1 / (numberRegens != 0 ? numberRegens : 1));
+             
+                double minimumSaltSplit = 9.8;
                 output.Add(minimumSaltSplit);
                 output.Add(age);
                 return output;

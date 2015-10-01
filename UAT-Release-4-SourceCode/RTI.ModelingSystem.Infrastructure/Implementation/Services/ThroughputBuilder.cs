@@ -49,7 +49,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
             try
             {
                 replacementLevel = 10.00;
-                rticleaningLevel = 12.00;
+                rticleaningLevel = 17.00;
                 Dictionary<DateTime, Tuple<int, double, string>> tpPrediction = new Dictionary<DateTime, Tuple<int, double, string>>();
                 TOCBuilder toc = new TOCBuilder();
                 PreviousWeek lastWeeks = new PreviousWeek();

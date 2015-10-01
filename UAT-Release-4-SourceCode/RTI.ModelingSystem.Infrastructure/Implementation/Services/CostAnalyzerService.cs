@@ -272,14 +272,16 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						cleanOrReplace = throughputNormOps.ElementAt(wk).Value.Item3;
 						if (cleanOrReplace == "Replace")
 						{
-							double replacmentCost = (calculationParameters.ReplacementPriceAnion + calculationParameters.ReplacemtntPriceCation) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
-							costToRegenerate = costToRegenerate + replacmentCost;
+							//double replacmentCost = (calculationParameters.ReplacementPriceAnion + calculationParameters.ReplacemtntPriceCation) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
+                            double replacmentCost = (calculationParameters.ReplacementPriceAnion * calculationParameters.AnionAmount) + (calculationParameters.ReplacemtntPriceCation * calculationParameters.CationAmount);
+                            costToRegenerate = costToRegenerate + replacmentCost;
 							replacementCostBefore.Add(replacmentCost);
 						}
 						else if (cleanOrReplace == "Clean")
 						{
-							double cleaningCost = ((calculationParameters.CationCleaningPrice - (calculationParameters.CationCleaningPrice * calculationParameters.CationDiscount)) + (calculationParameters.AnionCleaningPrice - (calculationParameters.AnionCleaningPrice * calculationParameters.AnionDiscount))) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
-							costToRegenerate = costToRegenerate + cleaningCost;
+							//double cleaningCost = ((calculationParameters.CationCleaningPrice - (calculationParameters.CationCleaningPrice * calculationParameters.CationDiscount)) + (calculationParameters.AnionCleaningPrice - (calculationParameters.AnionCleaningPrice * calculationParameters.AnionDiscount))) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
+                            double cleaningCost = ((calculationParameters.CationCleaningPrice - (calculationParameters.CationCleaningPrice * calculationParameters.CationDiscount)) * calculationParameters.CationAmount) + ((calculationParameters.AnionCleaningPrice - (calculationParameters.AnionCleaningPrice * calculationParameters.AnionDiscount)) * calculationParameters.AnionAmount);
+                            costToRegenerate = costToRegenerate + cleaningCost;
 							cleaningCostBefore.Add(cleaningCost);
 						}
 						else
@@ -311,14 +313,16 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						string cleanOrReplace = throughputClean.ElementAt(wk).Value.Item3;
 						if (cleanOrReplace == "Replace")
 						{
-							double replacmentCost = (calculationParameters.ReplacementPriceAnion + calculationParameters.ReplacemtntPriceCation) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
-							costToRegenerate = costToRegenerate + replacmentCost;
+							//double replacmentCost = (calculationParameters.ReplacementPriceAnion + calculationParameters.ReplacemtntPriceCation) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
+                            double replacmentCost = (calculationParameters.ReplacementPriceAnion * calculationParameters.AnionAmount) + (calculationParameters.ReplacemtntPriceCation * calculationParameters.CationAmount);
+                            costToRegenerate = costToRegenerate + replacmentCost;
 							replacementCostAfter.Add(replacmentCost);
 						}
 						else if (cleanOrReplace == "Clean")
 						{
-							double cleaningCost = ((calculationParameters.CationCleaningPrice - (calculationParameters.CationCleaningPrice * calculationParameters.CationDiscount)) + (calculationParameters.AnionCleaningPrice - (calculationParameters.AnionCleaningPrice * calculationParameters.AnionDiscount))) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
-							costToRegenerate = costToRegenerate + cleaningCost;
+							//double cleaningCost = ((calculationParameters.CationCleaningPrice - (calculationParameters.CationCleaningPrice * calculationParameters.CationDiscount)) + (calculationParameters.AnionCleaningPrice - (calculationParameters.AnionCleaningPrice * calculationParameters.AnionDiscount))) * (calculationParameters.AnionAmount + calculationParameters.CationAmount);
+                            double cleaningCost = ((calculationParameters.CationCleaningPrice - (calculationParameters.CationCleaningPrice * calculationParameters.CationDiscount)) * calculationParameters.CationAmount) + ((calculationParameters.AnionCleaningPrice - (calculationParameters.AnionCleaningPrice * calculationParameters.AnionDiscount)) * calculationParameters.AnionAmount);
+                            costToRegenerate = costToRegenerate + cleaningCost;
 							cleaningCostAfter.Add(cleaningCost);
 						}
 						else
