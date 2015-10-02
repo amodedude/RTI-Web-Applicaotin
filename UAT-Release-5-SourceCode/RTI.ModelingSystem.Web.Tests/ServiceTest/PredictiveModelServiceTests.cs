@@ -76,6 +76,7 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 		{
 			long customerId = 0;
 			string selectedTrainId = "0";
+            double degredation = 0;
 			double grainsWeightTotal = 100;
 			List<train> lstTrains = new List<train>() { new train() { } };
 			List<vessel> lstVessels = new List<vessel>() { new vessel() };
@@ -83,7 +84,7 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 			mockedPredictiveModelRepository.Setup(m => m.GetCustomerVessels(customerId)).Returns(lstVessels);
 			mockedPredictiveModelRepository.Setup(m => m.GetGrainsWeightTotal(Convert.ToString(customerId))).Returns(grainsWeightTotal);
 			IPredictiveModelService service = new PredictiveModelService(mockedRepositoryTrain.Object, mockedRepositoryWaterData.Object, mockedPredictiveModelRepository.Object, mockedVesselRepository.Object);
-			var returnObj = service.CalculateMinSaltSplit(customerId, selectedTrainId);
+            var returnObj = service.CalculateMinSaltSplit(customerId, degredation, selectedTrainId);
 			Assert.IsNotNull(returnObj);
 		}
 
@@ -95,6 +96,7 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 		{
 			long customerId = 0;
 			string selectedTrainId = "1";
+            double degredation = 0;
 			double grainsWeightTotal = 100;
 			List<train> lstTrains = new List<train>() { new train() { } };
 			List<vessel> lstVessels = new List<vessel>() { new vessel() { train_trainID = 1 } };
@@ -102,7 +104,7 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 			mockedPredictiveModelRepository.Setup(m => m.GetCustomerVessels(customerId)).Returns(lstVessels);
 			mockedPredictiveModelRepository.Setup(m => m.GetGrainsWeightTotal(Convert.ToString(customerId))).Returns(grainsWeightTotal);
 			IPredictiveModelService service = new PredictiveModelService(mockedRepositoryTrain.Object, mockedRepositoryWaterData.Object, mockedPredictiveModelRepository.Object, mockedVesselRepository.Object);
-			var returnObj = service.CalculateMinSaltSplit(customerId, selectedTrainId);
+            var returnObj = service.CalculateMinSaltSplit(customerId, degredation, selectedTrainId);
 			Assert.IsNotNull(returnObj);
 			Assert.IsInstanceOfType(returnObj, typeof(List<double>));
 			var result = (List<double>)returnObj;
@@ -121,8 +123,9 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 			double ResinAge = 30;
 			double CleaningEffectiveness = 15;
 			double startingSS = 10;
+            double lifeExpectancy = 156;
 			IPredictiveModelService service = new PredictiveModelService(mockedRepositoryTrain.Object, mockedRepositoryWaterData.Object, mockedPredictiveModelRepository.Object, mockedVesselRepository.Object);
-			var returnObj = service.CurrentSSConditions(ResinAge,CleaningEffectiveness, startingSS);
+			var returnObj = service.CurrentSSConditions(ResinAge,CleaningEffectiveness, startingSS, lifeExpectancy);
 			Assert.IsNotNull(returnObj);
 			Assert.IsInstanceOfType(returnObj, typeof(Dictionary<double, double>));
 			var result = (Dictionary<double, double>)returnObj;

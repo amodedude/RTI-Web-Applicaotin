@@ -22,10 +22,13 @@ namespace RTI.ModelingSystem.Web.Controllers
     using RTI.ModelingSystem.Core.Interfaces.Repository;
     using RTI.ModelingSystem.Core.Interfaces.Services;
     using RTI.ModelingSystem.Core.Models;
+    //using RTI.ModelingSystem.Web.Models;
     using Point = DotNet.Highcharts.Options.Point;
     using System.Globalization;
 
     #endregion Usings
+
+
 
     /// <summary>
     /// PredictiveSystemController class
@@ -118,6 +121,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <returns>Returns the Predictive System Performance view</returns>
         public ActionResult PredictiveSystemPerformance()
         {
+
             long customerId = 0;
             if (this.Session["CustomerId"] != null)
             {
@@ -206,11 +210,11 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="IsDashboard">IsDashboard flag</param>
         /// <returns>Returns the View</returns>
         [OutputCache(Duration = 0, VaryByParam = "none")]
-        public ActionResult PlotSaltSplitChart(double numWeeks = 0, double AvgResinage = 0, double startingSS = 25.0, double maxDegSS = 62.0, string SelectedTrain = "0", double CleaningEffectiveness = 28.0, bool IsDashboard = false)
+        public ActionResult PlotSaltSplitChart(double numWeeks = 0, double AvgResinage = 0, double startingSS = 25.0, double maxDegSS = 62.0, string SelectedTrain = "0", double CleaningEffectiveness = 28.0, bool IsDashboard = false, double life_expectancy = 156)
         {
             try
             {
-                Highcharts chart = this.FetchSaltSplitChartData(numWeeks, AvgResinage, startingSS, maxDegSS, SelectedTrain, CleaningEffectiveness, IsDashboard);
+                Highcharts chart = this.FetchSaltSplitChartData(numWeeks, AvgResinage, startingSS, maxDegSS, SelectedTrain, CleaningEffectiveness, IsDashboard, life_expectancy);
                 this.Session["SelectedTrain"] = SelectedTrain;
                 return this.PartialView("_SaltSplitChart", chart);
             }
@@ -231,12 +235,12 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="CleaningEffectiveness">The cleaning effectiveness.</param>
         /// <param name="isDashboard">if set to <c>true</c> [is dashboard].</param>
         /// <returns></returns>
-        private Highcharts FetchSaltSplitChartData(double numWeeks, double avgResinage, double startingSS, double maxDegSS, string selectedTrain, double CleaningEffectiveness, bool isDashboard)
+        private Highcharts FetchSaltSplitChartData(double numWeeks, double avgResinage, double startingSS, double maxDegSS, string selectedTrain, double CleaningEffectiveness, bool isDashboard, double life_expectancy)
         {
             try
             {
                 Dictionary<double, double> currentSS = new Dictionary<double, double>();
-                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), selectedTrain);
+                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), maxDegSS, selectedTrain);
                 double minimumSaltSplit = minimumSS[0];
                 double dblResinAge;
                 if (avgResinage == 0)
@@ -279,7 +283,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                 }
                 Point point1 = new Point();
                 Point point2 = new Point();
-                currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS);
+                currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS, life_expectancy);
                 this.currentSaltSplit = (currentSS != null && currentSS.Count > 0) ? currentSS.ElementAt(0).Value : 0;
 
                 point1.X = (currentSS != null && currentSS.Count > 0) ? currentSS.ElementAt(0).Key : 0;
@@ -298,13 +302,13 @@ namespace RTI.ModelingSystem.Web.Controllers
                     .SetTooltip(new Tooltip
                     {
                         HeaderFormat = "<b>{series.name}</b><br>",
-                        PointFormat = "<b>Week :{point.x:.0f}<br> <b>Salt Split: {point.y:.2f}</b>"
-                        ,
+                        PointFormat = "<b>Week :{point.x:.0f}<br> <b>Salt Split: {point.y:.2f}</b>",
                         Enabled = true
                     })
                     .SetLegend(new Legend
                     {
                         BorderWidth = 1,
+                        Width = 450
                     })
                     .SetXAxis(new XAxis
                     {
@@ -453,7 +457,7 @@ namespace RTI.ModelingSystem.Web.Controllers
             {
                 var customerId = this.Session["CustomerId"].ToString();
                 string calculationMethod = SetSimMethod(simMethod);
-                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), SelectedTrain);
+                List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), MaxDegradation, SelectedTrain);
                 double minimumSaltSplit = minimumSS[0];
                 double dblResinAge = 0;
                 if (resinAge == 0)
@@ -470,10 +474,10 @@ namespace RTI.ModelingSystem.Web.Controllers
                 }
 
                 this.predictiveModelService.ComputeDataPoints(resinLifeExpectancy, startingSS, MaxDegradation);
-                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS);
+                Dictionary<double, double> currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS, resinLifeExpectancy);
                 if (currentSS != null && currentSS.Count > 1)
                 {
-                    this.currentSaltSplit = currentSS.ElementAt(1).Value;
+                    this.currentSaltSplit = currentSS.ElementAt(0).Value;
                 }
                 PriceData priceData = this.predictiveModelService.Thoughputchart(customerId, this.currentSaltSplit, startingSS, resinLifeExpectancy, simulationconfidence, num_simulation_iterations, calculationMethod
                     , stdDev_threshold, dblResinAge, Replacement_Level, RTIcleaning_Level, SelectedTrain, DontReplaceResin);
@@ -612,12 +616,15 @@ namespace RTI.ModelingSystem.Web.Controllers
                     {
                         Lang = new DotNet.Highcharts.Helpers.Lang { ThousandsSep = ",", DecimalPoint = "." }
                     })
-                   .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.Xy, SpacingRight = 20 })
+                   .InitChart(new Chart { Width = width, Height = height, DefaultSeriesType = ChartTypes.Area, ZoomType = ZoomTypes.X, SpacingRight = 20 })
                    .SetTitle(new Title { Text = "Throughput Forecast" })
                    .SetTooltip(new Tooltip
                    {
                        HeaderFormat = "<b>Week: {point.x:.0f}</b><br>",
-                       PointFormat = "<b>{series.name}: {point.y:,.2f}</b><br>",
+                       //PointFormat = "<b><span style=\"color:this.data.marker.fillcolor\">{series.name}: {point.y:,.2f}</b></span><br>",
+
+                       // Use javascript function to control the tool tip coloring, to add a week number display, and to add thousands place seperartors 
+                       Formatter = @"function() {var s = [];var X = '';$.each(this.points, function(index,point){if((index%2)==0){s.push('<span style=""color:#E6B800;font-weight:bold;"">'+ point.series.name + ' : <span>' + '<b style=""font-weight:bold;"">' + point.y.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "","") + '</b>');}else{s.push('<span style=""color:#509950;font-weight:bold;"">'+ point.series.name + ' : <span>' + '<b style=""font-weight:bold;"">' + point.y.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "","") + '</b>');}X = point.x;});var header = '<span style=""font-weight:bold;"">Week: ' + X.toString() + '<span>';  s.splice(0, 0, header); var temp1 = s[1];var temp2 = s[2];s[1] = temp2;s[2] = temp1;if(s.length >= 5){temp1 = s[4];temp2 = s[3];s[4] = temp2;s[3] = temp1;}return s.join('<br>');}",
                        Enabled = true,
                        Shared = true
                    })
@@ -625,7 +632,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                    {
                        Title = new XAxisTitle { Text = "Number of Weeks" },
                        Type = AxisTypes.Linear,
-                       MinRange = xaxisMinValue,
+                       MinRange = 0,
                        Min = xaxisMinValue,
                        Max = xaxisMaxValue,
                        TickInterval = 20,
@@ -633,9 +640,9 @@ namespace RTI.ModelingSystem.Web.Controllers
                    })
                    .SetCredits(new Credits { Enabled = false })
                    .SetLegend(new Legend
-                   {
-                       BorderWidth = 1,
-                   })
+                    {
+                        BorderWidth = 1,
+                    })
                    .SetYAxis(new YAxis
                    {
                        Title = new YAxisTitle { Text = "Throughput" },

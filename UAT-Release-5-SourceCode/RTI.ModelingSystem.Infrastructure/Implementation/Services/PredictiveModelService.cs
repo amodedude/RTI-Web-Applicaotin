@@ -256,22 +256,27 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// </summary>
         /// <param name="id">Customer identifier</param>
         /// <param name="selectedTrainId">selected Train Id</param>
-        /// <returns>Retusn list</returns>
-        public List<double> CalculateMinSaltSplit(long id, string selectedTrainId = "0")
+        /// <returns>Returns list</returns>
+        public List<double> CalculateMinSaltSplit(long id, double degredation, string selectedTrainId = "0")
         {
             try
             {
                 int waterDemand = this.predictiveRepository.GetWaterDemand(id);
                 List<train> trainData = new List<train>();
                 List<vessel> vesselData = new List<vessel>();
-                List<TimeSpan> intervalList = new List<TimeSpan>();
+                List<BedNum_Interval> intervalList = new List<BedNum_Interval>();
                 List<double> lbsChemicalList = new List<double>();
                 TimeSpan intervalSum = new TimeSpan();
                 List<double> replacementPlan = new List<double>();
                 List<double> output = new List<double>();
                 trainData = this.predictiveRepository.GetCustomerTrains(id);
                 vesselData = this.predictiveRepository.GetCustomerVessels(id);
-                double numberOfTrains = trainData.Count;
+                double numberOfTrains;
+                if (selectedTrainId == "0")
+                    numberOfTrains = trainData.Count;
+                else
+                    numberOfTrains = 1;
+
                 double numberCubicFeet = 0, numberRegens = 0;
                 List<double> numberRegenPerTrain = new List<double>();
                 string usingManifold = string.Empty;
@@ -289,7 +294,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 }
                 if (usingManifold == "NO")
                 {
-                    numberRegens = numberRegenPerTrain.Average();
+                    numberRegens = numberRegenPerTrain.Sum(); // Get the total number of regens for the system
                 }
                 else
                 {
@@ -308,51 +313,72 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         }
 
                     }
-                    numberRegens = numberRegenPerTrain.Average();
+                    numberRegens = numberRegenPerTrain.Sum(); // Get the total number of regens for the system
                 }
+                List<double> numCuFt = new List<double>();
+                int vesselNumber = 0;
                 foreach (var item in vesselData)
                 {
+                    vesselNumber++;
                     if (selectedTrainId == "0")
                     {
-                        numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
-                        if (item.vessel_number % 2 == 0)
-                        {
-                            DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
-                            TimeSpan interval = DateTime.Today - purchasedate;
-                            intervalList.Add(interval);
-                            replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
-                        }
+                        
+                        //numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
+                        DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
+                        TimeSpan interval = DateTime.Today - purchasedate;
+                        BedNum_Interval bed_interval = new BedNum_Interval();
+                        bed_interval.bed_number = item.bed_number;
+                        bed_interval.span = interval;
+                        intervalList.Add(bed_interval);                        
+                        replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                         double lbsChemical = Convert.ToDouble(item.lbs_chemical);
-                        lbsChemicalList.Add(lbsChemical);
-
+                        
+                        if (vesselNumber % 2 != 0)
+                        {  // Only the anion vessels
+                            numCuFt.Add(Convert.ToDouble(item.size));
+                            lbsChemicalList.Add(lbsChemical);
+                        }
                     }
                     else
                     {
                         if (item.train_trainID == Convert.ToInt32(selectedTrainId))
                         {
-                            numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
-                            if (item.vessel_number % 2 == 0)
-                            {
-                                DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
-                                TimeSpan interval = DateTime.Today - purchasedate;
-                                intervalList.Add(interval);
-                                replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
-                            }
+                            
+                            //numberCubicFeet = numberCubicFeet + Convert.ToDouble(item.size);
+                            DateTime purchasedate = Convert.ToDateTime(item.date_replaced, new CultureInfo("en-US", true));
+                            TimeSpan interval = DateTime.Today - purchasedate;
+                            BedNum_Interval bed_interval = new BedNum_Interval();
+                            bed_interval.bed_number = item.bed_number;
+                            bed_interval.span = interval;
+                            intervalList.Add(bed_interval); 
+                            replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                             double lbsChemical = Convert.ToDouble(item.lbs_chemical);
-                            lbsChemicalList.Add(lbsChemical);
+                            
+                            if (vesselNumber % 2 != 0)
+                            {  // Only the anion vessels
+                                numCuFt.Add(Convert.ToDouble(item.size));
+                                lbsChemicalList.Add(lbsChemical);
+                            }
                         }
                     }
-
+                    numberCubicFeet = numCuFt.Sum(); // Use only the number of CubicFt for the Anion Vessel
                 }
+
+                int num_anions = 0;
                 foreach (var span in intervalList)
                 {
-                    intervalSum += span;
+                    // Ensure we are summing only the ANION vesel purchase dates!
+                    if (span.bed_number == "2")
+                    {
+                        intervalSum += span.span;
+                        num_anions++;
+                    }
                 }
 
                 double average = 0;
                 if (intervalList.Count > 0)
                 {
-                    average = intervalSum.TotalMilliseconds / intervalList.Count;
+                    average = intervalSum.TotalMilliseconds / num_anions;
                 }
                 else
                 {
@@ -361,7 +387,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 TimeSpan averageResinAge = TimeSpan.FromMilliseconds(average);
                 double age = averageResinAge.TotalDays / 7;
                 double grainAverage = this.predictiveRepository.GetGrainsWeightTotal(id.ToString());
-                double minimumSaltSplit = (waterDemand / (numberOfTrains > 0 ? numberOfTrains : 1)) * (1 / (numberCubicFeet != 0 ? numberCubicFeet : 1)) * (grainAverage / 1000) * (1 / (numberRegens != 0 ? numberRegens : 1));
+             
+                double minimumSaltSplit = 10.8;
                 output.Add(minimumSaltSplit);
                 output.Add(age);
                 output.Add(replacementPlan.Average());
@@ -380,7 +407,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="cleaningEffectiveness">Cleaning Effectiveness</param>
         /// <param name="startingSaltSplit">starting SS</param>
         /// <returns>Returns dictionary</returns>
-        public Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit)
+        public Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit, double resinLifeExpectancy)
         {
             try
             {
@@ -407,7 +434,25 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         weekNumber = Math.Round(convertedSaltSplitPoints.ElementAt(convertedSaltSplitPoints.Count - 1).Key);
                     }
                 }
-                double afterCleaningSaltSplit = ((cleaningEffectiveness * 0.01) * (startingSaltSplit - currentSaltSplit)) + currentSaltSplit;
+
+
+                //double effectiveAfterCleaningResinAge = Math.Floor(weekNumber - (weekNumber*cleaningEffectiveness*0.01));
+                //double weeKNumber = 312 * (Convert.ToDouble(effectiveAfterCleaningResinAge) / resinLifeExpectancy);
+                //double[] degPoly = new double[5];
+                //degPoly[0] = 1.93647597707001E-10;
+                //degPoly[1] = -1.71818433081473E-07;
+                //degPoly[2] = 0.0000450031960953974;
+                //degPoly[3] = -0.001102430677463;
+                //degPoly[4] = 0.009638951553683;
+                //double degradation = ((Math.Pow(weeKNumber, 4) * degPoly[0]) + (Math.Pow(weeKNumber, 3) * degPoly[1]) + (Math.Pow(weeKNumber, 2) * degPoly[2]) + (weeKNumber * degPoly[3]) + degPoly[4]);
+                //double saltSplit = (startingSaltSplit * (1 - degradation));
+
+                //double afterCleaningSaltSplit = saltSplit;
+                double afterCleaningSaltSplit = currentSaltSplit + (cleaningEffectiveness * 0.01 * currentSaltSplit);
+
+                // Limit the after cleaning saltsplit to the new resin saltsplit level
+                afterCleaningSaltSplit = afterCleaningSaltSplit >= startingSaltSplit ? startingSaltSplit : afterCleaningSaltSplit;
+
                 List<double> afterCleaningWeek = FindAfterCleaningWeak(afterCleaningSaltSplit);
 				if (!currentSaltSplitConditions.ContainsKey(weekNumber))
 				{
@@ -631,5 +676,11 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
             }
         }
         #endregion Methods
+    }
+
+    // Holds bed number and purchase date time span
+    public class BedNum_Interval{
+        public string bed_number { get; set; }
+        public TimeSpan span { get; set; }
     }
 }

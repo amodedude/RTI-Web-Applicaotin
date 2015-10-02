@@ -30,7 +30,23 @@
             $('#graph_CostAnalyzer').empty();
             $('#graph_CostAnalyzer').highcharts({
                 chart: {
-                    zoomType: 'x'
+                    zoomType: 'x',
+                    events: {
+                        load: function (e) {
+                            //$("#CostAnalyzerResultsTable").fadeOut(300);
+                            $.ajax({
+                                url: 'GetResultsTable',
+                                type: "GET",
+                                data: { weekNumber: this.x, isClick: false },
+                                success: function (CostAnalyzerResultsData) {
+                                    $("#CostAnalyzerResultsTable").empty();
+                                    $("#CostAnalyzerResultsTable").html(CostAnalyzerResultsData);
+                                    //FADEOUT AND FADEIN           
+                                    $("#CostAnalyzerResultsTable").fadeIn(400);
+                                }
+                            });
+                        }
+                    }
                 },
                 title: {
                     text: 'Cost Analyzer',
@@ -43,6 +59,7 @@
 
                 },
                 yAxis: {
+                    type: 'logarithmic',                  
                     title: {
                         text: 'Cost of Operations'
                     }
@@ -67,7 +84,7 @@
                                     $.ajax({
                                         url: 'GetResultsTable',
                                         type: "GET",
-                                        data: { weekNumber: this.x },
+                                        data: { weekNumber: this.x, isClick: true },
                                         success: function (CostAnalyzerResultsData) {
                                             //alert(CostAnalyzerResultsData);
                                             $("#CostAnalyzerResultsTable").empty();
@@ -165,7 +182,24 @@ $(document).on("click", "#updateCostModel", function () {
             $('#graph_CostAnalyzer').empty();
             $('#graph_CostAnalyzer').highcharts({
                 chart: {
-                    zoomType: 'x'
+                    zoomType: 'x',
+                    events: {
+                        load: function (e) {
+
+                            //$("#CostAnalyzerResultsTable").fadeOut(300);
+                            $.ajax({
+                                url: 'GetResultsTable',
+                                type: "GET",
+                                data: { weekNumber: this.x, isClick: false },
+                                success: function (CostAnalyzerResultsData) {
+                                    $("#CostAnalyzerResultsTable").empty();
+                                    $("#CostAnalyzerResultsTable").html(CostAnalyzerResultsData);
+                                    //FADEOUT AND FADEIN           
+                                    $("#CostAnalyzerResultsTable").fadeIn(400);
+                                }
+                            });
+                        }
+                    }
                 },
                 title: {
                     text: 'Cost Analyzer',
@@ -201,7 +235,7 @@ $(document).on("click", "#updateCostModel", function () {
                                     $.ajax({
                                         url: 'GetResultsTable',
                                         type: "GET",
-                                        data: { weekNumber: this.x },
+                                        data: { weekNumber: this.x, isClick: true },
                                         success: function (CostAnalyzerResultsData) {
                                             //alert(CostAnalyzerResultsData);
                                             $("#CostAnalyzerResultsTable").empty();

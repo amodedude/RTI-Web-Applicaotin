@@ -167,7 +167,7 @@
 
         <h4>Predictive System Performance</h4>
         <div class="well graph_container" id="graph_container2">
-            <div class="graph_panel" id="SaltSplitPlot">
+            <div class="graph_panel" id="SaltSplitPlot" style="height:285px;">
                 <h5>Salt Split Degradation</h5>
             @if (Model.CustomerDetails == null || Model.WaterSourceOne == null || Model.HasTrainDetails=="No")
             {
@@ -175,7 +175,7 @@
             }
                         </div>
 
-            <div class="graph_panel" id="ThroghPutPlot">
+            <div class="graph_panel" id="ThroghPutPlot" style="height:285px;">
                 <h5>Throughput Forecast</h5>
                 @if (Model.CustomerDetails == null || Model.WaterSourceOne == null || Model.HasTrainDetails == "No")
                 {

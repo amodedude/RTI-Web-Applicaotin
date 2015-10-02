@@ -97,16 +97,16 @@
                         </p>
                         <p>
                             @Html.Label("ft3 of Resin")
-                            @Html.TextBoxFor(model => model.VesslsList[0].num_regens)
-                            @Html.ValidationMessageFor(model => model.VesslsList[0].num_regens, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.VesslsList[0].size)
+                            @Html.ValidationMessageFor(model => model.VesslsList[0].size, "", new { @class = "text-danger" })
+                        </p>
+                        <p>
                             @Html.Label("lb/ft3 of Acid")
                             @Html.TextBoxFor(model => model.VesslsList[0].lbs_chemical)
                             @Html.ValidationMessageFor(model => model.VesslsList[0].lbs_chemical, "", new { @class = "text-danger" })
                         </p>
                         <p>
-                            @Html.Label("Total Organic Carbon")
-                        </p>
-                        <p>
+                            @Html.Label("Total Hardness")
                             @Html.TextBoxFor(model => model.VesslsList[0].toc)
                             @Html.ValidationMessageFor(model => model.VesslsList[0].toc, "", new { @class = "text-danger" })
                         </p>
@@ -143,16 +143,16 @@
                         </p>
                         <p>
                             @Html.Label("ft3 of Resin")
-                            @Html.TextBoxFor(model => model.VesslsList[1].num_regens)
-                            @Html.ValidationMessageFor(model => model.VesslsList[1].num_regens, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.VesslsList[1].size)
+                            @Html.ValidationMessageFor(model => model.VesslsList[1].size, "", new { @class = "text-danger" })
+                        </p>
+                        <p>
                             @Html.Label("lb/ft3 of Acid")
                             @Html.TextBoxFor(model => model.VesslsList[1].lbs_chemical)
                             @Html.ValidationMessageFor(model => model.VesslsList[1].lbs_chemical, "", new { @class = "text-danger" })
                         </p>
                         <p>
                             @Html.Label("Total Organic Carbon")
-                        </p>
-                        <p>
                             @Html.TextBoxFor(model => model.VesslsList[1].toc)
                             @Html.ValidationMessageFor(model => model.VesslsList[1].toc, "", new { @class = "text-danger" })
                         </p>
@@ -160,7 +160,6 @@
                             @Html.Label("Throughput")
                             @Html.TextBoxFor(model => model.VesslsList[1].throughput)
                             @Html.ValidationMessageFor(model => model.VesslsList[1].throughput, "", new { @class = "text-danger" })
-
                         </p>
                     </td>
 
@@ -189,20 +188,19 @@
                             </p>
                             <p>
                                 @Html.Label("ft3 of Resin")
-                                @Html.TextBoxFor(model => model.VesslsList[2].num_regens)
+                                @Html.TextBoxFor(model => model.VesslsList[2].size)
+                            </p>
+                            <p>
                                 @Html.Label("lb/ft3 of Acid")
                                 @Html.TextBoxFor(model => model.VesslsList[2].lbs_chemical)
                             </p>
                             <p>
                                 @Html.Label("Total Organic Carbon")
-                            </p>
-                            <p>
                                 @Html.TextBoxFor(model => model.VesslsList[2].toc)
                             </p>
                             <p>
                                 @Html.Label("Throughput")
                                 @Html.TextBoxFor(model => model.VesslsList[2].throughput)
-
                             </p>
                         </td>
                         <td>
@@ -228,14 +226,14 @@
                             </p>
                             <p>
                                 @Html.Label("ft3 of Resin")
-                                @Html.TextBoxFor(model => model.VesslsList[3].num_regens)
+                                @Html.TextBoxFor(model => model.VesslsList[3].size)
+                            </p>
+                            <p>
                                 @Html.Label("lb/ft3 of Acid")
                                 @Html.TextBoxFor(model => model.VesslsList[3].lbs_chemical)
                             </p>
                             <p>
                                 @Html.Label("Total Organic Carbon")
-                            </p>
-                            <p>
                                 @Html.TextBoxFor(model => model.VesslsList[3].toc)
                             </p>
                             <p>
@@ -272,14 +270,14 @@
                                 </p>
                                 <p>
                                     @Html.Label("ft3 of Resin")
-                                    @Html.TextBoxFor(model => model.VesslsList[2].num_regens)
+                                    @Html.TextBoxFor(model => model.VesslsList[2].size)
+                                </p>
+                                <p>
                                     @Html.Label("lb/ft3 of Acid")
                                     @Html.TextBoxFor(model => model.VesslsList[2].lbs_chemical)
                                 </p>
                                 <p>
                                     @Html.Label("Total Organic Carbon")
-                                </p>
-                                <p>
                                     @Html.TextBoxFor(model => model.VesslsList[2].toc)
                                 </p>
                                 <p>
@@ -311,14 +309,14 @@
                                 </p>
                                 <p>
                                     @Html.Label("ft3 of Resin")
-                                    @Html.TextBoxFor(model => model.VesslsList[3].num_regens)
+                                    @Html.TextBoxFor(model => model.VesslsList[3].size)
+                                </p>
+                                <p>
                                     @Html.Label("lb/ft3 of Acid")
                                     @Html.TextBoxFor(model => model.VesslsList[3].lbs_chemical)
                                 </p>
                                 <p>
                                     @Html.Label("Total Organic Carbon")
-                                </p>
-                                <p>
                                     @Html.TextBoxFor(model => model.VesslsList[3].toc)
                                 </p>
                                 <p>

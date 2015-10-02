@@ -162,7 +162,7 @@ namespace RTI.ModelingSystem.Web.Tests.ServiceTest
 		[TestMethod]
 		public void GetCostAnalyzerResultsData()
 		{
-			double week = 1;
+			//double week = 1;
             mockedVesselRepository.Setup(m => m.GetById(1)).Returns(new vessel());
 			ICostAnalyzerService service = new CostAnalyzerService(mockedCustRepository.Object, 
                                                                     mockedTrainRepository.Object,

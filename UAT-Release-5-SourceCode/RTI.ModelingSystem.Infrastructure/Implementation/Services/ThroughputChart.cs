@@ -40,6 +40,16 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		/// </summary>
 		private double trainResinAmount;
 
+        /// <summary>
+        /// train Anion Resin Amount
+        /// </summary>
+        private double trainAnionResinAmount;
+
+        /// <summary>
+        /// train pounds of Chemical (Caustic)
+        /// </summary>
+        private double lbsAnionChemical;
+
 		/// <summary>
 		/// selected Train GPM
 		/// </summary>
@@ -85,7 +95,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		/// <param name="rtiCleaningLevel">rti Cleaning Level</param>
 		/// <param name="donotReplaceResin">dont Replace Resin</param>
 		/// <returns>Returns the Price data</returns>
-		public PriceData RunModel(double startingSaltSplit, double currentSaltSplit, double resinLifeExpectancy, int simulationConfidence, int numberSimulationIterations, string simulationMethod, int standardDeviationThreshold, double resinAge, double replacementLevel, double rtiCleaningLevel, bool donotReplaceResin)
+		public PriceData RunModel(double startingSaltSplit, double currentSaltSplit, double resinLifeExpectancy, int simulationConfidence, int numberSimulationIterations, string simulationMethod, int standardDeviationThreshold, double resinAge, double replacementLevel, double rtiCleaningLevel, bool donotReplaceResin, List<double> regenTimes)
 		{
 			try
 			{
@@ -128,9 +138,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				dataToSend.GrainForcast = grainForeCast;
 				double rtiCleaningeffectivness = 28.0;
 				ThroughputBuilder tp = new ThroughputBuilder();
-				Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin);
+                Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin,regenTimes);
 				var afterConditions = tp.AfterSystemConditions;
-				Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin);
+                Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin,regenTimes);
 				var beforeConditions = tp.BeforeSystemConditions;
 				List<double> reginWeek = new List<double>();
 				List<double> hoursWeek = new List<double>();
@@ -365,7 +375,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				currentSaltSplitValue = currentSaltSplit;
 				List<vessel> lstCustomerVessels = new List<vessel>();
 				lstCustomerVessels = predictiveRepository.GetCustomerVessels(Convert.ToInt64(customerId));
-				List<TimeSpan> intervalList = new List<TimeSpan>();
+				List<BedNum_Interval> intervalList = new List<BedNum_Interval>();
 				List<double> vesselSizeList = new List<double>();
 				List<double> lbsChemicalList = new List<double>();
 				TimeSpan intervalSum = new TimeSpan();
@@ -389,9 +399,12 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						{
 							DateTime purchase_date = Convert.ToDateTime(vesselList.date_replaced, new CultureInfo("en-US", true));
 							TimeSpan interval = DateTime.Today - purchase_date;
-							intervalList.Add(interval);
+                            BedNum_Interval bednum_interval = new BedNum_Interval();
+                            bednum_interval.bed_number = vesselList.bed_number;
+                            bednum_interval.span = interval;
+							intervalList.Add(bednum_interval);
 							replacementPlan.Add(Convert.ToInt32(vesselList.replacement_plan));
-							double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
+              double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							double vesselSize = Convert.ToDouble(vesselList.size);
 							vesselSizeList.Add(vesselSize);
 							lbsChemicalList.Add(lbsChemical);
@@ -400,7 +413,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						{
 							DateTime purchase_date = Convert.ToDateTime(vesselList.date_replaced, new CultureInfo("en-US", true));
 							TimeSpan interval = DateTime.Today - purchase_date;
-							intervalList.Add(interval);
+                            BedNum_Interval bednum_interval = new BedNum_Interval();
+                            bednum_interval.bed_number = vesselList.bed_number;
+                            bednum_interval.span = interval;
+                            intervalList.Add(bednum_interval);
 							replacementPlan.Add(Convert.ToInt32(vesselList.replacement_plan));
 							double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							double vesselSize = Convert.ToDouble(vesselList.size);
@@ -409,11 +425,20 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						}
 					}
 				}
-				foreach (var span in intervalList)
-				{
-					intervalSum += span;
-				}
-				double average = intervalSum.TotalMilliseconds / intervalList.Count;
+
+                    int anionCount = 0;
+                    foreach (var span in intervalList)
+                    {
+                        // Ensure we are only summing the ANION resin age only
+                        if (span.bed_number == "2")
+                        {
+                            intervalSum += span.span;
+                            anionCount++;
+                        }
+                    }
+
+
+                double average = intervalSum.TotalMilliseconds / anionCount;
 				TimeSpan averageResinAge = new TimeSpan();
 				if (!double.IsNaN(average))
 				{
@@ -439,6 +464,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 					}
 					cation = !cation;
 				}
+
+                trainAnionResinAmount = dataToSend.AmountAnion; // Set the amount of resin for just the ANION
+
 				cation = true;
 
 				foreach (var chemAmt in lbsChemicalList)
@@ -453,6 +481,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 					}
 					cation = !cation;
 				}
+
+                lbsAnionChemical = dataToSend.CausticUsage; // Set the amount of Caustic 
+
 				int customerCustomerId = Convert.ToInt16(customerId);
 				List<train> trains = trainRepository.GetAll().Where(p => p.customer_customerID == customerCustomerId).ToList();
 				trainGPMValues = new string[trains.Count];
@@ -473,7 +504,14 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				}
 
 				this.LoadTrainData(2, trainGPMValues);
-				PriceData priceData = this.RunModel(startingSaltSplit, currentSaltSplit, resinLifeExpectancy, simulationConfidence, numberSimulationIterations, simulationMethod, standardDevThreshold, resinAge, replacementLevel, rtiCleaningLevel, donotReplaceResin);
+                
+                List<double> regenTimes = new List<double>();
+                foreach (var train in trains)
+                {
+                    regenTimes.Add(Convert.ToInt32(train.regen_duration));
+                }
+
+				PriceData priceData = this.RunModel(startingSaltSplit, currentSaltSplit, resinLifeExpectancy, simulationConfidence, numberSimulationIterations, simulationMethod, standardDevThreshold, resinAge, replacementLevel, rtiCleaningLevel, donotReplaceResin, regenTimes);
 				return priceData;
 			}
 			catch

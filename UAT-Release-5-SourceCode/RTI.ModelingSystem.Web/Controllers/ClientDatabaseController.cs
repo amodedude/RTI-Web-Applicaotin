@@ -379,6 +379,10 @@ namespace RTI.ModelingSystem.Web.Controllers
                             {
                                 lstVessels[i].Polisher = true;
                             }
+                            if (trainDetails.manifold == false) // Set number of regens to "N/A" if the user is not using a manifold 
+                            {
+                                lstVessels[i].num_regens = "N/A";
+                            }
                         }
                         if (VesselNumbers.Count == 1)
                         {
@@ -403,7 +407,7 @@ namespace RTI.ModelingSystem.Web.Controllers
 
                         return this.PartialView("_TrainSettings", trainDetails);
                     }
-                    else
+                    else // This happens when the user switches between trains!!!
                     {
                         lstVessels = this.modifiedVesselRepository.FetchVesselsList(Convert.ToInt16(trId));
                         trainDetails.VesslsList = lstVessels;
@@ -524,6 +528,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <returns></returns>
         private train ProcessTrainSettings(Trainsettings trainSettings, train train)
         {
+            List<vessel> lstVessels = new List<vessel>();
             train = trainSettings.Train;
             train.customer_customerID = Convert.ToInt32(this.Session["CustomerId"]);
             if (train.using_manifold == null)
@@ -604,7 +609,9 @@ namespace RTI.ModelingSystem.Web.Controllers
                 using (TransactionScope scope = new TransactionScope())
                 {
                     int vesselNumber = 0;
-                    foreach (vessel vessel in trainSettings.VesslsList)
+                    lstVessels = this.modifiedVesselRepository.FetchVesselsList(Convert.ToInt16(train.trainID));
+                    int vesselcount = 0;
+                    foreach (vessel vessel in trainSettings.VesslsList)  // This Updates the DB's Vessel Data with updated view information entered in by the user
                     {
                         vesselNumber = vesselNumber + 1;
                         if (vessel.UpdateVessel == "True")
@@ -628,6 +635,20 @@ namespace RTI.ModelingSystem.Web.Controllers
                             }
                             vessel.vessel_customerID = this.Session["CustomerId"].ToString();
                             vessel.train_trainID = train.trainID;
+
+                            // Ensure that all num-regens data is populated 
+                            if(train.using_manifold == "NO")
+                            {
+                                vessel.num_regens = (lstVessels.ElementAt(vesselcount).num_regens) != null ? lstVessels.ElementAt(vesselcount).num_regens : "00";  // If we are not using a manifold store the previous manifold data (if it exists, otherwise store 00)
+                                vessel.throughput = (lstVessels.ElementAt(vesselcount).throughput) != null ? lstVessels.ElementAt(vesselcount).throughput : "00";  // If we are not using a manifold store the previous manifold data (if it exists, otherwise store 00)
+                            }
+                            else if (vessel.num_regens == null || vessel.throughput == null)
+                            {
+                                vessel.num_regens = "000";
+                                vessel.throughput = "000";
+                            }
+
+
                             try
                             {
                                 this.modifiedVesselRepository.UpdateVessel(vessel);//Delete vessel if its not being updated to DB
@@ -641,6 +662,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                         {
                             this.modifiedVesselRepository.DeleteVessel(vessel);
                         }
+                        vesselcount++;
                     }
                     scope.Complete();
                 }

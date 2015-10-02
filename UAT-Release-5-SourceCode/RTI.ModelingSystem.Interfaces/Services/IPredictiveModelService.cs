@@ -36,7 +36,7 @@ namespace RTI.ModelingSystem.Core.Interfaces.Services
 		/// <param name="id">The identifier.</param>
 		/// <param name="selectedTrainId">The selected train identifier.</param>
 		/// <returns></returns>
-		List<double> CalculateMinSaltSplit(long id, string selectedTrainId = "0");
+        List<double> CalculateMinSaltSplit(long id, double degredation, string selectedTrainId = "0");
 
 		/// <summary>
 		/// Currents the ss conditions.
@@ -45,7 +45,7 @@ namespace RTI.ModelingSystem.Core.Interfaces.Services
 		/// <param name="cleaningEffectiveness">The cleaning effectiveness.</param>
 		/// <param name="startingSaltSplit">The starting salt split.</param>
 		/// <returns></returns>
-		Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit);
+		Dictionary<double, double> CurrentSSConditions(double resinAge, double cleaningEffectiveness, double startingSaltSplit, double resinLifeExpectancy);
 
 		/// <summary>
 		/// Thoughputcharts the specified customer identifier.

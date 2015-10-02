@@ -120,7 +120,7 @@ namespace RTI.ModelingSystem.Web.DependencyResolution
         /// The requested service instance.
         /// </returns>
         protected override object DoGetInstance(Type serviceType, string key)
-        {
+       {
             if (string.IsNullOrEmpty(key))
             {
                 return serviceType.IsAbstract || serviceType.IsInterface

@@ -95,10 +95,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				int NumberOfDataPoints = data.Count();
 				double SumOfSourceOneData = 0, Mean, sum_X_minus_μ_squared = 0, StdDev;
 				double sourceMax, sourceMin, sourceMedian, sourceMode, currentCond, percentAboveMean;
-				double[] condDataToDouble;
-				double[] X_minus_μ_squared;
-				condDataToDouble = new double[NumberOfDataPoints];
-				X_minus_μ_squared = new double[NumberOfDataPoints];
+                double[] condDataToDouble = new double[NumberOfDataPoints];
+                double[] X_minus_μ_squared = new double[NumberOfDataPoints];
 				foreach (var element in data)
 				{
 					SumOfSourceOneData = SumOfSourceOneData + Convert.ToDouble(element.cond);
@@ -119,30 +117,49 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				StdDev = Math.Sqrt(sum_X_minus_μ_squared);
 				sourceMax = condDataToDouble.Length > 0 ? Math.Round(condDataToDouble.Max(), 2) : 0;
 				sourceMin = condDataToDouble.Length > 0 ? Math.Round(condDataToDouble.Min(), 2) : 0;
-				sourceMedian = Math.Round(((sourceMax + sourceMin) / 2), 2);
-				Dictionary<double, double> counts = new Dictionary<double, double>();
-				foreach (double a in condDataToDouble)
+
+                // Sort Conductivity Data in Asscending Order:
+                var condSorted = condDataToDouble.OrderBy(n => n);
+                int halfIndex = NumberOfDataPoints/2; 
+
+                // Calculate the Median Properly:
+                if((NumberOfDataPoints % 2) == 0){ // Even Data Set Length
+                    sourceMedian = (condSorted.ElementAt(halfIndex) + condSorted.ElementAt(halfIndex + 1)) / 2; // Average the Two Middle Points
+                }
+                else{ // Odd Data Set Length
+                    sourceMedian = condSorted.ElementAt(halfIndex); // Just get the middle point of the data set
+                }
+
+
+				//sourceMedian = Math.Round(((sourceMax + sourceMin) / 2), 2); // This is not the median value!
+               	
+			
+                // Calculate the Modal Value
+                Dictionary<double, double> counts = new Dictionary<double, double>();
+				foreach (double cond_value in condDataToDouble)
 				{
-                    if (counts.ContainsKey(a))
+                    if (counts.ContainsKey(cond_value))
                     {
-                        counts[a] = counts[a] + 1;
+                        counts[cond_value] = counts[cond_value] + 1;
                     }
                     else
                     {
-                        counts[a] = 1;
+                        counts[cond_value] = 1;
                     }
 				}
-				sourceMode = double.MinValue;
+				sourceMode = double.MinValue; // Get the lowest value a double can represent as not to interfere with finding the max value. 
 				double maxVal = double.MinValue;
 
-				foreach (double key in counts.Keys)
-				{
-					if (counts[key] > maxVal)
-					{
-						maxVal = counts[key];
-						sourceMode = key;
-					}
-				}
+
+                foreach (double key in counts.Keys)
+                {
+                    if (counts[key] > maxVal)
+                    {
+                        maxVal = counts[key];
+                        sourceMode = key;
+                    }
+                }
+
 				currentCond = condDataToDouble.Length > 0 ? condDataToDouble.Last() : 0;
 				percentAboveMean = Mean != double.NaN ? ((currentCond - Mean) / Mean) * 100 : 0;
 				CondStats.ArithmeticMean = Mean != double.NaN ? Math.Round(Mean, 2).ToString() : "0";
@@ -178,9 +195,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				DateTime firstDate = data.Count > 0 ? DateTime.Parse(data[0].measurment_date, new System.Globalization.CultureInfo("en-US", true)) : new DateTime();
 				var numberOfYears = Convert.ToInt32(currentDate.Year) - Convert.ToInt32(firstDate.Year);
 				DateTime forcastEndDate = currentDate.AddDays(182);
-				DateTime forcastStartDate = currentDate;
-				TimeSpan interval = data.Count > 0 ? (DateTime.Parse(data[2].measurment_date, new System.Globalization.CultureInfo("en-US", true)) - DateTime.Parse(data[1].measurment_date, new System.Globalization.CultureInfo("en-US", true))) : new TimeSpan();
-				Dictionary<DateTime, int>[] forcastRawData = new Dictionary<DateTime, int>[numberOfYears];
+                DateTime forcastStartDate = currentDate;
+                //TimeSpan interval = data.Count > 0 ? (DateTime.Parse(data[2].measurment_date, new System.Globalization.CultureInfo("en-US", true)) - DateTime.Parse(data[1].measurment_date, new System.Globalization.CultureInfo("en-US", true))) : new TimeSpan();
+                TimeSpan interval = TimeSpan.FromDays(1);  // Always calculate forecast on a DAILY span interval no matter what!!!
+                Dictionary<DateTime, int>[] forcastRawData = new Dictionary<DateTime, int>[numberOfYears];
 				Dictionary<DateTime, double> forcastDataAverage = new Dictionary<DateTime, double>();
 				Dictionary<DateTime, int> forcastDataMax = new Dictionary<DateTime, int>();
 				for (int i = 1; i <= numberOfYears; i++)

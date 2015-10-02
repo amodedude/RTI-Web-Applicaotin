@@ -167,9 +167,9 @@ namespace RTI.ModelingSystem.Web.Tests.ControllersTest
         /// GetCumulativeSavings Test case
         /// </summary>
         [TestMethod]
-        public void GetResultsTable()
+        public void GetResultsTable(string weekNumber, bool isClick)
         {
-            string weekNumber = "1";
+            //string weekNumber = "1";
 			double?[] weekData = new double?[6];
 			weekData[0] = 1;
 			weekData[1] = 2;
@@ -181,7 +181,7 @@ namespace RTI.ModelingSystem.Web.Tests.ControllersTest
 			mockedCostAnalyzerService.Setup(m => m.GetCostAnalyzerResultsData()).Returns(new CostAnalyzerResult());
             var controller = new CostAnalyzerController(mockedCustomerRepository.Object, mockedCustRepository.Object, mockedVesselRepository.Object, mockedCostAnalyzerService.Object);
 
-            var returnObj = controller.GetResultsTable(weekNumber);
+            var returnObj = controller.GetResultsTable(weekNumber, isClick);
             Assert.IsNotNull(returnObj);
             Assert.IsInstanceOfType(returnObj, typeof(PartialViewResult));
             var result = (PartialViewResult)returnObj;

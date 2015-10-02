@@ -226,9 +226,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
                 double wtAvgTotalDisplay = Math.Round(totaltWeightedAverage, 2, MidpointRounding.AwayFromZero);
 
                 // Average Conductivity in Grains
-                double grainsS1 = Math.Round(averageSource1 * (0.7 / 17.1), 2, MidpointRounding.AwayFromZero);
-                double grainsS2 = Math.Round(averageSource2 * (0.7 / 17.1), 2, MidpointRounding.AwayFromZero);
-                double grainsWtTotal = Math.Round(totaltWeightedAverage * (0.7 / 17.1), 2, MidpointRounding.AwayFromZero);
+                double grainsS1 = Math.Round(averageSource1 * (1 / (2 * 17.1)), 2, MidpointRounding.AwayFromZero);
+                double grainsS2 = Math.Round(averageSource2 * (1 / (2 * 17.1)), 2, MidpointRounding.AwayFromZero);
+                double grainsWtTotal = Math.Round(totaltWeightedAverage * (1 / (2 * 17.1)), 2, MidpointRounding.AwayFromZero);
 
                 // Total average standard deviation
                 double wtStdDevSourceOneDisplay = Math.Round(stdDevSource1, 2, MidpointRounding.AwayFromZero);
@@ -347,6 +347,10 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
         /// <param name="order">order parameter</param>
         private void StdDevDataByWeek(string agencyId, int order)
         {
+
+            string test = "lll";
+            int len = test.Length;
+
             try
             {
                 var waterdata = (from r in rtiContext.water_data
@@ -574,7 +578,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
                         totaltWeightedAverage = (averageSource1 * sourcePercentOne);
                     }
                 }
-                double grainsWtTotal = Math.Round(totaltWeightedAverage * (0.7 / 17.1), 2, MidpointRounding.AwayFromZero);
+                double grainsWtTotal = Math.Round(totaltWeightedAverage * (1 / (2 * 17.1)), 2, MidpointRounding.AwayFromZero);
                 return grainsWtTotal;
             }
             catch (Exception)

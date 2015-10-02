@@ -38,7 +38,7 @@
                     <label for="exampleInputAmount">Gal / min. per train</label>
                     @if (Model.Train.gpm != "0" && Model.Train.gpm != null)
                     {
-                        @Html.TextBoxFor(model => model.Train.gpm, new { @class = "form-control", maxlength = 9 , id = "galper" })
+                        @Html.TextBoxFor(model => model.Train.gpm, new { @class = "form-control", maxlength = 9, id = "galper" })
                     }
                     else
                     {
@@ -178,21 +178,21 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row with_Polisher">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="exampleInputAmount">With:</label>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[0].Degasifier, new { id = "chkDegasifier0" }) Degasifier
-                            </label>
-                        </div>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[0].Polisher, new { id = "chkPolisher0" })
-                                Polisher
-                            </label>
+                <div class="row with_Polisher">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInputAmount">With:</label>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[0].Degasifier, new { id = "chkDegasifier0" }) Degasifier
+                                </label>
+                            </div>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[0].Polisher, new { id = "chkPolisher0" })
+                                    Polisher
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -289,23 +289,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="row with_Polisher">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="exampleInputAmount">With:</label>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[2].Degasifier, new { id = "chkDegasifier2" })
-                                Degasifier
-                            </label>
-                        </div>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[0].Polisher, new { id = "chkPolisher2" })
-                                Polisher
-                            </label>
+                <div class="row with_Polisher">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInputAmount">With:</label>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[2].Degasifier, new { id = "chkDegasifier2" })
+                                    Degasifier
+                                </label>
+                            </div>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[0].Polisher, new { id = "chkPolisher2" })
+                                    Polisher
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -401,6 +400,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInputAmount">Salt Split</label>
+                            @Html.TextBoxFor(model => model.VesslsList[1].Salt_Split, new { id = "SaltSplit1", @class = "form-control", onkeypress = "return isNumber(event)", maxlength = 9 })
+                            @Html.ValidationMessageFor(model => model.VesslsList[1].Salt_Split, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
                 @if (Model.Train.using_manifold != "NO")
                 {
                     <div class="row">
@@ -424,36 +432,27 @@
                                 {
                                     @Html.TextBoxFor(model => model.VesslsList[1].num_regens, new { @class = "form-control", onkeypress = "return isNumber(event)", @Value = "", @Id = "Anion1Resin", maxlength = 9 })
                                 }
-                                @Html.ValidationMessageFor(model => model.VesslsList[1].num_regens, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <label for="exampleInputAmount">Salt Split</label>
-                                @Html.TextBoxFor(model => model.VesslsList[1].Salt_Split, new { id = "SaltSplit1", @class = "form-control", onkeypress = "return isNumber(event)", maxlength = 9 })
-                                @Html.ValidationMessageFor(model => model.VesslsList[1].Salt_Split, "", new { @class = "text-danger" })
+
                             </div>
                         </div>
                     </div>
                 }
-            </div>
-            <div class="row with_Polisher">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="exampleInputAmount">With:</label>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[1].Degasifier, new { id = "chkDegasifier1" })
-                                Degasifier
-                            </label>
-                        </div>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[1].Polisher, new { id = "chkPolisher1" })
-                                Polisher
-                            </label>
+                <div class="row with_Polisher">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInputAmount">With:</label>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[1].Degasifier, new { id = "chkDegasifier1" })
+                                    Degasifier
+                                </label>
+                            </div>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[1].Polisher, new { id = "chkPolisher1" })
+                                    Polisher
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -550,6 +549,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInputAmount">Salt Split</label>
+                            @Html.TextBoxFor(model => model.VesslsList[3].Salt_Split, new { id = "SaltSplit3", @class = "form-control", onkeypress = "return isNumber(event)", maxlength = 9 })
+                            @Html.ValidationMessageFor(model => model.VesslsList[3].Salt_Split, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
                 @if (Model.Train.using_manifold != "NO")
                 {
                     <div class="row">
@@ -574,36 +582,26 @@
                                 {
                                     @Html.TextBoxFor(model => model.VesslsList[3].num_regens, new { @class = "form-control", onkeypress = "return isNumber(event)", @Value = "", @Id = "Anion2Resin", maxlength = 9 })
                                 }
-                                @Html.ValidationMessageFor(model => model.VesslsList[3].num_regens, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <label for="exampleInputAmount">Salt Split</label>
-                                @Html.TextBoxFor(model => model.VesslsList[3].Salt_Split, new { id = "SaltSplit3", @class = "form-control", onkeypress = "return isNumber(event)", maxlength = 9 })
-                                @Html.ValidationMessageFor(model => model.VesslsList[3].Salt_Split, "", new { @class = "text-danger" })
                             </div>
                         </div>
                     </div>
                 }
-            </div>
-            <div class="row with_Polisher">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="exampleInputAmount">With:</label>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[3].Degasifier, new { id = "chkDegasifier3" })
-                                Degasifier
-                            </label>
-                        </div>
-                        <div class="checkbox mar_0 pad_0">
-                            <label class="quest">
-                                @Html.CheckBoxFor(model => model.VesslsList[3].Polisher, new { id = "chkPolisher3" })
-                                Polisher
-                            </label>
+                <div class="row with_Polisher">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInputAmount">With:</label>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[3].Degasifier, new { id = "chkDegasifier3" })
+                                    Degasifier
+                                </label>
+                            </div>
+                            <div class="checkbox mar_0 pad_0">
+                                <label class="quest">
+                                    @Html.CheckBoxFor(model => model.VesslsList[3].Polisher, new { id = "chkPolisher3" })
+                                    Polisher
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>

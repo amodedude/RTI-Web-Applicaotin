@@ -128,11 +128,11 @@
                     <div class="right">Source 2</div>
                     <div class="right">Total<br />(weighted)</div>
                 }
-
+                
             </div>
 
             <div class="col-xs-12 nopad_l-r statlist">
-                <div class="left">Microsiemens</div>
+                <div class="left">Conductivity(&mu;S)</div>
                 <div class="right">@Html.DisplayFor(model => model.waterStatisticsViewModeldetails.WtAvgSourceOneDiaplay)</div>
 
                 @if (Model.waterStatisticsViewModeldetails != null && Model.waterStatisticsViewModeldetails.usingTwoSources)
@@ -145,7 +145,7 @@
             </div>
 
             <div class="col-xs-12 nopad_l-r statlist">
-                <div class="left">Grains/Gal</div>
+                <div class="left">Grains/Gal (gpg)</div>
                 <div class="right">@Html.DisplayFor(model => model.waterStatisticsViewModeldetails.GrainsCuFtSourceOneDisplay)</div>
 
                 @if (Model.waterStatisticsViewModeldetails != null && Model.waterStatisticsViewModeldetails.usingTwoSources)
@@ -160,7 +160,7 @@
 
 
             <div class="col-xs-12 nopad_l-r statlist brdr_t addmar_t_15">
-                <div class="left">Avg Standard<br />Deviation</div>
+                <div class="left">Avg Standard<br />Deviation (gpg)</div>
                 <div class="right">@Html.DisplayFor(model => model.waterStatisticsViewModeldetails.WtStdDevSourceOneDisplay)</div>
 
                 @if (Model.waterStatisticsViewModeldetails != null && Model.waterStatisticsViewModeldetails.usingTwoSources)

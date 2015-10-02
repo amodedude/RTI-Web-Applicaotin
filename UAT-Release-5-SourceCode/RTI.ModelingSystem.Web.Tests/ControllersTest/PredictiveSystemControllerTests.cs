@@ -180,8 +180,8 @@ namespace RTI.ModelingSystem.Web.Tests.ControllersTest
             bool DontReplaceResin = false;
             bool IsDashboard = false;
             double CleaningEffectiveness = 28.0;
-            mockedPredictiveModelService.Setup(m => m.CalculateMinSaltSplit(1, "0")).Returns(new List<double>() { 1, 2 });
-            mockedPredictiveModelService.Setup(m => m.CurrentSSConditions(1, 100, 100)).Returns(new Dictionary<double, double>());
+            //mockedPredictiveModelService.Setup(m => m.CalculateMinSaltSplit(1, "0").Returns(new List<double>() { 1, 2 });
+            mockedPredictiveModelService.Setup(m => m.CurrentSSConditions(1, 100, 100, 100)).Returns(new Dictionary<double, double>());
 			mockedPredictiveModelService.Setup(m => m.Thoughputchart(It.IsAny<string>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(new PriceData() { CleanThroughput = new Dictionary<DateTime, Tuple<int, double, string>>(), NormalOpsThroughput = new Dictionary<DateTime, Tuple<int, double, string>>(), RegenTimeAverageBefore = 5, RegenTimeAverageAfter = 5, RegensPerWeekAverageBefore = 5, RegensPerWeekAverageAfter = 5, HoursPerRunAverageBefore = 5, HoursPerRunAverageAfter = 5, ThroughputAverageBefore = 5, ThroughputAverageAfter = 5 });
             var controller = new PredictiveSystemController(mockedPredictiveRepository.Object, mockedPredictiveModelService.Object, mockedCustomerRepository.Object, mockedRepositoryCustomer.Object, mockedVesselRepository.Object, mockedTrainRepository.Object);
             controller.ControllerContext = new ControllerContext();
@@ -211,8 +211,8 @@ namespace RTI.ModelingSystem.Web.Tests.ControllersTest
             string SelectedTrain = "0";
             double CleaningEffectiveness = 28.0;
             bool IsDashboard = false;
-            mockedPredictiveModelService.Setup(m => m.CalculateMinSaltSplit(1, SelectedTrain)).Returns(new List<double>() { 1, 2 });
-            mockedPredictiveModelService.Setup(m => m.CurrentSSConditions(1, 100, 100)).Returns(new Dictionary<double, double>());
+            //mockedPredictiveModelService.Setup(m => m.CalculateMinSaltSplit(1, SelectedTrain)).Returns(new List<double>() { 1, 2 });
+            mockedPredictiveModelService.Setup(m => m.CurrentSSConditions(1, 100, 100, 100)).Returns(new Dictionary<double, double>());
             mockedPredictiveModelService.Setup(m => m.ComputeDataPoints(numWeeks, startingSS, maxDegSS)).Returns(new Dictionary<double, double>());
             var controller = new PredictiveSystemController(mockedPredictiveRepository.Object, mockedPredictiveModelService.Object, mockedCustomerRepository.Object, mockedRepositoryCustomer.Object, mockedVesselRepository.Object, mockedTrainRepository.Object);
             controller.ControllerContext = new ControllerContext();
