@@ -67,7 +67,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         [DisplayName("lb/ (ft3) of Acid")]
         [Required]
         [Range(0, 20)]
-        [RegularExpression("([0-9][0-9]*)", ErrorMessage = "Replace must be an integer")]
+        [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "lb/ (ft3) of Acid must be decimal")]
         public string lbs_chemical { get; set; }
         /// <summary>
         /// Gets or sets the date_replaced.
@@ -107,8 +107,9 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// <value>
         /// The num_regens.
         /// </value>
-        [DisplayName("Regen/mo")]
-        [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "Regens/mo must be decimal")]
+        [DisplayName("Regens/mo.")]
+        [Required]
+        [RegularExpression("([0-9][0-9]*)", ErrorMessage = "Regens/mo. must be an integer")]
         public string num_regens { get; set; }
         /// <summary>
         /// Gets or sets the toc.
@@ -167,7 +168,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// The resin_data_product_id.
         /// </value>
         [Key]
-        [Column(Order = 2)]        
+        [Column(Order = 2)]
         public int resin_data_product_id { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="vessel"/> is degasifier.
@@ -218,7 +219,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// <value>
         /// The resin model.
         /// </value>
-        [NotMapped]            
+        [NotMapped]
         public string ResinModel { get; set; }
         /// <summary>
         /// Gets or sets the resin data.
@@ -226,7 +227,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// <value>
         /// The resin data.
         /// </value>
-        [NotMapped]        
+        [NotMapped]
         public string ResinData { get; set; }
     }
 }
