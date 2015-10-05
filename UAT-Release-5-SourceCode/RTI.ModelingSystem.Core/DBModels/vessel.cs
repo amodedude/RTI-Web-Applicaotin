@@ -193,6 +193,7 @@ namespace RTI.ModelingSystem.Core.DBModels
         /// The price_per_cuft.
         /// </value>
         [DisplayName("Resin Price")]
+        [Column("price_cuft_resin")]
         [Required]
         [Range(0, 300)]
         [RegularExpression("(^[0-9][0-9]*(\\.[0-9][0-9]*)?$)", ErrorMessage = "Resin Price must be decimal")]
