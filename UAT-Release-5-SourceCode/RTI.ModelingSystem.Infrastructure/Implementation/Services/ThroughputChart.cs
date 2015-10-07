@@ -95,7 +95,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		/// <param name="rtiCleaningLevel">rti Cleaning Level</param>
 		/// <param name="donotReplaceResin">dont Replace Resin</param>
 		/// <returns>Returns the Price data</returns>
-		public PriceData RunModel(double startingSaltSplit, double currentSaltSplit, double resinLifeExpectancy, int simulationConfidence, int numberSimulationIterations, string simulationMethod, int standardDeviationThreshold, double resinAge, double replacementLevel, double rtiCleaningLevel, bool donotReplaceResin, List<double> regenTimes)
+        public PriceData RunModel(double startingSaltSplit, double currentSaltSplit, double resinLifeExpectancy, int simulationConfidence, int numberSimulationIterations, string simulationMethod, int standardDeviationThreshold, double resinAge, double replacementLevel, double rtiCleaningLevel, bool donotReplaceResin, List<double> regenTimes, int selectedTrainId, List<train> trains, List<vessel> vessels)
 		{
 			try
 			{
@@ -137,35 +137,118 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				}
 				dataToSend.GrainForcast = grainForeCast;
 				double rtiCleaningeffectivness = 28.0;
-				ThroughputBuilder tp = new ThroughputBuilder();
-                Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin,regenTimes);
-				var afterConditions = tp.AfterSystemConditions;
-                Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin,regenTimes);
-				var beforeConditions = tp.BeforeSystemConditions;
-				List<double> reginWeek = new List<double>();
-				List<double> hoursWeek = new List<double>();
-				List<double> reginTime = new List<double>();
-				List<double> tpWeek = new List<double>();
-				List<double> ssWeek = new List<double>();
-				List<double> beforeSaltSplit = new List<double>();
-				List<double> afterSaltSplit = new List<double>();
-				List<int> weeks = new List<int>();
-				List<Tuple<int, double>> regweekToSendNormal = new List<Tuple<int, double>>();
-				List<Tuple<int, double>> regweekToSendClean = new List<Tuple<int, double>>();
-				int weekNumber = 0;
-				foreach (var week in beforeConditions)
-				{
-					weekNumber++;
-					weeks.Add(weekNumber);
-					reginWeek.Add(week.Item2);
-					hoursWeek.Add(week.Item3);
-					reginTime.Add(week.Item4);
-					tpWeek.Add(week.Item5);
-					ssWeek.Add(week.Item6);
-					beforeSaltSplit.Add(week.Item6);
-					Tuple<int, double> reginsPerWeeK = new Tuple<int, double>(weekNumber, week.Item2);
-					regweekToSendNormal.Add(reginsPerWeeK);
-				}
+                ThroughputBuilder tp = new ThroughputBuilder();
+                Dictionary<DateTime, Tuple<int, double, string>> throughputCleanPrediction  = new Dictionary<DateTime,Tuple<int,double,string>>();
+                Dictionary<DateTime, Tuple<int, double, string>> throughputNoCleanPrediction = new Dictionary<DateTime, Tuple<int, double, string>>();
+                List<Tuple<double, double, double, double, double, double>> beforeConditions = new List<Tuple<double, double, double, double, double, double>>();
+                List<Tuple<double, double, double, double, double, double>> afterConditions = new List<Tuple<double, double, double, double, double, double>>();
+                List<List<Tuple<double, double, double, double, double, double>>> beforeConditionsAllTrains = new List<List<Tuple<double,double,double,double,double,double>>>();
+                List<List<Tuple<double, double, double, double, double, double>>> afterConditionsAllTrains = new List<List<Tuple<double, double, double, double, double, double>>>();
+
+                List<double> reginWeek = new List<double>();
+                List<double> hoursWeek = new List<double>();
+                List<double> reginTime = new List<double>();
+                List<double> tpWeek = new List<double>();
+                List<double> ssWeek = new List<double>();
+                List<double> beforeSaltSplit = new List<double>();
+                List<double> afterSaltSplit = new List<double>();
+                List<int> weeks = new List<int>();
+                List<Tuple<int, double>> regweekToSendNormal = new List<Tuple<int, double>>();
+                List<Tuple<int, double>> regweekToSendClean = new List<Tuple<int, double>>();
+                int weekNumber = 0;
+                double numRegensBefore = 0;
+                double numRegensAfter = 0;
+
+                if (selectedTrainId != 0)
+                {
+                    throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin, regenTimes.Average(), selectedTrainId, trains.Count);
+                    afterConditions = tp.AfterSystemConditions;
+                    throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, trainAnionResinAmount, rtiCleaningeffectivness, selectedTrainGPM, resinAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin, regenTimes.Average(), selectedTrainId, trains.Count);
+                    beforeConditions = tp.BeforeSystemConditions;
+
+                    foreach (var week in beforeConditions)
+                    {
+                        weekNumber++;
+                        weeks.Add(weekNumber);
+                        reginWeek.Add(week.Item2);
+                        hoursWeek.Add(week.Item3);
+                        reginTime.Add(week.Item4);
+                        tpWeek.Add(week.Item5);
+                        ssWeek.Add(week.Item6);
+                        beforeSaltSplit.Add(week.Item6);
+                        Tuple<int, double> reginsPerWeeK = new Tuple<int, double>(weekNumber, week.Item2);
+                        regweekToSendNormal.Add(reginsPerWeeK);
+                    }
+                    weekNumber = 0;
+                    foreach (var week in afterConditions)
+                    {
+                        weekNumber++;
+                        Tuple<int, double> reginsPerWeeK = new Tuple<int, double>(weekNumber, week.Item2);
+                        afterSaltSplit.Add(week.Item6);
+                        regweekToSendClean.Add(reginsPerWeeK);
+                    }
+                }
+                else
+                {
+                    // Perform the simulation for each train in the system
+                    for (int train = 1; train <= trains.Count; train++)
+                    {
+                        int trainID = Convert.ToInt32(trains.ElementAt(train-1).trainID);
+                        selectedTrainGPM = Convert.ToDouble(trains.ElementAt(train - 1).gpm);
+                        double regenTime = Convert.ToInt32(trains.ElementAt(train - 1).regen_duration);
+                        double amtAnionResin = 0;
+                        List<double> resinAges = new List<double>();
+                        var train_vessels = vessels.Where(ves => ves.train_trainID == trainID);
+                        int count = 0;
+                        foreach (var vessel in train_vessels)
+                        {
+                            if (count % 2 != 0)
+                            {
+                                amtAnionResin += Convert.ToInt32(vessel.size);
+                                DateTime purchaseDate = DateTime.Parse(vessel.date_replaced);
+                                TimeSpan span = DateTime.Today - purchaseDate;
+                                resinAges.Add(span.TotalDays);
+                            }
+                            count++;
+                        }
+                        double resAge = resinAges.Average() / 7;
+
+
+                        throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, amtAnionResin, rtiCleaningeffectivness, selectedTrainGPM, resAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin, regenTime, trainID, trains.Count);
+                        afterConditions = tp.AfterSystemConditions;
+                        afterConditionsAllTrains.Add(afterConditions);
+                        throughputNoCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, amtAnionResin, rtiCleaningeffectivness, selectedTrainGPM, resAge, startingSaltSplit, numberOfWeeks, false, donotReplaceResin, regenTime, trainID, trains.Count);
+                        beforeConditions = tp.BeforeSystemConditions;
+                        beforeConditionsAllTrains.Add(beforeConditions);
+
+                        numRegensBefore += beforeConditions.Average(regens => regens.Item2);
+                        numRegensAfter += afterConditions.Average(regens => regens.Item2);
+
+                        foreach (var week in beforeConditions)
+                        {
+                            weekNumber++;
+                            weeks.Add(weekNumber);
+                            reginWeek.Add(week.Item2);
+                            hoursWeek.Add(week.Item3);
+                            reginTime.Add(week.Item4);
+                            tpWeek.Add(week.Item5);
+                            ssWeek.Add(week.Item6);
+                            beforeSaltSplit.Add(week.Item6);
+                            Tuple<int, double> reginsPerWeeK = new Tuple<int, double>(weekNumber, week.Item2);
+                            regweekToSendNormal.Add(reginsPerWeeK);
+                        }
+                        weekNumber = 0;
+                        foreach (var week in afterConditions)
+                        {
+                            weekNumber++;
+                            Tuple<int, double> reginsPerWeeK = new Tuple<int, double>(weekNumber, week.Item2);
+                            afterSaltSplit.Add(week.Item6);
+                            regweekToSendClean.Add(reginsPerWeeK);
+                        }
+
+                    }
+                }
+
 				dataToSend.RegensPerWeekNormalOps = regweekToSendNormal;
 				dataToSend.CleanThroughput = throughputCleanPrediction;
 				dataToSend.NormalOpsThroughput = throughputNoCleanPrediction;
@@ -174,10 +257,14 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				{
 					averageTPBefore = Math.Round(tpWeek.Average(), 0);
 				}
-				if (reginWeek != null && reginWeek.Count > 0)
+				if (reginWeek != null && reginWeek.Count > 0 && selectedTrainId != 0)
 				{
 					dataToSend.RegensPerWeekAverageBefore = Math.Round(reginWeek.Average(), 2);
 				}
+                else
+                {
+                    dataToSend.RegensPerWeekAverageBefore = Math.Round(numRegensBefore, 2);
+                }
 				if (hoursWeek != null && hoursWeek.Count > 0)
 				{
 					dataToSend.HoursPerRunAverageBefore = Math.Round(hoursWeek.Average(), 2);
@@ -206,10 +293,14 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						tpWeek.Add(week.Item5);
 						ssWeek.Add(week.Item6);
 					}
-					if (reginWeek != null && reginWeek.Count > 0)
+					if (reginWeek != null && reginWeek.Count > 0 && selectedTrainId != 0)
 					{
 						dataToSend.RegensPerWeekAverageAfter = Math.Round(reginWeek.Average(), 2);
 					}
+                    else
+                    {
+                        dataToSend.RegensPerWeekAverageAfter = Math.Round(numRegensAfter, 2);
+                    }
 					if (hoursWeek != null && hoursWeek.Count > 0)
 					{
 						dataToSend.HoursPerRunAverageAfter = Math.Round(hoursWeek.Average(), 2);
@@ -223,14 +314,9 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 						dataToSend.ThroughputAverageAfter = Math.Round(tpWeek.Average(), 0);
 					}
 				}
-				weekNumber = 0;
-				foreach (var week in afterConditions)
-				{
-					weekNumber++;
-					Tuple<int, double> reginsPerWeeK = new Tuple<int, double>(weekNumber, week.Item2);
-					afterSaltSplit.Add(week.Item6);
-					regweekToSendClean.Add(reginsPerWeeK);
-				}
+
+
+				
 				Dictionary<int, Tuple<double?, double?>> saltSplitData = new Dictionary<int, Tuple<double?, double?>>();
 				int length;
 				if (beforeSaltSplit.Count < afterSaltSplit.Count)
@@ -404,7 +490,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             bednum_interval.span = interval;
 							intervalList.Add(bednum_interval);
 							replacementPlan.Add(Convert.ToInt32(vesselList.replacement_plan));
-              double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
+                            double lbsChemical = Convert.ToDouble(vesselList.lbs_chemical);
 							double vesselSize = Convert.ToDouble(vesselList.size);
 							vesselSizeList.Add(vesselSize);
 							lbsChemicalList.Add(lbsChemical);
@@ -511,7 +597,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                     regenTimes.Add(Convert.ToInt32(train.regen_duration));
                 }
 
-				PriceData priceData = this.RunModel(startingSaltSplit, currentSaltSplit, resinLifeExpectancy, simulationConfidence, numberSimulationIterations, simulationMethod, standardDevThreshold, resinAge, replacementLevel, rtiCleaningLevel, donotReplaceResin, regenTimes);
+				PriceData priceData = this.RunModel(startingSaltSplit, currentSaltSplit, resinLifeExpectancy, simulationConfidence, numberSimulationIterations, simulationMethod, standardDevThreshold, resinAge, replacementLevel, rtiCleaningLevel, donotReplaceResin, regenTimes, selectedTrainId, trains, lstCustomerVessels);
 				return priceData;
 			}
 			catch

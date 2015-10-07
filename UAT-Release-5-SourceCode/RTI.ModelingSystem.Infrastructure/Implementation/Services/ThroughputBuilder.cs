@@ -44,7 +44,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="isCleaning">is Cleaning</param>
         /// <param name="isReplacing">is Replacing</param>
         /// <returns>Returns the throughput data</returns>
-        public Dictionary<DateTime, Tuple<int, double, string>> ThroughputBuild(double replacementLevel, double rticleaningLevel, double startingSaltSplit, Dictionary<int, double> randomGrains, double amountOfResin, double cleaningEffectivness, double trainGPM, double ageOfResin, double newResinSaltSplit, double lifeExpectancy, bool isCleaning, bool isReplacing, List<double> hoursPerRun)
+        public Dictionary<DateTime, Tuple<int, double, string>> ThroughputBuild(double replacementLevel, double rticleaningLevel, double startingSaltSplit, Dictionary<int, double> randomGrains, double amountOfResin, double cleaningEffectivness, double trainGPM, double ageOfResin, double newResinSaltSplit, double lifeExpectancy, bool isCleaning, bool isReplacing, double regenDuration, int selectedTrainId, int numberOfTrains)
         {
             try
             {
@@ -61,6 +61,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 int weekNumber = 1;
                 int lastCleaningWeek = 0; // Keep track of the last week a cleaning was performed
                 double cleaningInterval = 52; // Spacing between cleanings
+                bool isAllTrains = selectedTrainId == 0 ? true : false;
 
                 foreach (var week in randomGrains)
                 {
@@ -69,7 +70,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         // Calculte data for the very first week in the simulation
                         if (week.Key == randomGrains.FirstOrDefault().Key)
                         {
-                            Tuple<int, double, string> weekTpPair = CalculateFirstWeek(toc, isCleaning, startingSaltSplit, amountOfResin, week, trainGPM, ageOfResin, lastWeeks, hoursPerRun);
+                            Tuple<int, double, string> weekTpPair = CalculateFirstWeek(toc, isCleaning, startingSaltSplit, amountOfResin, week, trainGPM, ageOfResin, lastWeeks, regenDuration, isAllTrains, numberOfTrains);
                             tpPrediction.Add(date, weekTpPair);
                             lastWeeks.Date = date;
                         }
@@ -81,7 +82,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             // NORMAL OPS
                             if (lastWeeks.SaltSplit > rticleaningLevel && (Convert.ToInt32(week.Key) - lastCleaningWeek <= cleaningInterval))
                             {
-                                Tuple<int, double, string> weekTpPair = NormalOpsWeek(isCleaning, trainGPM, lifeExpectancy, toc, effectiveResinAge, amountOfResin, week, randomGrains, lastWeeks, newResinSaltSplit, hoursPerRun);
+                                Tuple<int, double, string> weekTpPair = NormalOpsWeek(isCleaning, trainGPM, lifeExpectancy, toc, effectiveResinAge, amountOfResin, week, randomGrains, lastWeeks, newResinSaltSplit, regenDuration, isAllTrains, numberOfTrains);
                                 tpPrediction.Add(date, weekTpPair);
                                 lastWeeks.Date = date;
                             }
@@ -90,7 +91,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             else if ((lastWeeks.SaltSplit > replacementLevel) && (lastWeeks.SaltSplit < rticleaningLevel) || lastCleaningWeek == 0)
                             {
                                 effectiveResinAge = effectiveResinAge - (effectiveResinAge * cleaningEffectivness * 0.01);
-                                Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks, trainGPM, hoursPerRun, lifeExpectancy);
+                                Tuple<int, double, string> weekTpPair = CleanOpsWeek(toc, effectiveResinAge, amountOfResin, week, cleaningEffectivness, newResinSaltSplit, lastWeeks, trainGPM, regenDuration, lifeExpectancy, isAllTrains, numberOfTrains);
                                 //rticleaningLevel = PostCleaningSaltSPlitReduction(rticleaningLevel, replacementLevel, cleaningEffectivness, lastWeeks);
                                 tpPrediction.Add(date, weekTpPair);
                                 lastWeeks.Date = date;
@@ -131,7 +132,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             // NORMAL OPS
                             if (lastWeeks.SaltSplit > replacementLevel || isReplacing)
                             {
-                                Tuple<int, double, string> weekTpPair = NormalOpsWeek(isCleaning, trainGPM, lifeExpectancy, toc, effectiveResinAge, amountOfResin, week, randomGrains, lastWeeks, newResinSaltSplit, hoursPerRun);
+                                Tuple<int, double, string> weekTpPair = NormalOpsWeek(isCleaning, trainGPM, lifeExpectancy, toc, effectiveResinAge, amountOfResin, week, randomGrains, lastWeeks, newResinSaltSplit, regenDuration, isAllTrains, numberOfTrains);
                                 tpPrediction.Add(date, weekTpPair);
                                 lastWeeks.Date = date;
                             }
@@ -140,7 +141,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             else
                             {
                                 effectiveResinAge = 1;
-                                Tuple<int, double, string> weekTpPair = ReplaceOpsWeek(isCleaning, trainGPM, lifeExpectancy, toc, effectiveResinAge, newResinSaltSplit, amountOfResin, week, lastWeeks, hoursPerRun);
+                                Tuple<int, double, string> weekTpPair = ReplaceOpsWeek(isCleaning, trainGPM, lifeExpectancy, toc, effectiveResinAge, newResinSaltSplit, amountOfResin, week, lastWeeks, regenDuration, isAllTrains, numberOfTrains);
                                 tpPrediction.Add(date, weekTpPair);
                                 lastWeeks.Date = date;
                             }
@@ -168,12 +169,12 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="ageOfResin">age Of Resin</param>
         /// <param name="lastWeeks">last Weeks parameter</param>
         /// <returns></returns>
-        private Tuple<int, double, string> CalculateFirstWeek(TOCBuilder toc, bool isCleaning, double startingSaltSplit, double amountOfResin, KeyValuePair<int, double> grains, double trainGPM, double ageOfResin, PreviousWeek lastWeeks, List<double> hoursPerRun)
+        private Tuple<int, double, string> CalculateFirstWeek(TOCBuilder toc, bool isCleaning, double startingSaltSplit, double amountOfResin, KeyValuePair<int, double> grains, double trainGPM, double ageOfResin, PreviousWeek lastWeeks, double regenTime, bool isAllTrains, int numberTrains)
         {
             try
             {
                 // Determines the number of trains being analyzed
-                int numberOfTrains = hoursPerRun.Count();
+                int numberOfTrains = isAllTrains ? numberTrains : 1;
 
                 // Get the most recent salt split level
                 lastWeeks.SaltSplit = startingSaltSplit;
@@ -188,7 +189,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double hoursRunTime = throughput / (trainGPM * 60);
 
                 // Add in the regeneration time in hours
-                double hoursTotalTime = hoursRunTime + hoursPerRun.Average();
+                double hoursTotalTime = hoursRunTime + regenTime;
 
                 // Calculate the number of runs per week
                 double numberOfHoursInWeek = 7 * 24;
@@ -207,7 +208,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                //     lastWeeks.HoursPerRun = 0.0001 * (silicaFactor * 0.01);
                // }
 
-                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, hoursPerRun.Average(), throughput, lastWeeks.SaltSplit);
+                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenTime, throughput, lastWeeks.SaltSplit);
                 if (isCleaning)
                 {
                     this.BeforeSystemConditions.Add(regenData);
@@ -239,7 +240,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="lastWeeks">last Weeks</param>
         /// <param name="newResinSS">new Resin SS</param>
         /// <returns>Returns the normal ops week</returns>
-        private Tuple<int, double, string> NormalOpsWeek(bool isCleaning, double trainGPM, double lifeExpectancy, TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, Dictionary<int, double> randomGrains, PreviousWeek lastWeeks, double newResinSS, List<double> hoursPerRun)
+        private Tuple<int, double, string> NormalOpsWeek(bool isCleaning, double trainGPM, double lifeExpectancy, TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, Dictionary<int, double> randomGrains, PreviousWeek lastWeeks, double newResinSS, double regenTime, bool isAllTrains, int numberTrains)
         {
             try
             {
@@ -248,7 +249,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 lastWeeks.SaltSplit = saltSplit;
 
                 // Determines the number of trains being analyzed
-                int numberOfTrains = hoursPerRun.Count();
+                int numberOfTrains = isAllTrains ? numberTrains : 1;
 
                 // Get the most recent salt split level
                 lastWeeks.SaltSplit = saltSplit;
@@ -263,7 +264,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double hoursRunTime = throughput / (trainGPM * 60);
 
                 // Add in the regeneration time in hours
-                double hoursTotalTime = hoursRunTime + hoursPerRun.Average();
+                double hoursTotalTime = hoursRunTime + regenTime;
 
                 // Calculate the number of runs per week
                 double numberOfHoursInWeek = 7 * 24;
@@ -288,7 +289,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 //    lastWeeks.RegPerWeek = 0;
                 //}
 
-                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, hoursPerRun.Average(), throughput, lastWeeks.SaltSplit);
+                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenTime, throughput, lastWeeks.SaltSplit);
                 if (isCleaning)
                 {
                     this.AfterSystemConditions.Add(regenData);
@@ -316,7 +317,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="newResinSaltSplit">new Resin Salt Split</param>
         /// <param name="lastWeeks">last Weeks parameter</param>
         /// <returns>Returns the Clean ops week</returns>
-        private Tuple<int, double, string> CleanOpsWeek(TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, double cleaningEffectivness, double newResinSaltSplit, PreviousWeek lastWeeks, double trainGPM, List<double> hoursPerRun, double lifeExpectancy)
+        private Tuple<int, double, string> CleanOpsWeek(TOCBuilder toc, double effectiveResinAge, double amountOfResin, KeyValuePair<int, double> grains, double cleaningEffectivness, double newResinSaltSplit, PreviousWeek lastWeeks, double trainGPM, double regenTime, double lifeExpectancy, bool isAllTrains, int numberTrains)
         {
             try
             {
@@ -335,7 +336,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 
 
                 // Determines the number of trains being analyzed
-                int numberOfTrains = hoursPerRun.Count();
+                int numberOfTrains = isAllTrains ? numberTrains : 1;
 
                 // Get the most recent salt split level
                 lastWeeks.SaltSplit = saltSplit;
@@ -350,7 +351,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double hoursRunTime = throughput / (trainGPM * 60);
 
                 // Add in the regeneration time in hours
-                double hoursTotalTime = hoursRunTime + hoursPerRun.Average();
+                double hoursTotalTime = hoursRunTime + regenTime;
 
                 // Calculate the number of runs per week
                 double numberOfHoursInWeek = 7 * 24;
@@ -363,7 +364,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 
                 Tuple<int, double, string> weekTpPair = new Tuple<int, double, string>(grains.Key, throughput, "Clean");
                 lastWeeks.TpData = weekTpPair;
-                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, hoursPerRun.Average(), throughput, lastWeeks.SaltSplit);
+                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenTime, throughput, lastWeeks.SaltSplit);
                 this.AfterSystemConditions.Add(regenData);
                 return weekTpPair;
             }
@@ -386,7 +387,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         /// <param name="grains">grains parameter</param>
         /// <param name="lastWeeks">last Weeks</param>
         /// <returns></returns>
-        private Tuple<int, double, string> ReplaceOpsWeek(bool isCleaning, double trainGPM, double lifeExpectancy, TOCBuilder toc, double effectiveResinAge, double newResinSaltSplit, double amountOfResin, KeyValuePair<int, double> grains, PreviousWeek lastWeeks, List<double> hoursPerRun)
+        private Tuple<int, double, string> ReplaceOpsWeek(bool isCleaning, double trainGPM, double lifeExpectancy, TOCBuilder toc, double effectiveResinAge, double newResinSaltSplit, double amountOfResin, KeyValuePair<int, double> grains, PreviousWeek lastWeeks, double regenTime, bool isAllTrains, int numberTrains)
         {
             try
             {
@@ -396,7 +397,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 //lastWeeks.SaltSplit = saltSplit;
 
                 // Determines the number of trains being analyzed
-                int numberOfTrains = hoursPerRun.Count();
+                int numberOfTrains = isAllTrains ? numberTrains : 1;
 
                 // Get the most recent salt split level
                 lastWeeks.SaltSplit = newResinSaltSplit;
@@ -411,7 +412,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double hoursRunTime = throughput / (trainGPM * 60);
 
                 // Add in the regeneration time in hours
-                double hoursTotalTime = hoursRunTime + hoursPerRun.Average();
+                double hoursTotalTime = hoursRunTime + regenTime;
 
                 // Calculate the number of runs per week
                 double numberOfHoursInWeek = 7 * 24;
@@ -433,7 +434,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                     lastWeeks.HoursPerRun = 0.0001 * (silicaFactor * 0.01);
                 }
 
-                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, hoursPerRun.Average(), throughput, lastWeeks.SaltSplit);
+                Tuple<double, double, double, double, double, double> regenData = new Tuple<double, double, double, double, double, double>(grains.Key, lastWeeks.RegPerWeek, lastWeeks.HoursPerRun, regenTime, throughput, lastWeeks.SaltSplit);
                 if (isCleaning)
                 {
                     this.AfterSystemConditions.Add(regenData);

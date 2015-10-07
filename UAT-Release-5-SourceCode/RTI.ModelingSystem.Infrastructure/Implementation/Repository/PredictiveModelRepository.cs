@@ -347,10 +347,6 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Repository
         /// <param name="order">order parameter</param>
         private void StdDevDataByWeek(string agencyId, int order)
         {
-
-            string test = "lll";
-            int len = test.Length;
-
             try
             {
                 var waterdata = (from r in rtiContext.water_data
