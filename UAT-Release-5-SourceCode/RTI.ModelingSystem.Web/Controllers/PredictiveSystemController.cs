@@ -214,6 +214,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         {
             try
             {
+                // This locatoin is where the incorrect life expectancy is passed
                 Highcharts chart = this.FetchSaltSplitChartData(numWeeks, AvgResinage, startingSS, maxDegSS, SelectedTrain, CleaningEffectiveness, IsDashboard, life_expectancy);
                 this.Session["SelectedTrain"] = SelectedTrain;
                 return this.PartialView("_SaltSplitChart", chart);
