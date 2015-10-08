@@ -210,12 +210,12 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="IsDashboard">IsDashboard flag</param>
         /// <returns>Returns the View</returns>
         [OutputCache(Duration = 0, VaryByParam = "none")]
-        public ActionResult PlotSaltSplitChart(double numWeeks = 0, double AvgResinage = 0, double startingSS = 25.0, double maxDegSS = 62.0, string SelectedTrain = "0", double CleaningEffectiveness = 28.0, bool IsDashboard = false, double life_expectancy = 156)
+        public ActionResult PlotSaltSplitChart(double numWeeks = 0, double AvgResinage = 0, double startingSS = 25.0, double maxDegSS = 62.0, string SelectedTrain = "0", double CleaningEffectiveness = 28.0, bool IsDashboard = false)
         {
             try
             {
                 // This locatoin is where the incorrect life expectancy is passed
-                Highcharts chart = this.FetchSaltSplitChartData(numWeeks, AvgResinage, startingSS, maxDegSS, SelectedTrain, CleaningEffectiveness, IsDashboard, life_expectancy);
+                Highcharts chart = this.FetchSaltSplitChartData(numWeeks, AvgResinage, startingSS, maxDegSS, SelectedTrain, CleaningEffectiveness, IsDashboard);
                 this.Session["SelectedTrain"] = SelectedTrain;
                 return this.PartialView("_SaltSplitChart", chart);
             }
@@ -236,7 +236,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// <param name="CleaningEffectiveness">The cleaning effectiveness.</param>
         /// <param name="isDashboard">if set to <c>true</c> [is dashboard].</param>
         /// <returns></returns>
-        private Highcharts FetchSaltSplitChartData(double numWeeks, double avgResinage, double startingSS, double maxDegSS, string selectedTrain, double CleaningEffectiveness, bool isDashboard, double life_expectancy)
+        private Highcharts FetchSaltSplitChartData(double numWeeks, double avgResinage, double startingSS, double maxDegSS, string selectedTrain, double CleaningEffectiveness, bool isDashboard)
         {
             try
             {
@@ -284,7 +284,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                 }
                 Point point1 = new Point();
                 Point point2 = new Point();
-                currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS, life_expectancy);
+                currentSS = this.predictiveModelService.CurrentSSConditions(dblResinAge, CleaningEffectiveness, startingSS, numWeeks);
                 this.currentSaltSplit = (currentSS != null && currentSS.Count > 0) ? currentSS.ElementAt(0).Value : 0;
 
                 point1.X = (currentSS != null && currentSS.Count > 0) ? currentSS.ElementAt(0).Key : 0;

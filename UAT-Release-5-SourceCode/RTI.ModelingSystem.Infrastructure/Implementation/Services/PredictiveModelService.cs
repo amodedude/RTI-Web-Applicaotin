@@ -319,7 +319,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 int vesselNumber = 0;
                 foreach (var item in vesselData)
                 {
-                    vesselNumber++;
+                    
                     if (selectedTrainId == "0")
                     {
                         
@@ -330,11 +330,12 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                         bed_interval.bed_number = item.bed_number;
                         bed_interval.span = interval;
                         intervalList.Add(bed_interval);                        
-                        replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
+                       
                         double lbsChemical = Convert.ToDouble(item.lbs_chemical);
                         
                         if (vesselNumber % 2 != 0)
                         {  // Only the anion vessels
+                            replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                             numCuFt.Add(Convert.ToDouble(item.size));
                             lbsChemicalList.Add(lbsChemical);
                         }
@@ -351,17 +352,19 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             bed_interval.bed_number = item.bed_number;
                             bed_interval.span = interval;
                             intervalList.Add(bed_interval); 
-                            replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
+                            
                             double lbsChemical = Convert.ToDouble(item.lbs_chemical);
                             
                             if (vesselNumber % 2 != 0)
                             {  // Only the anion vessels
+                                replacementPlan.Add(Convert.ToInt32(item.replacement_plan));
                                 numCuFt.Add(Convert.ToDouble(item.size));
                                 lbsChemicalList.Add(lbsChemical);
                             }
                         }
                     }
                     numberCubicFeet = numCuFt.Sum(); // Use only the number of CubicFt for the Anion Vessel
+                    vesselNumber++;
                 }
 
                 int num_anions = 0;
