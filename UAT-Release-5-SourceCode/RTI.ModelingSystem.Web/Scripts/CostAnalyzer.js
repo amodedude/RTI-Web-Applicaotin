@@ -150,7 +150,11 @@ $(document).on("click", "#updateCostModel", function () {
         data: {
             acidPrice: acidPrice, causticPrice: causticPrice,
             acidUsage: acidUsage, causticUsage: causticUsage,
+            acidPercent: acidPercentage, causticPercent: causticPercentage,
             cationResin: cationResin, anionResin: anionResin,
+            cationCleanPrice: cationCleaningPrice, anionCleanPrice: anionCleaningPrice,
+            cationDiscount: cationCleaningDiscount, anionDiscount: anionCleaningDiscount,
+            cationReplacePrice: cationReplacementPrice, anionReplacePrice: anionReplacementPrice,
             loadOnSettingsUpdate: true
         },
         dataType: "json",

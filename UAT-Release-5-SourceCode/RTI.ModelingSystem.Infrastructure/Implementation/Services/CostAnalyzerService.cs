@@ -196,6 +196,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 				var lbsAcid = dataToSend.AcidUsage;
                 var causticPrice = dataToSend.CausticPrice;
                 var acidPrice = dataToSend.AcidPrice;
+
                 List<Tuple<int, double, double>> data = CalculatorInitializer(numTrains, numRegensNormOps, numRegensClean, cleanTP, normOpsTP, trainList, currentTrain, isFirstLoad, saltSplit, grains, amtCation, amtAnion, lbsCaustic, lbsAcid, customerId, causticPrice, acidPrice);
 				return data;
 			}
@@ -212,54 +213,6 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		{
 			try
 			{
-				// Set variables in variable class for acess by any method            
-				calculationParameters.WithCleaningTP = throughputClean;
-				calculationParameters.WithOutCleaningTP = throughpuReplace;
-				calculationParameters.TrainList = trainList;
-				calculationParameters.NumberRegenerationsNormalOps = numberRegensNormOps;
-				calculationParameters.NumberRegenerationsClean = numberRegensClean;
-				calculationParameters.NumberOfTrains = numberOfTrains;
-				calculationParameters.SaltSplit = saltSplitData;
-				calculationParameters.GrainForcast = grains;
-
-				// Load the appropriate number of trains
-                if (isFirstLoad)
-                {
-                    calculationParameters.AcidConcentration = 100;
-                    calculationParameters.CausticConcentration = 100;
-                    customer customer = this.modifiedCustRepository.FindById(customerId);
-                    calculationParameters.AcidPrice = double.Parse(customer.acid_price.ToString());
-                    calculationParameters.CausticPrice = double.Parse(customer.caustic_price.ToString());
-                    calculationParameters.AcidPriceConversion = 1;
-                    calculationParameters.CausticPriceConversion = 1;
-                    calculationParameters.CationCleaningPrice = 32;
-                    calculationParameters.AnionCleaningPrice = 52;
-                    calculationParameters.ReplacementPriceAnion = 70;
-                    calculationParameters.ReplacemtntPriceCation = 170;
-                    calculationParameters.AnionAmount = amountAnion;
-                    calculationParameters.CationAmount = amountCation;
-                    calculationParameters.AmountOfAcid = lbsAcid;
-                    calculationParameters.AmountOfCaustic = lbsCaustic;
-                }
-                else
-                {
-                    calculationParameters.AcidConcentration = 100;
-                    calculationParameters.CausticConcentration = 100;
-                    customer customer = this.modifiedCustRepository.FindById(customerId);
-                    calculationParameters.AcidPrice = acidPrice;
-                    calculationParameters.CausticPrice = causticPrice;
-                    calculationParameters.AcidPriceConversion = 1;
-                    calculationParameters.CausticPriceConversion = 1;
-                    calculationParameters.CationCleaningPrice = 32;
-                    calculationParameters.AnionCleaningPrice = 52;
-                    calculationParameters.ReplacementPriceAnion = 70;
-                    calculationParameters.ReplacemtntPriceCation = 170;
-                    calculationParameters.AnionAmount = amountAnion;
-                    calculationParameters.CationAmount = amountCation;
-                    calculationParameters.AmountOfAcid = lbsAcid;
-                    calculationParameters.AmountOfCaustic = lbsCaustic;
-                }
-
 				// Run the calculation
 				List<Price_Data> price = PriceCalculator(numberOfTrains, numberRegensNormOps, numberRegensClean, throughputClean, throughpuReplace, trainList);
 				calculationParameters.PriceData = price;

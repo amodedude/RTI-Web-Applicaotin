@@ -212,5 +212,21 @@ namespace RTI.ModelingSystem.Core.Models
         /// The throughput average after.
         /// </value>
         public double ThroughputAverageAfter { get; set; }
+
+        public double cleaningPriceCation { get; set; }
+
+        public double cleaningPriceAnion { get; set; }
+
+        public double cationDiscountPercent { get; set; }
+
+        public double anionDiscountPercent { get; set; }
+
+        public double replacePriceCation { get; set; }
+
+        public double replacePirceAnion { get; set; }
+
+        public double causticConcentration { get; set; }
+
+        public double acidConcentratoin { get; set; }
 	}
 }

@@ -183,7 +183,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// Plots the CostAnalyzer Chart
         /// </summary>
         /// <returns>Returns the view</returns>
-        public JsonResult PlotCostAnalyzerChart(double acidPrice = 0.0, double causticPrice = 0.0, int acidUsage = 0, int causticUsage = 0, int cationResin = 0, int anionResin = 0, bool loadOnSettingsUpdate = false)
+        public JsonResult PlotCostAnalyzerChart(double acidPrice = 0.0, double causticPrice = 0.0, int acidUsage = 0, int causticUsage = 0, int acidPercent = 0, int causticPercent = 0, int cationResin = 0, int anionResin = 0, int cationCleanPrice = 0, int anionCleanPrice = 0, int cationDiscount = 0, int anionDiscount = 0, double cationReplacePrice = 0.0, double anionReplacePrice = 0.0, bool loadOnSettingsUpdate = false)
         {
             try
             {
@@ -192,21 +192,24 @@ namespace RTI.ModelingSystem.Web.Controllers
                 bool isFirstLoad = true;
                 if (loadOnSettingsUpdate)
                 {
-                    DataToSend.AcidPrice = acidPrice;
-                    DataToSend.CausticPrice = causticPrice;
-                    DataToSend.AcidUsage = acidUsage;
-                    DataToSend.CausticUsage = causticUsage;
-                    DataToSend.AmountCation = cationResin;
-                    DataToSend.AmountAnion = anionResin;
                     isFirstLoad = false;
                 }
-                //else
-                //{
-                //    DataToSend.AcidUsage = 6;
-                //    DataToSend.CausticUsage = 6;
-                //    DataToSend.AmountCation = 600;
-                //    DataToSend.AmountAnion = 600;
-                //}
+
+                DataToSend.AcidPrice = acidPrice;
+                DataToSend.CausticPrice = causticPrice;
+                DataToSend.AcidUsage = acidUsage;
+                DataToSend.CausticUsage = causticUsage;
+                DataToSend.AcidUsage = acidUsage;
+                DataToSend.AmountAnion = anionResin;
+                DataToSend.AmountCation = cationResin;
+                //DataToSend.cleaningPriceAnion 
+                //DataToSend.cleaningPriceCation
+                //DataToSend.cationDiscountPercent
+                //DataToSend.anionDiscountPercent
+                //DataToSend.replacePirceAnion
+                //DataToSend.replacePriceCation
+                //DataToSend.acidConcentratoin
+                //DataToSend.causticConcentration
 
                 int CurrentTrain = 1;//set the current train in scope
                 if (Session["SelectedTrain"]!=null)

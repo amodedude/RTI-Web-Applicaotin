@@ -500,7 +500,7 @@ namespace RTI.ModelingSystem.Web.Controllers
                     }
 
 
-                    newSystemConditions.TrainDisplay = SelectedTrain == "0" ? "All Trains" : "Train" + minimumSS[3];
+                    newSystemConditions.TrainDisplay = SelectedTrain == "0" ? "All Trains" : "Train " + minimumSS[3];
                     newSystemConditions.RegenTimeAverageBefore = priceData.RegenTimeAverageBefore;
                     newSystemConditions.RegenTimeAverageAfter = priceData.RegenTimeAverageAfter;
                     newSystemConditions.RegensPerWeekAverageBefore = priceData.RegensPerWeekAverageBefore;
