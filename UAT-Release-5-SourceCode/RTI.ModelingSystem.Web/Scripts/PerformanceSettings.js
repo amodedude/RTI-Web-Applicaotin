@@ -24,6 +24,7 @@ jQuery(document).ready(function () {
         };
 
         jsonData = JSON.stringify(jsonData);
+        $("#trainDisplay").hide();
         $(".loader_xs").css('display', 'block');
         $.ajax({
             type: "GET",
@@ -62,6 +63,7 @@ jQuery(document).ready(function () {
                         $("#SystemConditions").empty();
                         $("#SystemConditions").html(data);
                         $(".loader_xs").css('display', 'none');
+                        $("#trainDisplay").show();
                     },
                     error: function (xhr) {
                         window.location.href = "/ClientDatabase/Errorview";

@@ -58,5 +58,10 @@ namespace RTI.ModelingSystem.Core.Models
 		/// The throughputavg after
 		/// </summary>
 		public double ThroughputAverageAfter { get; set; }
+
+        /// <summary>
+        /// The Currently Selected Train
+        /// </summary>
+        public string TrainDisplay { get; set; }
 	}
 }

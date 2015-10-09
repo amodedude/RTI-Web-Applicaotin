@@ -261,6 +261,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
         {
             try
             {
+                double currentTrain = 0;
                 int waterDemand = this.predictiveRepository.GetWaterDemand(id);
                 List<train> trainData = new List<train>();
                 List<vessel> vesselData = new List<vessel>();
@@ -280,16 +281,20 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 double numberCubicFeet = 0, numberRegens = 0;
                 List<double> numberRegenPerTrain = new List<double>();
                 string usingManifold = string.Empty;
+                int traincount = 0;
                 foreach (var item in trainData)
                 {
+                    traincount++;
                     usingManifold = item.using_manifold;
                     if (item.trainID == Convert.ToInt32(selectedTrainId))
                     {
                         numberRegenPerTrain.Add(Convert.ToDouble(item.regens_per_month));
+                        currentTrain = traincount;
                     }
                     else if (selectedTrainId == "0")
                     {
                         numberRegenPerTrain.Add(Convert.ToDouble(item.regens_per_month));
+                        currentTrain = 0;
                     }
                 }
                 if (usingManifold == "NO")
@@ -395,6 +400,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 output.Add(minimumSaltSplit);
                 output.Add(age);
                 output.Add(replacementPlan.Average());
+                output.Add(currentTrain);
                 return output;
             }
             catch

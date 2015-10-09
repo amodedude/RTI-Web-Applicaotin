@@ -1,7 +1,12 @@
 ﻿
 @model RTI.ModelingSystem.Core.Models.SystemConditions
 
-<div class="col-xs-12 table_title">System conditions <span class="pull-right loader_xs"></span></div>
+<div class="col-xs-12 table_title">
+    <div style="float: left;">System conditions </div>
+    <span class="pull-right loader_xs"></span>
+    <div id="trainDisplay" style="float: right;">@Html.DisplayFor(model => model.TrainDisplay)</div>
+    
+</div>
 <div class="col-xs-12 nopad_l-r statlist_title">
     <div class="left">&nbsp;</div>
     <div class="right">Before</div>
