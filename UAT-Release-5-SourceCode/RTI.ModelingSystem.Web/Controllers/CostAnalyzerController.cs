@@ -183,39 +183,101 @@ namespace RTI.ModelingSystem.Web.Controllers
         /// Plots the CostAnalyzer Chart
         /// </summary>
         /// <returns>Returns the view</returns>
-        public JsonResult PlotCostAnalyzerChart(double acidPrice = 0.0, double causticPrice = 0.0, int acidUsage = 0, int causticUsage = 0, int acidPercent = 0, int causticPercent = 0, int cationResin = 0, int anionResin = 0, int cationCleanPrice = 0, int anionCleanPrice = 0, int cationDiscount = 0, int anionDiscount = 0, double cationReplacePrice = 0.0, double anionReplacePrice = 0.0, bool loadOnSettingsUpdate = false)
+        public JsonResult PlotCostAnalyzerChart(double? acidPrice = null, double? causticPrice = null, int? acidUsage = null, int? causticUsage = null, int? acidPercent = null, int? causticPercent = null, int? cationResin = null, int? anionResin = null, int? cationCleanPrice = null, int? anionCleanPrice = null, int? cationDiscount = null, int? anionDiscount = null, double? cationReplacePrice = null, double? anionReplacePrice = null, bool loadOnSettingsUpdate = false)
         {
             try
-            {
+            {                
                 PriceData DataToSend = this.Session["Data_ToSend"] != null ? Session["Data_ToSend"] as PriceData : new PriceData();
+                // Get the Customer Id
                 string CustId = this.Session["CustomerId"] != null ? Session["CustomerId"].ToString() : string.Empty;
+                Int64 ID = Convert.ToInt64(CustId);
                 bool isFirstLoad = true;
                 if (loadOnSettingsUpdate)
                 {
                     isFirstLoad = false;
                 }
 
-                DataToSend.AcidPrice = acidPrice;
-                DataToSend.CausticPrice = causticPrice;
-                DataToSend.AcidUsage = acidUsage;
-                DataToSend.CausticUsage = causticUsage;
-                DataToSend.AcidUsage = acidUsage;
-                DataToSend.AmountAnion = anionResin;
-                DataToSend.AmountCation = cationResin;
-                //DataToSend.cleaningPriceAnion 
-                //DataToSend.cleaningPriceCation
-                //DataToSend.cationDiscountPercent
-                //DataToSend.anionDiscountPercent
-                //DataToSend.replacePirceAnion
-                //DataToSend.replacePriceCation
-                //DataToSend.acidConcentratoin
-                //DataToSend.causticConcentration
-
                 int CurrentTrain = 1;//set the current train in scope
                 if (Session["SelectedTrain"]!=null)
                 {
                     CurrentTrain = int.Parse(Session["SelectedTrain"].ToString());
                 }
+
+                List<train> trains = new List<train>();
+                List<vessel> vessels = new List<vessel>();
+                customer customer = new customer();
+                customer = this.customerRepository.GetAll().Where(cus => cus.customerID == ID).First();
+
+                //Get the list of trains and vessels 
+                if (CurrentTrain == 0)
+                {
+                    trains = this.modifiedCustRepository.GetCustomerTrains(ID);
+                    vessels = this.vesselRepository.GetAll().Where(ves => ves.vessel_customerID == CustId).ToList();
+                }
+                else
+                {
+                    trains = trains = this.modifiedCustRepository.GetCustomerTrains(ID).Where(train => train.trainID == CurrentTrain).ToList();
+                    vessels = this.vesselRepository.GetAll().Where(ves => (ves.vessel_customerID == CustId) && (ves.train_trainID == CurrentTrain)).ToList();
+                }
+
+                List<int> acidUsages = new List<int>();
+                List<int> causticUsages = new List<int>();
+                List<int> cationSizes = new List<int>();
+                List<int> anionSizes = new List<int>();
+                List<double> cationReplacementPrices = new List<double>(); 
+                List<double> anionReplacementPrices = new List<double>(); 
+
+                // Set Data
+                int count = 0;
+                foreach(vessel vessel in vessels)
+                {
+                    if(count % 2 != 0) // If vessel is an anion vessel
+                    {
+                        causticUsages.Add(Convert.ToInt32(vessel.lbs_chemical));
+                        anionSizes.Add(Convert.ToInt32(vessel.size));
+                        anionReplacementPrices.Add(Convert.ToDouble(vessel.price_per_cuft));
+                        
+                    }
+                    else
+                    {
+                        acidUsages.Add(Convert.ToInt32(vessel.lbs_chemical));
+                        cationSizes.Add(Convert.ToInt32(vessel.size));
+                        cationReplacementPrices.Add(Convert.ToDouble(vessel.price_per_cuft));
+                    }
+                        count++;
+                }
+
+                // Get price data from the databse if not passed into function or use the default values
+                double _priceAcid = acidPrice == null ? Convert.ToDouble(customer.acid_price) : (double)acidPrice;
+                double _priceCaustic = causticPrice == null ? Convert.ToDouble(customer.caustic_price) : (double)causticPrice;
+                int _uasgeAcid = acidUsage == null ? Convert.ToInt32(Math.Round(acidUsages.Average())) : (int)acidUsage;
+                int _usageCaustic = causticUsage == null ? Convert.ToInt32(Math.Round(causticUsages.Average())) : (int)causticUsage;
+                int _percentAcid = acidPercent == null ? 100 : (int)acidPercent;           // Acid Concentration (default 100%)
+                int _percentCaustic = causticPercent == null ? 100 : (int)causticPercent;  // Caustic Concentration (default 100%)
+                int _sizeCation = cationResin == null ? Convert.ToInt32(cationSizes.Sum()) : (int)cationResin;
+                int _sizeAnion = anionResin == null ? Convert.ToInt32(anionSizes.Sum()) : (int)anionResin;
+                int _priceCleanCation = cationCleanPrice == null ? 32 : (int)cationCleanPrice;  // $32 per cuft default cation cleaning price
+                int _priceCleanAnion = anionCleanPrice == null ? 52 : (int)anionCleanPrice;     // $52 per cuft default anion cleaning price
+                int _discounCation = cationDiscount == null ? 0 : (int)cationDiscount;
+                int _discountAnion = anionDiscount == null ? 0 : (int)anionDiscount;
+                double _priceReplaceCation = cationReplacePrice == null ? Convert.ToInt32(Math.Round(cationReplacementPrices.Average())) : (double)cationReplacePrice;
+                double _priceReplaceAnion = anionReplacePrice == null ? Convert.ToInt32(Math.Round(anionReplacementPrices.Average())) : (double)anionReplacePrice;
+
+                DataToSend.AcidPrice = _priceAcid;
+                DataToSend.CausticPrice = _priceCaustic;
+                DataToSend.AcidUsage = _uasgeAcid;
+                DataToSend.CausticUsage = _usageCaustic;
+                DataToSend.AmountAnion = _sizeAnion;
+                DataToSend.AmountCation = _sizeCation;
+                DataToSend.cleaningPriceAnion = _priceCleanAnion;
+                DataToSend.cleaningPriceCation = _priceCleanCation;
+                DataToSend.cationDiscountPercent = _discounCation;
+                DataToSend.anionDiscountPercent = _discountAnion;
+                DataToSend.replacePirceAnion = _priceReplaceAnion;
+                DataToSend.replacePriceCation = _priceReplaceCation;
+                DataToSend.acidConcentratoin = _percentAcid;
+                DataToSend.causticConcentration = _percentCaustic;
+                
                 var data = this.costAnalyzerService.OpenCostWindow(DataToSend, CurrentTrain, CustId, isFirstLoad);
                 return Json(data, JsonRequestBehavior.AllowGet);
             }

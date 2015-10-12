@@ -131,12 +131,14 @@ $(document).on("click", "#updateCostModel", function () {
     var causticPercentage = $('#CausticPercentage').text().replace('%', '');
     var cationResin = $('#CationResin').text();
     var anionResin = $('#AnionResin').text();
-    var cationCleaningPrice = $('#CationCleaningPrice').text().substr(0, $('#resinLifeExpectancy').text().indexOf(" "));
-    var anionCleaningPrice = $('#AnionCleaningPrice').text().substr(0, $('#resinLifeExpectancy').text().indexOf(" "));
+    debugger;
+    var cationCleaningPrice = $('#CationCleaningPrice').text().replace('/ cu ft','');
+    debugger;
+    var anionCleaningPrice = $('#AnionCleaningPrice').text().replace('/ cu ft','');
     var cationCleaningDiscount = $('#CationCleaningDiscount').text().replace('%', '');
     var anionCleaningDiscount = $('#AnionCleaningDiscount').text().replace('%', '');
-    var cationReplacementPrice = $('#CationReplacementPrice').text().substr(0, $('#resinLifeExpectancy').text().indexOf(" "));
-    var anionReplacementPrice = $('#AnionReplacementPrice').text().substr(0, $('#resinLifeExpectancy').text().indexOf(" "));
+    var cationReplacementPrice = $('#CationReplacementPrice').text().replace('/ cu ft', '');
+    var anionReplacementPrice = $('#AnionReplacementPrice').text().replace('/ cu ft', '');
 
     //var jsonData = {
     //    ResinLifeExpectancy: resinLifeExpectancy, AvgResinAge: avgResinAge, NewResinSaltSplit: newResinSaltSplit, RegenEffectiveness: regenEffectiveness,
@@ -215,6 +217,7 @@ $(document).on("click", "#updateCostModel", function () {
                     }
                 },
                 yAxis: {
+                    type: 'logarithmic',
                     title: {
                         text: 'Cost of Operations'
                     }

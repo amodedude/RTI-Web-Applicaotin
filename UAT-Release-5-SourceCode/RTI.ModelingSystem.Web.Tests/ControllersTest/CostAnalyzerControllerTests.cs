@@ -127,7 +127,7 @@ namespace RTI.ModelingSystem.Web.Tests.ControllersTest
             int causticUsage = 0;
             int cationResin = 0;
             int anionResin = 0;
-            bool loadOnSettingsUpdate = true;
+            int loadOnSettingsUpdate = 1;
             PriceData DataToSend = null;
             string customerId = "1";
 
@@ -140,7 +140,7 @@ namespace RTI.ModelingSystem.Web.Tests.ControllersTest
             controller.ControllerContext.HttpContext.Session["CustomerId"] = customerId;
             controller.ControllerContext.HttpContext.Session["Data_ToSend"] = DataToSend;
 
-            var returnObj = controller.PlotCostAnalyzerChart(acidPrice, causticPrice, acidUsage, causticUsage, cationResin, anionResin, loadOnSettingsUpdate);
+            var returnObj = controller.PlotCostAnalyzerChart((double?)acidPrice, (double?)causticPrice, (int?)acidUsage, (int?)causticUsage, (int?)cationResin, (int?)anionResin, (int?)loadOnSettingsUpdate);
             Assert.IsNotNull(returnObj);
             Assert.IsInstanceOfType(returnObj, typeof(JsonResult));
             var result = (JsonResult)returnObj;

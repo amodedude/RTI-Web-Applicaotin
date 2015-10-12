@@ -197,8 +197,36 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 var causticPrice = dataToSend.CausticPrice;
                 var acidPrice = dataToSend.AcidPrice;
 
+                // Set variables in variable class for acess by any method            
+                calculationParameters.WithCleaningTP = cleanTP;
+                calculationParameters.WithOutCleaningTP = normOpsTP;
+                calculationParameters.TrainList = trainList;
+                calculationParameters.NumberRegenerationsNormalOps = numRegensNormOps;
+                calculationParameters.NumberRegenerationsClean = numRegensClean;
+                calculationParameters.NumberOfTrains = numTrains;
+                calculationParameters.SaltSplit = saltSplit;
+                calculationParameters.GrainForcast = grains;
+
+                calculationParameters.AcidConcentration = dataToSend.acidConcentratoin;
+                calculationParameters.CausticConcentration = dataToSend.causticConcentration;
+                calculationParameters.AcidPrice = dataToSend.AcidPrice;
+                calculationParameters.CausticPrice = dataToSend.CausticPrice;
+                calculationParameters.AcidPriceConversion = 1;
+                calculationParameters.CausticPriceConversion = 1;
+                calculationParameters.CationCleaningPrice = dataToSend.cleaningPriceCation;
+                calculationParameters.AnionCleaningPrice = dataToSend.cleaningPriceAnion;
+                calculationParameters.ReplacementPriceAnion = dataToSend.replacePirceAnion;
+                calculationParameters.ReplacemtntPriceCation = dataToSend.replacePriceCation;
+                calculationParameters.AnionAmount = dataToSend.AmountAnion;
+                calculationParameters.CationAmount = dataToSend.AmountCation;
+                calculationParameters.AmountOfAcid = dataToSend.AcidUsage;
+                calculationParameters.AmountOfCaustic = dataToSend.CausticUsage;
+
+
+
                 List<Tuple<int, double, double>> data = CalculatorInitializer(numTrains, numRegensNormOps, numRegensClean, cleanTP, normOpsTP, trainList, currentTrain, isFirstLoad, saltSplit, grains, amtCation, amtAnion, lbsCaustic, lbsAcid, customerId, causticPrice, acidPrice);
-				return data;
+				
+                return data;
 			}
 			catch
 			{
@@ -213,7 +241,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		{
 			try
 			{
-				// Run the calculation
+                // Run the calculation
 				List<Price_Data> price = PriceCalculator(numberOfTrains, numberRegensNormOps, numberRegensClean, throughputClean, throughpuReplace, trainList);
 				calculationParameters.PriceData = price;
 
@@ -241,6 +269,8 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
 		{
 			try
 			{
+
+
 				// Load calculation parameters
 				double causticPrice = calculationParameters.CausticPrice;
 				double acidPrice = calculationParameters.AcidPrice;
