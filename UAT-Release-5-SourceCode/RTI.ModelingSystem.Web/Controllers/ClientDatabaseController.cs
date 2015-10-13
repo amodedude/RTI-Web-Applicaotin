@@ -581,6 +581,12 @@ namespace RTI.ModelingSystem.Web.Controllers
                                 vessel.train_trainID = train.trainID;
                                 int resinDataProductId = this.modifiedVesselRepository.GetResinId(vessel.ResinModel);
                                 vessel.resin_data_product_id = resinDataProductId;
+
+                                if (vessel.num_regens == null)
+                                {
+                                    vessel.num_regens = "N/A";
+                                }
+
                                 this.modifiedVesselRepository.InsertVessel(vessel);
                                 this.vesselRepository.SubmitChanges();
                             }
