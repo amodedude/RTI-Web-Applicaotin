@@ -277,8 +277,62 @@ namespace RTI.ModelingSystem.Web.Controllers
                 DataToSend.replacePriceCation = _priceReplaceCation;
                 DataToSend.acidConcentratoin = _percentAcid;
                 DataToSend.causticConcentration = _percentCaustic;
+
+                
                 
                 var data = this.costAnalyzerService.OpenCostWindow(DataToSend, CurrentTrain, CustId, isFirstLoad);
+
+                int numWksMeetingDemand_Cleaning = 0;
+                int numWksMeetingDemand_NotCleaning = 0;
+                int demand = 38000000; // Test at 38 million gal
+                int numTrains = 3; // Test with customer having 3 trains
+
+
+                List<ThroughputRegenPair> regenTP_PairClean = new List<ThroughputRegenPair>();
+                List<ThroughputRegenPair> regenTP_PairNoClean = new List<ThroughputRegenPair>();
+
+                // Merge the number of regens per week and the throughput values
+                for (int week = 0; week <= DataToSend.RegensPerWeekClean.Count()-1; week++)
+                {
+                    ThroughputRegenPair weekRegTpPair = new ThroughputRegenPair();
+                    weekRegTpPair.throughput = week <= DataToSend.CleanThroughput.Count()-1 ? DataToSend.CleanThroughput.ElementAt(week).Value.Item2 : 0;
+                    weekRegTpPair.numberOfRegens = week <= DataToSend.RegensPerWeekClean.Count() - 1 ? DataToSend.RegensPerWeekClean.ElementAt(week).Item2 : 0;
+                    regenTP_PairClean.Add(weekRegTpPair);
+                }
+
+                // Merge the number of regens per week and the throughput values
+                for (int week = 0; week <= DataToSend.RegensPerWeekNormalOps.Count()-1; week++)
+                {
+                    ThroughputRegenPair weekRegTpPair = new ThroughputRegenPair();
+                    weekRegTpPair.throughput = week <= DataToSend.NormalOpsThroughput.Count() - 1 ? DataToSend.NormalOpsThroughput.ElementAt(week).Value.Item2 : 0;
+                    weekRegTpPair.numberOfRegens = week <= DataToSend.RegensPerWeekNormalOps.Count() - 1 ? DataToSend.RegensPerWeekNormalOps.ElementAt(week).Item2 : 0;
+                    regenTP_PairNoClean.Add(weekRegTpPair);
+                }
+
+
+                    // Check how many weeks meet the total demand before RTI cleaning 
+                foreach (var week in regenTP_PairClean)
+                    {
+                            double effectiveDemand = week.throughput * 4 * numTrains * week.numberOfRegens;
+                            if (effectiveDemand >= demand)
+                            {
+                                numWksMeetingDemand_NotCleaning++;
+                            }
+                    }
+
+                // Check how many weeks meet the toal demand after RTI cleaning 
+                foreach (var week in regenTP_PairNoClean)
+                {
+                        double effectiveDemand = week.throughput * 4 * numTrains * week.numberOfRegens;
+                        if (effectiveDemand >= demand)
+                        {
+                            numWksMeetingDemand_Cleaning++;
+                        }
+                }
+
+                DataToSend.numDaysMeetingDemand_NormalOps = numWksMeetingDemand_NotCleaning;
+                DataToSend.numDaysMeetingDemand_Clean = numWksMeetingDemand_Cleaning;
+
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch
@@ -402,5 +456,10 @@ namespace RTI.ModelingSystem.Web.Controllers
         }
 
         #endregion Methods
+    }
+
+    public class ThroughputRegenPair{
+        public double throughput { get; set; }
+        public double numberOfRegens { get; set; }
     }
 }

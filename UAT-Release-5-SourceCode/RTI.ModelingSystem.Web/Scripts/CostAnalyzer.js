@@ -121,6 +121,9 @@
     });
 });
 
+
+
+
 $(document).on("click", "#updateCostModel", function () {
 
     var acidPrice = $('#AcidPrice').text().replace('$', '');
