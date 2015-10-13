@@ -245,7 +245,7 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                             count++;
                         }
 
-                        double resAge = resinAges.Average() / 7;
+                        double resAge = resinAges.Count() != 0 ? resinAges.Average() / 7 : 0;
                         throughputCleanPrediction = tp.ThroughputBuild(replacementLevel, rtiCleaningLevel, currentSaltSplit, grainForeCast, amtAnionResin, rtiCleaningeffectivness, selectedTrainGPM, resAge, startingSaltSplit, numberOfWeeks, true, donotReplaceResin, regenTime, trainID, trains.Count);
                         throughputCleanPredictionAllTrains.Add(throughputCleanPrediction);
                         afterConditions = tp.AfterSystemConditions;

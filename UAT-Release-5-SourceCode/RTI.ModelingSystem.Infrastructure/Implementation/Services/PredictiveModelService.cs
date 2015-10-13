@@ -278,6 +278,31 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 else
                     numberOfTrains = 1;
 
+                //// Check if all vessel data has actually been set
+                //int _vesselCount = vesselData.Count();
+                //int _anionCount = 0;
+                //int _cationCount = 0;
+
+                //foreach(var train in trainData){
+                //    if (train.num_beds_anion == 2)
+                //        _anionCount += 2;
+                //    else
+                //        _anionCount++;
+
+                //    if (train.num_beds_cation == 2)
+                //        _cationCount += 2;
+                //    else
+                //        _cationCount++;
+                //}
+
+                //int totalNumVessels = _anionCount + _cationCount;
+
+                //int loadAllTrains = 0;
+                //if (totalNumVessels == _vesselCount)
+                //{
+                //    loadAllTrains = 1;
+                //}
+
                 double numberCubicFeet = 0, numberRegens = 0;
                 List<double> numberRegenPerTrain = new List<double>();
                 string usingManifold = string.Empty;
@@ -392,14 +417,22 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
                 {
                     average = intervalSum.TotalMilliseconds;
                 }
+
+                if (Double.IsNaN(average))
+                    average = 0;
+                
                 TimeSpan averageResinAge = TimeSpan.FromMilliseconds(average);
                 double age = averageResinAge.TotalDays / 7;
                 double grainAverage = this.predictiveRepository.GetGrainsWeightTotal(id.ToString());
-             
+                            
+                
                 double minimumSaltSplit = 10.8;
                 output.Add(minimumSaltSplit);
                 output.Add(age);
-                output.Add(replacementPlan.Average());
+                if (replacementPlan.Count > 0)
+                    output.Add(replacementPlan.Average());
+                else
+                    output.Add(0);
                 output.Add(currentTrain);
                 return output;
             }
@@ -691,5 +724,13 @@ namespace RTI.ModelingSystem.Infrastructure.Implementation.Services
     public class BedNum_Interval{
         public string bed_number { get; set; }
         public TimeSpan span { get; set; }
+    }
+
+    // Used for testing is all train data has actually been set
+    public class Train_BedCount
+    {
+        public int trainNumber { get; set; }
+        public bool dualAnions { get; set; }
+        public bool dualCations { get; set; }
     }
 }

@@ -584,7 +584,7 @@ namespace RTI.ModelingSystem.Web.Controllers
 
                                 if (vessel.num_regens == null)
                                 {
-                                    vessel.num_regens = "N/A";
+                                    vessel.num_regens = "00";
                                 }
 
                                 this.modifiedVesselRepository.InsertVessel(vessel);
