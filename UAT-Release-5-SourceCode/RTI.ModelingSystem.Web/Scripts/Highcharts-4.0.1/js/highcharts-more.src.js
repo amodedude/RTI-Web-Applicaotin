@@ -2,7 +2,7 @@
 // @compilation_level SIMPLE_OPTIMIZATIONS
 
 /**
- * @license Highcharts JS v4.0.1 (2014-04-24)
+ * @license Highcharts JS v4.1.9 (2015-10-07)
  *
  * (c) 2009-2014 Torstein Honsi
  *
@@ -60,11 +60,8 @@ extend(Pane.prototype, {
 		
 		pane.chart = chart;
 		
-		// Set options
-		if (chart.angular) { // gauges
-			defaultOptions.background = {}; // gets extended by this.defaultBackgroundOptions
-		}
-		pane.options = options = merge(defaultOptions, options);
+		// Set options. Angular charts have a default background (#3318)
+		pane.options = options = merge(defaultOptions, chart.angular ? { background: {} } : undefined, options);
 		
 		backgroundOption = options.background;
 		
@@ -72,13 +69,18 @@ extend(Pane.prototype, {
 		// push them to the first axis' plot bands and borrow the existing logic there.
 		if (backgroundOption) {
 			each([].concat(splat(backgroundOption)).reverse(), function (config) {
-				var backgroundColor = config.backgroundColor; // if defined, replace the old one (specific for gradients)
+				var backgroundColor = config.backgroundColor,  // if defined, replace the old one (specific for gradients)
+					axisUserOptions = firstAxis.userOptions;
 				config = merge(pane.defaultBackgroundOptions, config);
 				if (backgroundColor) {
 					config.backgroundColor = backgroundColor;
 				}
 				config.color = config.backgroundColor; // due to naming in plotBands
 				firstAxis.options.plotBands.unshift(config);
+				axisUserOptions.plotBands = axisUserOptions.plotBands || []; // #3176
+				if (axisUserOptions.plotBands !== firstAxis.options.plotBands) {
+					axisUserOptions.plotBands.unshift(config);
+				}
 			});
 		}
 	},
@@ -108,7 +110,7 @@ extend(Pane.prototype, {
 				[1, '#DDD']
 			]
 		},
-		from: Number.MIN_VALUE, // corrected to axis min
+		from: -Number.MAX_VALUE, // corrected to axis min
 		innerRadius: 0,
 		to: Number.MAX_VALUE, // corrected to axis max
 		outerRadius: '105%'
@@ -371,6 +373,10 @@ var radialAxisMixin = {
 		
 		// Circular grid bands
 		} else {
+
+			// Keep within bounds
+			from = Math.max(from, this.min);
+			to = Math.min(to, this.max);
 			
 			// Plot bands on Y axis (radial axis) - inner and outer radius depend on to and from
 			if (!isCircular) {
@@ -403,14 +409,14 @@ var radialAxisMixin = {
 				radii[0],
 				radii[0],
 				{
-					start: start,
-					end: end,
+					start: Math.min(start, end), // Math is for reversed yAxis (#3606)
+					end: Math.max(start, end),
 					innerR: pick(radii[1], radii[0] - radii[2]),
 					open: open
 				}
 			);
 		}
-		 
+
 		return ret;
 	},
 	
@@ -575,6 +581,7 @@ wrap(tickProto, 'getLabelPosition', function (proceed, x, y, label, horiz, label
 	var axis = this.axis,
 		optionsY = labelOptions.y,
 		ret,
+		centerSlot = 20, // 20 degrees to each side at the top and bottom
 		align = labelOptions.align,
 		angle = ((axis.translate(this.pos) + axis.startAngleRad + Math.PI / 2) / Math.PI * 180) % 360;
 
@@ -595,9 +602,12 @@ wrap(tickProto, 'getLabelPosition', function (proceed, x, y, label, horiz, label
 		// Automatic alignment
 		if (align === null) {
 			if (axis.isCircular) {
-				if (angle > 20 && angle < 160) {
+				if (this.label.getBBox().width > axis.len * axis.tickInterval / (axis.max - axis.min)) { // #3506
+					centerSlot = 0;
+				}
+				if (angle > centerSlot && angle < 180 - centerSlot) {
 					align = 'left'; // right hemisphere
-				} else if (angle > 200 && angle < 340) {
+				} else if (angle > 180 + centerSlot && angle < 360 - centerSlot) {
 					align = 'right'; // left hemisphere
 				} else {
 					align = 'center'; // top or bottom
@@ -658,6 +668,7 @@ defaultPlotOptions.arearange = merge(defaultPlotOptions.area, {
 	},
 	trackByArea: true,
 	dataLabels: {
+		align: null,
 		verticalAlign: null,
 		xLow: 0,
 		xHigh: 0,
@@ -677,10 +688,25 @@ defaultPlotOptions.arearange = merge(defaultPlotOptions.area, {
 seriesTypes.arearange = extendClass(seriesTypes.area, {
 	type: 'arearange',
 	pointArrayMap: ['low', 'high'],
+	dataLabelCollections: ['dataLabel', 'dataLabelUpper'],
 	toYData: function (point) {
 		return [point.low, point.high];
 	},
 	pointValKey: 'low',
+	deferTranslatePolar: true,
+
+	/**
+	 * Translate a point's plotHigh from the internal angle and radius measures to 
+	 * true plotHigh coordinates. This is an addition of the toXY method found in
+	 * Polar.js, because it runs too early for arearanges to be considered (#3419).
+	 */
+	highToXY: function (point) {
+		// Find the polar plotX and plotY
+		var chart = this.chart,
+			xy = this.xAxis.postTranslate(point.rectPlotX, this.yAxis.len - point.plotHigh);
+		point.plotHighX = xy.x - chart.plotLeft;
+		point.plotHigh = xy.y - chart.plotTop;
+	},
 	
 	/**
 	 * Extend getSegments to force null points if the higher value is null. #1703.
@@ -727,6 +753,13 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 				point.plotHigh = yAxis.translate(high, 0, 1, 0, 1);
 			}
 		});
+
+		// Postprocess plotHigh
+		if (this.chart.polar) {
+			each(this.points, function (point) {
+				series.highToXY(point);
+			});
+		}
 	},
 	
 	/**
@@ -756,7 +789,7 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 			point = segment[i];
 			if (point.plotHigh !== null) {
 				highSegment.push({
-					plotX: point.plotX,
+					plotX: point.plotHighX || point.plotX, // plotHighX is for polar charts
 					plotY: point.plotHigh
 				});
 			}
@@ -777,7 +810,9 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 		linePath = [].concat(lowerPath, higherPath);
 		
 		// For the area path, we need to change the 'move' statement into 'lineTo' or 'curveTo'
-		higherPath[0] = 'L'; // this probably doesn't work for spline			
+		if (!this.chart.polar) {
+			higherPath[0] = 'L'; // this probably doesn't work for spline
+		}
 		this.areaPath = this.areaPath.concat(lowerPath, higherPath);
 		
 		return linePath;
@@ -795,7 +830,10 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 			originalDataLabels = [],
 			seriesProto = Series.prototype,
 			dataLabelOptions = this.options.dataLabels,
+			align = dataLabelOptions.align,
+			inside = dataLabelOptions.inside,
 			point,
+			up,
 			inverted = this.chart.inverted;
 			
 		if (dataLabelOptions.enabled || this._hasPointLabels) {
@@ -804,24 +842,29 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 			i = length;
 			while (i--) {
 				point = data[i];
-				
-				// Set preliminary values
-				point.y = point.high;
-				point._plotY = point.plotY;
-				point.plotY = point.plotHigh;
-				
-				// Store original data labels and set preliminary label objects to be picked up 
-				// in the uber method
-				originalDataLabels[i] = point.dataLabel;
-				point.dataLabel = point.dataLabelUpper;
-				
-				// Set the default offset
-				point.below = false;
-				if (inverted) {
-					dataLabelOptions.align = 'left';
-					dataLabelOptions.x = dataLabelOptions.xHigh;								
-				} else {
-					dataLabelOptions.y = dataLabelOptions.yHigh;
+				if (point) {
+					up = inside ? point.plotHigh < point.plotLow : point.plotHigh > point.plotLow;
+					
+					// Set preliminary values
+					point.y = point.high;
+					point._plotY = point.plotY;
+					point.plotY = point.plotHigh;
+					
+					// Store original data labels and set preliminary label objects to be picked up 
+					// in the uber method
+					originalDataLabels[i] = point.dataLabel;
+					point.dataLabel = point.dataLabelUpper;
+					
+					// Set the default offset
+					point.below = up;
+					if (inverted) {
+						if (!align) {
+							dataLabelOptions.align = up ? 'right' : 'left';
+						}
+						dataLabelOptions.x = dataLabelOptions.xHigh;								
+					} else {
+						dataLabelOptions.y = dataLabelOptions.yHigh;
+					}
 				}
 			}
 			
@@ -833,28 +876,35 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 			i = length;
 			while (i--) {
 				point = data[i];
-				
-				// Move the generated labels from step 1, and reassign the original data labels
-				point.dataLabelUpper = point.dataLabel;
-				point.dataLabel = originalDataLabels[i];
-				
-				// Reset values
-				point.y = point.low;
-				point.plotY = point._plotY;
-				
-				// Set the default offset
-				point.below = true;
-				if (inverted) {
-					dataLabelOptions.align = 'right';
-					dataLabelOptions.x = dataLabelOptions.xLow;
-				} else {
-					dataLabelOptions.y = dataLabelOptions.yLow;
+				if (point) {
+					up = inside ? point.plotHigh < point.plotLow : point.plotHigh > point.plotLow;
+					
+					// Move the generated labels from step 1, and reassign the original data labels
+					point.dataLabelUpper = point.dataLabel;
+					point.dataLabel = originalDataLabels[i];
+					
+					// Reset values
+					point.y = point.low;
+					point.plotY = point._plotY;
+					
+					// Set the default offset
+					point.below = !up;
+					if (inverted) {
+						if (!align) {
+							dataLabelOptions.align = up ? 'left' : 'right';
+						}
+						dataLabelOptions.x = dataLabelOptions.xLow;
+					} else {
+						dataLabelOptions.y = dataLabelOptions.yLow;
+					}
 				}
 			}
 			if (seriesProto.drawDataLabels) {
 				seriesProto.drawDataLabels.apply(this, arguments);
 			}
 		}
+
+		dataLabelOptions.align = align;
 	
 	},
 	
@@ -862,7 +912,9 @@ seriesTypes.arearange = extendClass(seriesTypes.area, {
 		seriesTypes.column.prototype.alignDataLabel.apply(this, arguments);
 	},
 	
-	getSymbol: seriesTypes.column.prototype.getSymbol,
+	setStackedPoints: noop,
+	
+	getSymbol: noop,
 	
 	drawPoints: noop
 });/**
@@ -922,17 +974,26 @@ seriesTypes.areasplinerange = extendClass(seriesTypes.arearange, {
 				y = plotHigh;
 				height = point.plotY - plotHigh;
 
-				if (height < minPointLength) {
+				// Adjust for minPointLength
+				if (Math.abs(height) < minPointLength) {
 					heightDifference = (minPointLength - height);
 					height += heightDifference;
 					y -= heightDifference / 2;
+
+				// Adjust for negative ranges or reversed Y axis (#1457)
+				} else if (height < 0) {
+					height *= -1;
+					y -= height;
 				}
+
 				shapeArgs.height = height;
 				shapeArgs.y = y;
 			});
 		},
-		trackerGroups: ['group', 'dataLabels'],
+		directTouch: true,
+		trackerGroups: ['group', 'dataLabelsGroup'],
 		drawGraph: noop,
+		crispCol: colProto.crispCol,
 		pointAttrToOptions: colProto.pointAttrToOptions,
 		drawPoints: colProto.drawPoints,
 		drawTracker: colProto.drawTracker,
@@ -959,9 +1020,6 @@ defaultPlotOptions.gauge = merge(defaultPlotOptions.line, {
 		borderColor: 'silver',
 		borderRadius: 3,
 		crop: false,
-		style: {
-			fontWeight: 'bold'
-		},
 		verticalAlign: 'top',
 		zIndex: 2
 	},
@@ -1013,7 +1071,7 @@ var GaugeSeries = {
 	drawGraph: noop,
 	fixedBox: true,
 	forceDL: true,
-	trackerGroups: ['group', 'dataLabels'],
+	trackerGroups: ['group', 'dataLabelsGroup'],
 	
 	/**
 	 * Calculate paths etc
@@ -1205,7 +1263,7 @@ defaultPlotOptions.boxplot = merge(defaultPlotOptions.column, {
 	//stemWidth: null,
 	threshold: null,
 	tooltip: {
-		pointFormat: '<span style="color:{series.color}">\u25CF</span> <b> {series.name}</b><br/>' +
+		pointFormat: '<span style="color:{point.color}">\u25CF</span> <b> {series.name}</b><br/>' + // docs
 			'Maximum: {point.high}<br/>' +
 			'Upper quartile: {point.q3}<br/>' +
 			'Median: {point.median}<br/>' +
@@ -1293,7 +1351,8 @@ seriesTypes.boxplot = extendClass(seriesTypes.column, {
 			shapeArgs,
 			color,
 			doQuartiles = series.doQuartiles !== false, // error bar inherits this series type but doesn't do quartiles
-			whiskerLength = parseInt(series.options.whiskerLength, 10) / 100;
+			pointWiskerLength,
+			whiskerLength = series.options.whiskerLength;
 
 
 		each(points, function (point) {
@@ -1332,8 +1391,6 @@ seriesTypes.boxplot = extendClass(seriesTypes.column, {
 				// Median attributes
 				medianAttr.stroke = point.medianColor || options.medianColor || color;
 				medianAttr['stroke-width'] = pick(point.medianWidth, options.medianWidth, options.lineWidth);
-				medianAttr['stroke-linecap'] = 'round'; // #1638
-				
 				
 				// The stem
 				crispCorr = (stemAttr['stroke-width'] % 2) / 2;
@@ -1380,21 +1437,22 @@ seriesTypes.boxplot = extendClass(seriesTypes.column, {
 					crispCorr = (whiskersAttr['stroke-width'] % 2) / 2;
 					highPlot = highPlot + crispCorr;
 					lowPlot = lowPlot + crispCorr;
+					pointWiskerLength = (/%$/).test(whiskerLength) ? halfWidth * parseFloat(whiskerLength) / 100 : whiskerLength / 2;
 					whiskersPath = [
 						// High whisker
 						'M',
-						crispX - halfWidth * whiskerLength, 
+						crispX - pointWiskerLength, 
 						highPlot,
 						'L',
-						crispX + halfWidth * whiskerLength, 
+						crispX + pointWiskerLength, 
 						highPlot,
 						
 						// Low whisker
 						'M',
-						crispX - halfWidth * whiskerLength, 
+						crispX - pointWiskerLength, 
 						lowPlot,
 						'L',
-						crispX + halfWidth * whiskerLength, 
+						crispX + pointWiskerLength, 
 						lowPlot
 					];
 				}
@@ -1448,7 +1506,8 @@ seriesTypes.boxplot = extendClass(seriesTypes.column, {
 			}
 		});
 
-	}
+	},
+	setStackedPoints: noop // #3890
 
 
 });
@@ -1466,7 +1525,7 @@ defaultPlotOptions.errorbar = merge(defaultPlotOptions.boxplot, {
 	grouping: false,
 	linkedTo: ':previous',
 	tooltip: {
-		pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: <b>{point.low}</b> - <b>{point.high}</b><br/>'
+		pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.low}</b> - <b>{point.high}</b><br/>' // docs
 	},
 	whiskerWidth: null
 });
@@ -1504,7 +1563,15 @@ defaultPlotOptions.waterfall = merge(defaultPlotOptions.column, {
 	lineWidth: 1,
 	lineColor: '#333',
 	dashStyle: 'dot',
-	borderColor: '#333'
+	borderColor: '#333',
+	dataLabels: {
+		inside: true
+	},
+	states: {
+		hover: {
+			lineWidthPlus: 0 // #3126
+		}
+	}
 });
 
 
@@ -1514,20 +1581,7 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 
 	upColorProp: 'fill',
 
-	pointArrayMap: ['low', 'y'],
-
 	pointValKey: 'y',
-
-	/**
-	 * Init waterfall series, force stacking
-	 */
-	init: function (chart, options) {
-		// force stacking
-		options.stacking = true;
-
-		seriesTypes.column.prototype.init.call(this, chart, options);
-	},
-
 
 	/**
 	 * Translate data points from raw values
@@ -1535,7 +1589,7 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 	translate: function () {
 		var series = this,
 			options = series.options,
-			axis = series.yAxis,
+			yAxis = series.yAxis,
 			len,
 			i,
 			points,
@@ -1543,54 +1597,82 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 			shapeArgs,
 			stack,
 			y,
+			yValue,
 			previousY,
-			stackPoint,
-			threshold = options.threshold;
+			previousIntermediate,
+			range,
+			threshold = options.threshold,
+			stacking = options.stacking,
+			tooltipY;
 
 		// run column series translate
 		seriesTypes.column.prototype.translate.apply(this);
 
-		previousY = threshold;
+		previousY = previousIntermediate = threshold;
 		points = series.points;
 
 		for (i = 0, len = points.length; i < len; i++) {
 			// cache current point object
 			point = points[i];
+			yValue = this.processedYData[i];
 			shapeArgs = point.shapeArgs;
 
 			// get current stack
-			stack = series.getStack(i);
-			stackPoint = stack.points[series.index + ',' + i];
+			stack = stacking && yAxis.stacks[(series.negStacks && yValue < threshold ? '-' : '') + series.stackKey];
+			range = stack ? 
+				stack[point.x].points[series.index + ',' + i] :
+				[0, yValue];
 
 			// override point value for sums
-			if (isNaN(point.y)) {
-				point.y = series.yData[i];
+			// #3710 Update point does not propagate to sum
+			if (point.isSum) {
+				point.y = yValue;
+			} else if (point.isIntermediateSum) {
+				point.y = yValue - previousIntermediate; // #3840
 			}
-
 			// up points
-			y = mathMax(previousY, previousY + point.y) + stackPoint[0];
-			shapeArgs.y = axis.translate(y, 0, 1);
+			y = mathMax(previousY, previousY + point.y) + range[0];
+			shapeArgs.y = yAxis.translate(y, 0, 1);
 
 
 			// sum points
-			if (point.isSum || point.isIntermediateSum) {
-				shapeArgs.y = axis.translate(stackPoint[1], 0, 1);
-				shapeArgs.height = axis.translate(stackPoint[0], 0, 1) - shapeArgs.y;
+			if (point.isSum) {
+				shapeArgs.y = yAxis.translate(range[1], 0, 1);
+				shapeArgs.height = Math.min(yAxis.translate(range[0], 0, 1), yAxis.len) - shapeArgs.y; // #4256
 
-			// if it's not the sum point, update previous stack end position
+			} else if (point.isIntermediateSum) {
+				shapeArgs.y = yAxis.translate(range[1], 0, 1);
+				shapeArgs.height = Math.min(yAxis.translate(previousIntermediate, 0, 1), yAxis.len) - shapeArgs.y;
+				previousIntermediate = range[1];
+
+			// If it's not the sum point, update previous stack end position and get 
+			// shape height (#3886)
 			} else {
-				previousY += stack.total;
+				if (previousY !== 0) { // Not the first point
+					shapeArgs.height = yValue > 0 ? 
+						yAxis.translate(previousY, 0, 1) - shapeArgs.y :
+						yAxis.translate(previousY, 0, 1) - yAxis.translate(previousY - yValue, 0, 1);
+				}
+				previousY += yValue;
 			}
-
-			// negative points
+			// #3952 Negative sum or intermediate sum not rendered correctly
 			if (shapeArgs.height < 0) {
 				shapeArgs.y += shapeArgs.height;
 				shapeArgs.height *= -1;
 			}
 
 			point.plotY = shapeArgs.y = mathRound(shapeArgs.y) - (series.borderWidth % 2) / 2;
-			shapeArgs.height = mathRound(shapeArgs.height);
+			shapeArgs.height = mathMax(mathRound(shapeArgs.height), 0.001); // #3151
 			point.yBottom = shapeArgs.y + shapeArgs.height;
+
+			// Correct tooltip placement (#3014)
+			tooltipY = point.plotY + (point.negative ? shapeArgs.height : 0);
+			if (series.chart.inverted) {
+				point.tooltipPos[0] = yAxis.len - tooltipY;
+			} else {
+				point.tooltipPos[1] = tooltipY;
+			}
+
 		}
 	},
 
@@ -1601,7 +1683,7 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 		var series = this,
 			options = series.options,
 			yData = series.yData,
-			points = series.points,
+			points = series.options.data, // #3710 Update point does not propagate to sum
 			point,
 			dataLength = yData.length,
 			threshold = options.threshold || 0,
@@ -1622,7 +1704,6 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 				yData[i] = sum;
 			} else if (y === "intermediateSum" || point.isIntermediateSum) {
 				yData[i] = subSum;
-				subSum = threshold;
 			} else {
 				sum += y;
 				subSum += y;
@@ -1643,11 +1724,10 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 	 */
 	toYData: function (pt) {
 		if (pt.isSum) {
-			return "sum";
+			return (pt.x === 0 ? null : "sum"); //#3245 Error when first element is Sum or Intermediate Sum
 		} else if (pt.isIntermediateSum) {
-			return "intermediateSum";
+			return (pt.x === 0 ? null : "intermediateSum"); //#3245
 		}
-
 		return pt.y;
 	},
 
@@ -1670,9 +1750,16 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 		seriesDownPointAttr.select[upColorProp] = stateOptions.select.upColor || upColor;
 
 		each(series.points, function (point) {
-			if (point.y > 0 && !point.color) {
-				point.pointAttr = seriesDownPointAttr;
-				point.color = upColor;
+			if (!point.options.color) {
+				// Up color
+				if (point.y > 0) {
+					point.pointAttr = seriesDownPointAttr;
+					point.color = upColor;
+
+				// Down color (#3710, update to negative)
+				} else {
+					point.pointAttr = series.pointAttr;
+				}
 			}
 		});
 	},
@@ -1721,27 +1808,34 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 	 */
 	getExtremes: noop,
 
-	/**
-	 * Return stack for given index
-	 */
-	getStack: function (i) {
-		var axis = this.yAxis,
-			stacks = axis.stacks,
-			key = this.stackKey;
-
-		if (this.processedYData[i] < this.options.threshold) {
-			key = '-' + key;
-		}
-
-		return stacks[key][i];
-	},
-
 	drawGraph: Series.prototype.drawGraph
 });
 
 /* ****************************************************************************
  * End Waterfall series code                                                  *
  *****************************************************************************/
+/**
+ * Set the default options for polygon
+ */
+defaultPlotOptions.polygon = merge(defaultPlotOptions.scatter, {
+	marker: {
+		enabled: false
+	}
+});
+
+/**
+ * The polygon series class
+ */
+seriesTypes.polygon = extendClass(seriesTypes.scatter, {
+	type: 'polygon',
+	fillGraph: true,
+	// Close all segments
+	getSegmentPath: function (segment) {
+		return Series.prototype.getSegmentPath.call(this, segment).concat('z');
+	},
+	drawGraph: Series.prototype.drawGraph,
+	drawLegendSymbol: Highcharts.LegendSymbolMixin.drawRectangle
+});
 /* ****************************************************************************
  * Start Bubble series code											          *
  *****************************************************************************/
@@ -1749,12 +1843,10 @@ seriesTypes.waterfall = extendClass(seriesTypes.column, {
 // 1 - set default options
 defaultPlotOptions.bubble = merge(defaultPlotOptions.scatter, {
 	dataLabels: {
-		format: '{point.z}',
-		inside: true,
-		style: {
-			color: 'white',
-			textShadow: '0px 0px 3px black'
+		formatter: function () { // #2945
+			return this.point.z;
 		},
+		inside: true,
 		verticalAlign: 'middle'
 	},
 	// displayNegative: true,
@@ -1767,6 +1859,7 @@ defaultPlotOptions.bubble = merge(defaultPlotOptions.scatter, {
 	maxSize: '20%',
 	// negativeColor: null,
 	// sizeBy: 'area'
+	softThreshold: false,
 	states: {
 		hover: {
 			halo: {
@@ -1778,13 +1871,15 @@ defaultPlotOptions.bubble = merge(defaultPlotOptions.scatter, {
 		pointFormat: '({point.x}, {point.y}), Size: {point.z}'
 	},
 	turboThreshold: 0,
-	zThreshold: 0
+	zThreshold: 0,
+	zoneAxis: 'z'
 });
 
 var BubblePoint = extendClass(Point, {
 	haloPath: function () {
 		return Point.prototype.haloPath.call(this, this.shapeArgs.r + this.series.options.states.hover.halo.size);
-	}
+	},
+	ttBelow: false
 });
 
 // 2 - Create the series object
@@ -1795,6 +1890,7 @@ seriesTypes.bubble = extendClass(seriesTypes.scatter, {
 	parallelArrays: ['x', 'y', 'z'],
 	trackerGroups: ['group', 'dataLabelsGroup'],
 	bubblePadding: true,
+	zoneAxis: 'z',
 	
 	/**
 	 * Mapping between SVG attributes and the corresponding options
@@ -1843,19 +1939,41 @@ seriesTypes.bubble = extendClass(seriesTypes.scatter, {
 			pos,
 			zData = this.zData,
 			radii = [],
-			sizeByArea = this.options.sizeBy !== 'width',
-			zRange;
-		
+			options = this.options,
+			sizeByArea = options.sizeBy !== 'width',
+			zThreshold = options.zThreshold,
+			zRange = zMax - zMin,
+			value,
+			radius;
+
 		// Set the shape type and arguments to be picked up in drawPoints
 		for (i = 0, len = zData.length; i < len; i++) {
-			zRange = zMax - zMin;
-			pos = zRange > 0 ? // relative size, a number between 0 and 1
-				(zData[i] - zMin) / (zMax - zMin) : 
-				0.5;
-			if (sizeByArea && pos >= 0) {
-				pos = Math.sqrt(pos);
+
+			value = zData[i];
+
+			// When sizing by threshold, the absolute value of z determines the size
+			// of the bubble.
+			if (options.sizeByAbsoluteValue) {
+				value = Math.abs(value - zThreshold);
+				zMax = Math.max(zMax - zThreshold, Math.abs(zMin - zThreshold));
+				zMin = 0;
 			}
-			radii.push(math.ceil(minSize + pos * (maxSize - minSize)) / 2);
+
+			if (value === null) {
+				radius = null;
+			// Issue #4419 - if value is less than zMin, push a radius that's always smaller than the minimum size
+			} else if (value < zMin) {
+				radius = minSize / 2 - 1;
+			} else {
+				// Relative size, a number between 0 and 1
+				pos = zRange > 0 ? (value - zMin) / zRange : 0.5; 
+
+				if (sizeByArea && pos >= 0) {
+					pos = Math.sqrt(pos);
+				}
+				radius = math.ceil(minSize + pos * (maxSize - minSize)) / 2;
+			}
+			radii.push(radius);
 		}
 		this.radii = radii;
 	},
@@ -1907,11 +2025,8 @@ seriesTypes.bubble = extendClass(seriesTypes.scatter, {
 		while (i--) {
 			point = data[i];
 			radius = radii ? radii[i] : 0; // #1737
-
-			// Flag for negativeColor to be applied in Series.js
-			point.negative = point.z < (this.options.zThreshold || 0);
 			
-			if (radius >= this.minPxSize / 2) {
+			if (typeof radius === 'number' && radius >= this.minPxSize / 2) {
 				// Shape arguments
 				point.shapeType = 'circle';
 				point.shapeArgs = {
@@ -1927,7 +2042,7 @@ seriesTypes.bubble = extendClass(seriesTypes.scatter, {
 					width: 2 * radius,
 					height: 2 * radius
 				};
-			} else { // below zThreshold
+			} else { // below zThreshold or z = null
 				point.shapeArgs = point.plotY = point.dlBox = UNDEFINED; // #1691
 			}
 		}
@@ -1952,9 +2067,11 @@ seriesTypes.bubble = extendClass(seriesTypes.scatter, {
 		item.legendSymbol.isMarker = true;	
 		
 	},
-	
+		
 	drawPoints: seriesTypes.column.prototype.drawPoints,
-	alignDataLabel: seriesTypes.column.prototype.alignDataLabel
+	alignDataLabel: seriesTypes.column.prototype.alignDataLabel,
+	buildKDTree: noop,
+	applyZones: noop
 });
 
 /**
@@ -1979,78 +2096,81 @@ Axis.prototype.beforePadding = function () {
 		activeSeries = [];
 
 	// Handle padding on the second pass, or on redraw
-	if (this.tickPositions) {
-		each(this.series, function (series) {
+	each(this.series, function (series) {
 
-			var seriesOptions = series.options,
-				zData;
+		var seriesOptions = series.options,
+			zData;
 
-			if (series.bubblePadding && (series.visible || !chart.options.chart.ignoreHiddenSeries)) {
+		if (series.bubblePadding && (series.visible || !chart.options.chart.ignoreHiddenSeries)) {
 
-				// Correction for #1673
-				axis.allowZoomOutside = true;
+			// Correction for #1673
+			axis.allowZoomOutside = true;
 
-				// Cache it
-				activeSeries.push(series);
+			// Cache it
+			activeSeries.push(series);
 
-				if (isXAxis) { // because X axis is evaluated first
-				
-					// For each series, translate the size extremes to pixel values
-					each(['minSize', 'maxSize'], function (prop) {
-						var length = seriesOptions[prop],
-							isPercent = /%$/.test(length);
-						
-						length = pInt(length);
-						extremes[prop] = isPercent ?
-							smallestSize * length / 100 :
-							length;
-						
-					});
-					series.minPxSize = extremes.minSize;
-					
-					// Find the min and max Z
-					zData = series.zData;
-					if (zData.length) { // #1735
-						zMin = math.min(
-							zMin,
-							math.max(
-								arrayMin(zData), 
-								seriesOptions.displayNegative === false ? seriesOptions.zThreshold : -Number.MAX_VALUE
-							)
-						);
-						zMax = math.max(zMax, arrayMax(zData));
-					}
-				}
-			}
-		});
-
-		each(activeSeries, function (series) {
-
-			var data = series[dataKey],
-				i = data.length,
-				radius;
-
-			if (isXAxis) {
-				series.getRadii(zMin, zMax, extremes.minSize, extremes.maxSize);
-			}
+			if (isXAxis) { // because X axis is evaluated first
 			
-			if (range > 0) {
-				while (i--) {
-					if (typeof data[i] === 'number') {
-						radius = series.radii[i];
-						pxMin = Math.min(((data[i] - min) * transA) - radius, pxMin);
-						pxMax = Math.max(((data[i] - min) * transA) + radius, pxMax);
-					}
+				// For each series, translate the size extremes to pixel values
+				each(['minSize', 'maxSize'], function (prop) {
+					var length = seriesOptions[prop],
+						isPercent = /%$/.test(length);
+					
+					length = pInt(length);
+					extremes[prop] = isPercent ?
+						smallestSize * length / 100 :
+						length;
+					
+				});
+				series.minPxSize = extremes.minSize;
+				series.maxPxSize = extremes.maxSize;
+				
+				// Find the min and max Z
+				zData = series.zData;
+				if (zData.length) { // #1735
+					zMin = pick(seriesOptions.zMin, math.min(
+						zMin,
+						math.max(
+							arrayMin(zData), 
+							seriesOptions.displayNegative === false ? seriesOptions.zThreshold : -Number.MAX_VALUE
+						)
+					));
+					zMax = pick(seriesOptions.zMax, math.max(zMax, arrayMax(zData)));
 				}
 			}
-		});
-		
-		if (activeSeries.length && range > 0 && pick(this.options.min, this.userMin) === UNDEFINED && pick(this.options.max, this.userMax) === UNDEFINED) {
-			pxMax -= axisLength;
-			transA *= (axisLength + pxMin - pxMax) / axisLength;
-			this.min += pxMin / transA;
-			this.max += pxMax / transA;
 		}
+	});
+
+	each(activeSeries, function (series) {
+
+		var data = series[dataKey],
+			i = data.length,
+			radius;
+
+		if (isXAxis) {
+			series.getRadii(zMin, zMax, series.minPxSize, series.maxPxSize);
+		}
+		
+		if (range > 0) {
+			while (i--) {
+				if (typeof data[i] === 'number') {
+					radius = series.radii[i];
+					pxMin = Math.min(((data[i] - min) * transA) - radius, pxMin);
+					pxMax = Math.max(((data[i] - min) * transA) + radius, pxMax);
+				}
+			}
+		}
+	});
+	
+
+	if (activeSeries.length && range > 0 && !this.isLog) {
+		pxMax -= axisLength;
+		transA *= (axisLength + pxMin - pxMax) / axisLength;
+		each([['min', 'userMin', pxMin], ['max', 'userMax', pxMax]], function (keys) {
+			if (pick(axis.options[keys[0]], axis[keys[1]]) === UNDEFINED) {
+				axis[keys[0]] += keys[2] / transA; 
+			}
+		});
 	}
 };
 
@@ -2071,6 +2191,38 @@ Axis.prototype.beforePadding = function () {
 		colProto;
 
 	/**
+	 * Search a k-d tree by the point angle, used for shared tooltips in polar charts
+	 */
+	seriesProto.searchPointByAngle = function (e) {
+		var series = this,
+			chart = series.chart,
+			xAxis = series.xAxis,
+			center = xAxis.pane.center,
+			plotX = e.chartX - center[0] - chart.plotLeft,
+			plotY = e.chartY - center[1] - chart.plotTop;
+
+		return this.searchKDTree({
+			clientX: 180 + (Math.atan2(plotX, plotY) * (-180 / Math.PI))
+		});
+
+	};
+	
+	/**
+	 * Wrap the buildKDTree function so that it searches by angle (clientX) in case of shared tooltip,
+	 * and by two dimensional distance in case of non-shared.
+	 */
+	wrap(seriesProto, 'buildKDTree', function (proceed) {
+		if (this.chart.polar) {
+			if (this.kdByAngle) {
+				this.searchPoint = this.searchPointByAngle;
+			} else {
+				this.kdDimensions = 2;
+			}
+		}
+		proceed.apply(this);
+	});
+
+	/**
 	 * Translate a point's plotX and plotY from the internal angle and radius measures to 
 	 * true plotX, plotY coordinates
 	 */
@@ -2085,38 +2237,23 @@ Axis.prototype.beforePadding = function () {
 		point.rectPlotX = plotX;
 		point.rectPlotY = plotY;
 	
-		// Record the angle in degrees for use in tooltip
-		clientX = ((plotX / Math.PI * 180) + this.xAxis.pane.options.startAngle) % 360;
-		if (clientX < 0) { // #2665
-			clientX += 360;
-		}
-		point.clientX = clientX;
-
-	
 		// Find the polar plotX and plotY
 		xy = this.xAxis.postTranslate(point.plotX, this.yAxis.len - plotY);
 		point.plotX = point.polarPlotX = xy.x - chart.plotLeft;
 		point.plotY = point.polarPlotY = xy.y - chart.plotTop;
-	};
 
-	/** 
-	 * Order the tooltip points to get the mouse capture ranges correct. #1915. 
-	 */
-	seriesProto.orderTooltipPoints = function (points) {
-		if (this.chart.polar) {
-			points.sort(function (a, b) {
-				return a.clientX - b.clientX;
-			});
-
-			// Wrap mouse tracking around to capture movement on the segment to the left
-			// of the north point (#1469, #2093).
-			if (points[0]) {
-				points[0].wrappedClientX = points[0].clientX + 360;
-				points.push(points[0]);
+		// If shared tooltip, record the angle in degrees in order to align X points. Otherwise,
+		// use a standard k-d tree to get the nearest point in two dimensions.
+		if (this.kdByAngle) {
+			clientX = ((plotX / Math.PI * 180) + this.xAxis.pane.options.startAngle) % 360;
+			if (clientX < 0) { // #2665
+				clientX += 360;
 			}
+			point.clientX = clientX;
+		} else {
+			point.clientX = point.plotX;
 		}
 	};
-
 
 	/**
 	 * Add some special init logic to areas and areasplines
@@ -2144,6 +2281,7 @@ Axis.prototype.beforePadding = function () {
 		}
 	}
 
+ 
 	if (seriesTypes.area) {		
 		wrap(seriesTypes.area.prototype, 'init', initArea);	
 	}
@@ -2262,17 +2400,25 @@ Axis.prototype.beforePadding = function () {
 	 * center. 
 	 */
 	wrap(seriesProto, 'translate', function (proceed) {
-		
+		var chart = this.chart,
+			points,
+			i;
+
 		// Run uber method
 		proceed.call(this);
 	
 		// Postprocess plot coordinates
-		if (this.chart.polar && !this.preventPostTranslate) {
-			var points = this.points,
+		if (chart.polar) {
+			this.kdByAngle = chart.tooltip && chart.tooltip.shared;
+	
+			if (!this.preventPostTranslate) {
+				points = this.points;
 				i = points.length;
-			while (i--) {
-				// Translate plotX, plotY from angle and radius to true plot coordinates
-				this.toXY(points[i]);
+
+				while (i--) {
+					// Translate plotX, plotY from angle and radius to true plot coordinates
+					this.toXY(points[i]);
+				}
 			}
 		}
 	});
@@ -2362,21 +2508,6 @@ Axis.prototype.beforePadding = function () {
 
 	// Define the animate method for regular series
 	wrap(seriesProto, 'animate', polarAnimate);
-
-	/**
-	 * Throw in a couple of properties to let setTooltipPoints know we're indexing the points
-	 * in degrees (0-360), not plot pixel width.
-	 */
-	wrap(seriesProto, 'setTooltipPoints', function (proceed, renew) {
-		
-		if (this.chart.polar) {
-			extend(this.xAxis, {
-				tooltipLen: 360 // degrees are the resolution unit of the tooltipPoints array
-			});	
-		}
-		// Run uber method
-		return proceed.call(this, renew);
-	});
 
 
 	if (seriesTypes.column) {
@@ -2477,33 +2608,6 @@ Axis.prototype.beforePadding = function () {
 	
 		});		
 	}
-
-
-	/**
-	 * Extend the mouse tracker to return the tooltip position index in terms of
-	 * degrees rather than pixels
-	 */
-	wrap(pointerProto, 'getIndex', function (proceed, e) {
-		var ret,
-			chart = this.chart,
-			center,
-			x,
-			y;
-	
-		if (chart.polar) {
-			center = chart.xAxis[0].center;
-			x = e.chartX - center[0] - chart.plotLeft;
-			y = e.chartY - center[1] - chart.plotTop;
-		
-			ret = 180 - Math.round(Math.atan2(x, y) / Math.PI * 180);
-	
-		} else {
-	
-			// Run uber method
-			ret = proceed.call(this, e);
-		}
-		return ret;
-	});
 
 	/**
 	 * Extend getCoordinates to prepare for polar axis values

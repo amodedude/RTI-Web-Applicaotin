@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v4.0.1 (2014-04-24)
+ * @license Highcharts JS v4.1.9 (2015-10-07)
  *
  * Standalone Highcharts Framework
  *
@@ -14,7 +14,7 @@ var UNDEFINED,
 	doc = document,
 	emptyArray = [],
 	timers = [],
-	timerId,
+	animSetters = {},
 	Fx;
 
 Math.easeInOutSine = function (t, b, c, d) {
@@ -184,6 +184,7 @@ function augment(obj) {
 
 
 return {
+
 	/**
 	 * Initialize the adapter. This is run once as Highcharts is first run.
 	 */
@@ -292,10 +293,14 @@ return {
 					elem = this.elem,
 					elemelem = elem.element; // if destroyed, it is null
 
+				// Animation setter defined from outside
+				if (animSetters[this.prop]) {
+					animSetters[this.prop](this);
+
 				// Animating a path definition on SVGElement
-				if (paths && elemelem) {
+				} else if (paths && elemelem) {
 					elem.attr('d', pathAnim.step(paths[0], paths[1], this.now, this.toD));
-				
+
 				// Other animations on SVGElement
 				} else if (elem.attr) {
 					if (elemelem) {
@@ -331,7 +336,7 @@ return {
 				t.elem = this.elem;
 
 				if (t() && timers.push(t) === 1) {
-					timerId = setInterval(function () {
+					t.timerId = setInterval(function () {
 						
 						for (i = 0; i < timers.length; i++) {
 							if (!timers[i]()) {
@@ -340,7 +345,7 @@ return {
 						}
 
 						if (!timers.length) {
-							clearInterval(timerId);
+							clearInterval(t.timerId);
 						}
 					}, 13);
 				}
@@ -354,7 +359,7 @@ return {
 					elem = this.elem,
 					i;
 				
-				if (elem.stopAnimation || (elem.attr && !elem.element)) { // #2616, element including flag is destroyed
+				if (elem.attr && !elem.element) { // #2616, element including flag is destroyed
 					ret = false;
 
 				} else if (gotoEnd || t >= options.duration + this.startTime) {
@@ -399,9 +404,8 @@ return {
 				end,
 				fx,
 				args,
-				name;
-
-			el.stopAnimation = false; // ready for new
+				name,
+				PX = 'px';
 
 			if (typeof opt !== 'object' || opt === null) {
 				args = arguments;
@@ -435,12 +439,15 @@ return {
 				} else {
 					start = parseFloat(HighchartsAdapter._getStyle(el, name)) || 0;
 					if (name !== 'opacity') {
-						unit = 'px';
+						unit = PX;
 					}
 				}
 	
 				if (!end) {
-					end = parseFloat(prop[name]);
+					end = prop[name];
+				}
+				if (end.match && end.match(PX)) {
+					end = end.replace(/px/g, ''); // #4351
 				}
 				fx.custom(start, end, unit);
 			}	
@@ -452,6 +459,13 @@ return {
 	 */
 	_getStyle: function (el, prop) {
 		return window.getComputedStyle(el, undefined).getPropertyValue(prop);
+	},
+
+	/**
+	 * Add an animation setter for a specific property
+	 */
+	addAnimSetter: function (prop, fn) {
+		animSetters[prop] = fn;
 	},
 
 	/**
@@ -575,7 +589,17 @@ return {
 	 * Stop running animation
 	 */
 	stop: function (el) {
-		el.stopAnimation = true;
+
+		var i = timers.length,
+			timer;
+
+		// Remove timers related to this element (#4519)
+		while (i--) {
+			timer = timers[i];
+			if (timer.elem === el) {
+				timers.splice(i, 1);
+			}
+		}
 	},
 
 	/**

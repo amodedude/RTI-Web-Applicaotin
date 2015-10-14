@@ -1,4 +1,6 @@
-﻿$(function () {
+﻿var numWeeksToatl = 0;
+
+$(function () {
     $.ajax({
         url: 'PlotCostAnalyzerChart',
         type: "GET",
@@ -43,7 +45,7 @@
                 }
             }
 
-            var numWeeksToatl = jsonData.length - 3;
+            numWeeksToatl = jsonData.length - 3;
 
             var XaxisStartingPoint = jsonData[0].Item1 - 1;
             var gaugeOptions = {
@@ -256,9 +258,6 @@
         }
     });
 });
-
-
-
 
 
 $(document).on("click", "#updateCostModel", function () {
