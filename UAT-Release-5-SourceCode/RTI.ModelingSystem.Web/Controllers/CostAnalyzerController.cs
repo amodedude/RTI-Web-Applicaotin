@@ -277,8 +277,67 @@ namespace RTI.ModelingSystem.Web.Controllers
                 DataToSend.replacePriceCation = _priceReplaceCation;
                 DataToSend.acidConcentratoin = _percentAcid;
                 DataToSend.causticConcentration = _percentCaustic;
+
+                
                 
                 var data = this.costAnalyzerService.OpenCostWindow(DataToSend, CurrentTrain, CustId, isFirstLoad);
+
+                int numWksMeetingDemand_Cleaning = 0;
+                int numWksMeetingDemand_NotCleaning = 0;
+                double demand = Convert.ToDouble(customer.demand); // Test at 38 million gal
+                double numTrains = Convert.ToDouble(customer.num_trains); // Test with customer having 3 trains
+
+
+                List<ThroughputRegenPair> regenTP_PairClean = new List<ThroughputRegenPair>();
+                List<ThroughputRegenPair> regenTP_PairNoClean = new List<ThroughputRegenPair>();
+
+                // Merge the number of regens per week and the throughput values
+                for (int week = 0; week <= DataToSend.RegensPerWeekClean.Count()-1; week++)
+                {
+                    ThroughputRegenPair weekRegTpPair = new ThroughputRegenPair();
+                    weekRegTpPair.throughput = week <= DataToSend.CleanThroughput.Count()-1 ? DataToSend.CleanThroughput.ElementAt(week).Value.Item2 : 0;
+                    weekRegTpPair.numberOfRegens = week <= DataToSend.RegensPerWeekClean.Count() - 1 ? DataToSend.RegensPerWeekClean.ElementAt(week).Item2 : 0;
+                    regenTP_PairClean.Add(weekRegTpPair);
+                }
+
+                // Merge the number of regens per week and the throughput values
+                for (int week = 0; week <= DataToSend.RegensPerWeekNormalOps.Count()-1; week++)
+                {
+                    ThroughputRegenPair weekRegTpPair = new ThroughputRegenPair();
+                    weekRegTpPair.throughput = week <= DataToSend.NormalOpsThroughput.Count() - 1 ? DataToSend.NormalOpsThroughput.ElementAt(week).Value.Item2 : 0;
+                    weekRegTpPair.numberOfRegens = week <= DataToSend.RegensPerWeekNormalOps.Count() - 1 ? DataToSend.RegensPerWeekNormalOps.ElementAt(week).Item2 : 0;
+                    regenTP_PairNoClean.Add(weekRegTpPair);
+                }
+
+
+                    // Check how many weeks meet the total demand before RTI cleaning 
+                foreach (var week in regenTP_PairClean)
+                    {
+                        double effectiveDemand = week.throughput * 4.34524 * numTrains * week.numberOfRegens;
+                            if (effectiveDemand >= demand)
+                            {
+                                numWksMeetingDemand_Cleaning++;
+                            }
+                    }
+
+                // Check how many weeks meet the toal demand after RTI cleaning 
+                foreach (var week in regenTP_PairNoClean)
+                {
+                    double effectiveDemand = week.throughput * 4.34524 * numTrains * week.numberOfRegens;
+                        if (effectiveDemand >= demand)
+                        {
+                            numWksMeetingDemand_NotCleaning++;
+                        }
+                }
+
+                DataToSend.numDaysMeetingDemand_NormalOps = numWksMeetingDemand_NotCleaning;
+                DataToSend.numDaysMeetingDemand_Clean = numWksMeetingDemand_Cleaning;
+
+                Tuple<int, double, double> daysMeetingDemand_Before = new Tuple<int, double, double>(numWksMeetingDemand_NotCleaning, 0,0);
+                Tuple<int, double, double> daysMeetingDemand_After = new Tuple<int, double, double>(numWksMeetingDemand_Cleaning, 0, 0);
+                data.Add(daysMeetingDemand_Before);
+                data.Add(daysMeetingDemand_After);
+
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch
@@ -402,5 +461,10 @@ namespace RTI.ModelingSystem.Web.Controllers
         }
 
         #endregion Methods
+    }
+
+    public class ThroughputRegenPair{
+        public double throughput { get; set; }
+        public double numberOfRegens { get; set; }
     }
 }

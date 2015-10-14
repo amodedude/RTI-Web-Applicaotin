@@ -456,6 +456,7 @@ namespace RTI.ModelingSystem.Web.Controllers
         {
             try
             {
+
                 var customerId = this.Session["CustomerId"].ToString();
                 string calculationMethod = SetSimMethod(simMethod);
                 List<double> minimumSS = this.predictiveModelService.CalculateMinSaltSplit(Convert.ToInt64(this.Session["CustomerId"]), MaxDegradation, SelectedTrain);

@@ -20,7 +20,9 @@ namespace RTI.ModelingSystem.Core.Models
 	/// </summary>
 	public class PriceData
 	{
+        public double numDaysMeetingDemand_Clean { get; set; }
 
+        public double numDaysMeetingDemand_NormalOps { get; set; }
         /// <summary>
         /// Gets or sets the clean throughput.
         /// </summary>
