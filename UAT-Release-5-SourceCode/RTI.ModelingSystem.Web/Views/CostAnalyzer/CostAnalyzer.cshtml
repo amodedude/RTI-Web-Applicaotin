@@ -2,7 +2,10 @@
 
 @*<script src="~/Scripts/Customer.js"></script>*@
 <script src="~/Scripts/Highcharts-4.0.1/js/highcharts.js"></script>
+<script src="~/Scripts/Highcharts-4.0.1/js/highcharts-more.js"></script>
 <script src="~/Scripts/Highcharts-4.0.1/js/modules/exporting.js"></script>
+<script src="~/Scripts/Highcharts-4.0.1/js/modules/solid-gauge.js"></script>
+
 
 @{
     ViewBag.Title = "CostAnalyzer";
@@ -113,11 +116,21 @@
 
                 </div>
             </div>
-            @*<div class="well graph_container">
-                    <h5>Yazu River Conductiviy</h5>
-                    <div class="graph_panel"><img class="img-responsive" src="~/Content/images/Conductivity.png" width="700" height="346" alt="" /></div>
-                </div>*@
-        </div>
+
+            <div style="width: 600px; height: 400px; margin: 0 auto">
+                <div class="guage_container">
+                    <div class="guage_panel" id="graphGaugeWithoutRTI" style="min-height: 200px !important;">
+
+                    </div>
+                </div>
+                <div class="guage_container">
+                    <div class="guage_panel" id="graphGaugeWithRTI" style="min-height: 200px !important;">
+
+                    </div>
+                </div>
+                
+            </div>
+            </div>
 
         <!-- Graphs Right-->
         <div class="col-xs-4 rightpanel costanalyse">

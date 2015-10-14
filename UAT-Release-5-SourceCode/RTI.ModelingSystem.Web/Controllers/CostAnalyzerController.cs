@@ -284,8 +284,8 @@ namespace RTI.ModelingSystem.Web.Controllers
 
                 int numWksMeetingDemand_Cleaning = 0;
                 int numWksMeetingDemand_NotCleaning = 0;
-                int demand = 38000000; // Test at 38 million gal
-                int numTrains = 3; // Test with customer having 3 trains
+                double demand = Convert.ToDouble(customer.demand); // Test at 38 million gal
+                double numTrains = Convert.ToDouble(customer.num_trains); // Test with customer having 3 trains
 
 
                 List<ThroughputRegenPair> regenTP_PairClean = new List<ThroughputRegenPair>();
@@ -313,25 +313,30 @@ namespace RTI.ModelingSystem.Web.Controllers
                     // Check how many weeks meet the total demand before RTI cleaning 
                 foreach (var week in regenTP_PairClean)
                     {
-                            double effectiveDemand = week.throughput * 4 * numTrains * week.numberOfRegens;
+                        double effectiveDemand = week.throughput * 4.34524 * numTrains * week.numberOfRegens;
                             if (effectiveDemand >= demand)
                             {
-                                numWksMeetingDemand_NotCleaning++;
+                                numWksMeetingDemand_Cleaning++;
                             }
                     }
 
                 // Check how many weeks meet the toal demand after RTI cleaning 
                 foreach (var week in regenTP_PairNoClean)
                 {
-                        double effectiveDemand = week.throughput * 4 * numTrains * week.numberOfRegens;
+                    double effectiveDemand = week.throughput * 4.34524 * numTrains * week.numberOfRegens;
                         if (effectiveDemand >= demand)
                         {
-                            numWksMeetingDemand_Cleaning++;
+                            numWksMeetingDemand_NotCleaning++;
                         }
                 }
 
                 DataToSend.numDaysMeetingDemand_NormalOps = numWksMeetingDemand_NotCleaning;
                 DataToSend.numDaysMeetingDemand_Clean = numWksMeetingDemand_Cleaning;
+
+                Tuple<int, double, double> daysMeetingDemand_Before = new Tuple<int, double, double>(numWksMeetingDemand_NotCleaning, 0,0);
+                Tuple<int, double, double> daysMeetingDemand_After = new Tuple<int, double, double>(numWksMeetingDemand_Cleaning, 0, 0);
+                data.Add(daysMeetingDemand_Before);
+                data.Add(daysMeetingDemand_After);
 
                 return Json(data, JsonRequestBehavior.AllowGet);
             }

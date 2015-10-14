@@ -153,6 +153,24 @@ body {
         min-height: 250px;
     }
 
+    .guage_container {
+    /*height: 500px;*/
+    overflow: hidden;
+    position: relative;
+    max-width: 300px;
+    float: left;
+}
+
+    .guage_container .guage_panel {
+        margin-bottom: 15px;
+        background-image: url(../images/loading.gif);
+        background-repeat: no-repeat;
+        background-position: center center;
+        height: 200px;
+        width: 300px;
+        float: left; 
+    }
+
 .btn_cancel {
     border: none;
     color: #00aaee;
