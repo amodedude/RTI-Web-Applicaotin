@@ -127,6 +127,5 @@ C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingS
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Web.Tests\bin\Debug\Newtonsoft.Json.xml
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Web.Tests\bin\Debug\StructureMap.Net4.pdb
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Web.Tests\bin\Debug\Microsoft.AspNet.Identity.Core.xml
-C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.csprojResolveAssemblyReference.cache
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.dll
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Web.Tests\obj\Debug\RTI.ModelingSystem.Web.Tests.pdb

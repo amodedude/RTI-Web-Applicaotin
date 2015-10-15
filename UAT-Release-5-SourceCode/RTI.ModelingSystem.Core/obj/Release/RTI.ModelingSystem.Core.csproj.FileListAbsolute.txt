@@ -7,5 +7,6 @@ C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingS
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Core\bin\Release\MySql.Data.Entity.EF6.dll
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Core\bin\Release\EntityFramework.xml
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Core\bin\Release\EntityFramework.SqlServer.xml
+C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Core\obj\Release\RTI.ModelingSystem.Core.csprojResolveAssemblyReference.cache
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Core\obj\Release\RTI.ModelingSystem.Core.dll
 C:\Users\John\Desktop\RTI-Web-Applicaotin\UAT-Release-5-SourceCode\RTI.ModelingSystem.Core\obj\Release\RTI.ModelingSystem.Core.pdb
